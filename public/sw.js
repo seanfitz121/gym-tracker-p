@@ -1,5 +1,5 @@
 // Service Worker for offline support
-const CACHE_NAME = 'plateprogress-v2'
+const CACHE_NAME = 'plateprogress-v3'
 const OFFLINE_URL = '/offline.html'
 
 const CACHE_URLS = [
@@ -43,11 +43,18 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome extensions and external requests
   if (!event.request.url.startsWith(self.location.origin)) return
 
-  // Skip auth routes and API calls - let them go directly to network
   const url = new URL(event.request.url)
+  
+  // Skip auth routes and API calls - let them go directly to network
   if (url.pathname.startsWith('/auth') || 
       url.pathname.startsWith('/api/') || 
       url.pathname.includes('supabase')) {
+    return
+  }
+
+  // CRITICAL: For navigation requests (opening the app), bypass service worker completely
+  // This fixes iOS Safari "Response served by service worker has redirections" error
+  if (event.request.mode === 'navigate') {
     return
   }
 
