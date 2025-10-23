@@ -353,6 +353,42 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_post: {
+        Row: {
+          id: string
+          author_id: string
+          title: string
+          subtitle: string | null
+          cover_image_url: string | null
+          body: string
+          published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          author_id: string
+          title: string
+          subtitle?: string | null
+          cover_image_url?: string | null
+          body: string
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          author_id?: string
+          title?: string
+          subtitle?: string | null
+          cover_image_url?: string | null
+          body?: string
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
