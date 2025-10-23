@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -121,6 +121,10 @@ export function AppHeader({ user }: AppHeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/patch-notes') }}>
+              <FileText className="mr-2 h-4 w-4" />
+              Patch Notes
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/blog') }}>
               <Newspaper className="mr-2 h-4 w-4" />
               Blog

@@ -389,6 +389,39 @@ export type Database = {
         }
         Relationships: []
       }
+      patch_notes: {
+        Row: {
+          id: string
+          author_id: string
+          version: string
+          title: string
+          content: string
+          published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          author_id: string
+          version: string
+          title: string
+          content: string
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          author_id?: string
+          version?: string
+          title?: string
+          content?: string
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
