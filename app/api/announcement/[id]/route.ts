@@ -4,10 +4,11 @@ import { NextResponse } from 'next/server'
 // DELETE /api/announcement/:id - Delete announcement (admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
+    const { id } = await params
 
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -36,7 +37,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('announcement')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (deleteError) {
       console.error('Error deleting announcement:', deleteError)
