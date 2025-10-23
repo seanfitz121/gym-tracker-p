@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { useProfile } from '@/lib/hooks/use-profile'
+import { usePremiumStatus } from '@/lib/hooks/use-premium'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -27,6 +28,7 @@ interface AppHeaderProps {
 export function AppHeader({ user }: AppHeaderProps) {
   const router = useRouter()
   const { profile, refresh } = useProfile(user.id)
+  const { isPremium } = usePremiumStatus()
 
   // Listen for profile updates from settings page
   useEffect(() => {
@@ -92,6 +94,17 @@ export function AppHeader({ user }: AppHeaderProps) {
             <Link href="/app/tips" onClick={triggerLoading}>
               <HelpCircle className="h-5 w-5" />
               <span className="sr-only">Tips & Guides</span>
+            </Link>
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className={`h-10 w-10 ${isPremium ? 'text-yellow-500 hover:text-yellow-600' : ''}`}
+            asChild
+          >
+            <Link href="/app/premium" onClick={triggerLoading}>
+              <Zap className={`h-5 w-5 ${isPremium ? 'fill-yellow-500' : ''}`} />
+              <span className="sr-only">Premium</span>
             </Link>
           </Button>
           <DropdownMenu>
