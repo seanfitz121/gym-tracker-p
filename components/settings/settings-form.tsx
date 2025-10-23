@@ -351,13 +351,13 @@ export function SettingsForm({ userId }: SettingsFormProps) {
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <a
-              href="mailto:sean@sfweb.ie"
+              href="mailto:support@plateprogress.com"
               className="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
             >
               <Mail className="h-5 w-5 text-blue-600" />
               <div className="flex-1">
                 <p className="font-medium text-sm">Email Support</p>
-                <p className="text-xs text-gray-500">sean@sfweb.ie</p>
+                <p className="text-xs text-gray-500">support@plateprogress.com</p>
               </div>
               <ExternalLink className="h-4 w-4 text-gray-400" />
             </a>

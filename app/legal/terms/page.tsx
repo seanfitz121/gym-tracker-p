@@ -126,7 +126,7 @@ export default function TermsPage() {
             For questions about these terms, contact us at:
           </p>
           <p>
-            Email: legal@plateprogress.com
+            Email: support@plateprogress.com
           </p>
         </article>
       </div>

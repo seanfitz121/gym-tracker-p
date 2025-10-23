@@ -114,7 +114,7 @@ export default function PrivacyPage() {
             If you have any questions about this privacy policy, please contact us at:
           </p>
           <p>
-            Email: privacy@plateprogress.com
+            Email: support@plateprogress.com
           </p>
         </article>
       </div>
