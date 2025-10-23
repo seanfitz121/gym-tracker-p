@@ -99,11 +99,17 @@ export function AppHeader({ user }: AppHeaderProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            className={`h-10 w-10 ${isPremium ? 'text-yellow-500 hover:text-yellow-600' : ''}`}
+            className="h-10 w-10 relative hover:bg-gray-100 dark:hover:bg-gray-800"
             asChild
           >
             <Link href="/app/premium" onClick={triggerLoading}>
-              <Zap className={`h-5 w-5 ${isPremium ? 'fill-yellow-500' : ''}`} />
+              <Zap className="h-5 w-5 text-gray-400 fill-gray-400 premium-pulse" />
+              {isPremium && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                </span>
+              )}
               <span className="sr-only">Premium</span>
             </Link>
           </Button>

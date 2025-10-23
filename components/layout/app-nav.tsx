@@ -21,7 +21,7 @@ export function AppNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:relative md:border-t-0 md:border-b">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:relative md:border-t-0 md:border-b">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon
