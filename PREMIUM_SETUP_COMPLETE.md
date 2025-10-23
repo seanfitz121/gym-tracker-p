@@ -176,8 +176,8 @@ These can be implemented incrementally as premium-only features.
 1. See golden Zap icon in navbar
 2. Premium page shows active status
 3. See current period end date
-4. Can manage subscription via portal
-5. Can cancel (access until period end)
+4. "Manage Subscription" button links directly to Stripe billing portal
+5. Can cancel subscription (access until period end)
 
 ## 🐛 Troubleshooting
 

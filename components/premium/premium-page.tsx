@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,9 +17,10 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  ExternalLink
 } from 'lucide-react'
-import { usePremiumStatus, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-premium'
+import { usePremiumStatus, useCreateCheckoutSession } from '@/lib/hooks/use-premium'
 import { PREMIUM_FEATURES, PREMIUM_PRICE } from '@/lib/types/premium'
 import { format } from 'date-fns'
 
@@ -26,7 +28,6 @@ export function PremiumPage() {
   const searchParams = useSearchParams()
   const { subscription, isPremium, loading } = usePremiumStatus()
   const { createCheckoutSession, loading: checkoutLoading } = useCreateCheckoutSession()
-  const { createPortalSession, loading: portalLoading } = useCreatePortalSession()
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   useEffect(() => {
@@ -135,19 +136,18 @@ export function PremiumPage() {
             </div>
             <Separator className="my-4" />
             <Button
-              onClick={createPortalSession}
-              disabled={portalLoading}
+              asChild
               variant="outline"
               className="w-full"
             >
-              {portalLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                'Manage Subscription'
-              )}
+              <Link 
+                href="https://billing.stripe.com/p/login/eVq00k1Bdb2b1gu91jgUM00" 
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Manage Subscription
+                <ExternalLink className="h-4 w-4 ml-2" />
+              </Link>
             </Button>
           </CardContent>
         </Card>

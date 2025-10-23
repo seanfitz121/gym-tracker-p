@@ -158,6 +158,8 @@ The customer portal allows users to manage their subscription.
    - **Business information**: Add support email
 4. Click **Save changes**
 
+**Note**: Premium members will see a "Manage Subscription" button on `/app/premium` that links directly to your Stripe billing portal at: `https://billing.stripe.com/p/login/eVq00k1Bdb2b1gu91jgUM00`
+
 ## Troubleshooting
 
 ### Webhook not receiving events
