@@ -1,10 +1,21 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dumbbell, TrendingUp, Trophy, Zap, Target, BarChart3, Clock, Smartphone } from 'lucide-react'
 
-export default function Home() {
+export default async function Home() {
+  // Check if user is already signed in
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // If user is authenticated, redirect to app
+  if (user) {
+    redirect('/app/log')
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Navigation */}
