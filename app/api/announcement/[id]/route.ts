@@ -1,6 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 // DELETE /api/announcement/:id - Delete announcement (admin only)
 export async function DELETE(
   request: Request,
@@ -15,7 +27,7 @@ export async function DELETE(
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       )
     }
 
@@ -29,7 +41,7 @@ export async function DELETE(
     if (!adminUser) {
       return NextResponse.json(
         { error: 'Forbidden: Admin access required' },
-        { status: 403 }
+        { status: 403, headers: corsHeaders }
       )
     }
 
@@ -43,16 +55,16 @@ export async function DELETE(
       console.error('Error deleting announcement:', deleteError)
       return NextResponse.json(
         { error: deleteError.message },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       )
     }
 
-    return NextResponse.json({ success: true }, { status: 200 })
+    return NextResponse.json({ success: true }, { status: 200, headers: corsHeaders })
   } catch (error) {
     console.error('Error in DELETE /api/announcement/:id:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
 }

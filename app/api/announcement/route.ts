@@ -1,6 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 // GET /api/announcement - Get all announcements
 export async function GET() {
   try {
@@ -14,7 +26,7 @@ export async function GET() {
 
     if (error) {
       console.error("Error fetching announcements:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
     }
 
     // Fetch profiles for all unique user IDs
@@ -32,15 +44,15 @@ export async function GET() {
         profile: profileMap.get(announcement.user_id) || null,
       }));
 
-      return NextResponse.json({ announcements: announcementsWithProfiles });
+      return NextResponse.json({ announcements: announcementsWithProfiles }, { headers: corsHeaders });
     }
 
-    return NextResponse.json({ announcements: [] });
+    return NextResponse.json({ announcements: [] }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error in GET /api/announcement:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
@@ -56,7 +68,7 @@ export async function POST(request: Request) {
       error: authError,
     } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
     }
 
     // Check if user is admin
@@ -69,7 +81,7 @@ export async function POST(request: Request) {
     if (!adminUser) {
       return NextResponse.json(
         { error: "Forbidden: Admin access required" },
-        { status: 403 },
+        { status: 403, headers: corsHeaders },
       );
     }
 
@@ -84,7 +96,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Message is required" },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -100,7 +112,7 @@ export async function POST(request: Request) {
 
     if (insertError) {
       console.error("Error creating announcement:", insertError);
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+      return NextResponse.json({ error: insertError.message }, { status: 500, headers: corsHeaders });
     }
 
     // Fetch profile separately
@@ -115,12 +127,12 @@ export async function POST(request: Request) {
       profile: profile || null,
     };
 
-    return NextResponse.json({ announcement: announcementWithProfile }, { status: 201 });
+    return NextResponse.json({ announcement: announcementWithProfile }, { status: 201, headers: corsHeaders });
   } catch (error) {
     console.error("Error in POST /api/announcement:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
 }

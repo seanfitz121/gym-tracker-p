@@ -16,11 +16,11 @@ import { Megaphone, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export function AnnouncementsList() {
-  const { announcements, loading } = useAnnouncements();
+  const { announcements, loading, error } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (loading) {
-    return null; // Don't show while loading
+  if (loading || error) {
+    return null; // Don't show while loading or on error
   }
 
   if (announcements.length === 0) {
