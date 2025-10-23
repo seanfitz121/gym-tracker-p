@@ -14,9 +14,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, Dumbbell, HelpCircle } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 interface AppHeaderProps {
@@ -70,20 +71,16 @@ export function AppHeader({ user }: AppHeaderProps) {
         <Link 
           href="/app/log" 
           onClick={triggerLoading}
-          className="flex items-center gap-2 group cursor-pointer hover:opacity-80 transition-opacity"
+          className="group cursor-pointer hover:opacity-80 transition-opacity flex items-center"
         >
-          <div className="relative">
-            <Dumbbell className="h-7 w-7 text-blue-600 dark:text-blue-500 transform group-hover:scale-110 transition-transform" />
-            <div className="absolute inset-0 bg-blue-500 blur-lg opacity-20 group-hover:opacity-30 transition-opacity" />
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 bg-clip-text text-transparent">
-              Plate
-            </span>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent -mt-1">
-              Progress
-            </span>
-          </div>
+          <Image
+            src="/platep2.png"
+            alt="Plate Progress"
+            width={140}
+            height={40}
+            className="h-8 w-auto md:h-10 object-contain"
+            priority
+          />
         </Link>
         <div className="flex items-center gap-2">
           <Button 
