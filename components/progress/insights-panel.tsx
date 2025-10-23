@@ -30,10 +30,11 @@ export function InsightsPanel({ userId }: InsightsPanelProps) {
           .select(`
             *,
             exercise:exercise(id, name, body_part),
-            session:workout_session(started_at)
+            session:workout_session!inner(started_at, user_id)
           `)
           .gte('created_at', ninetyDaysAgo.toISOString())
           .eq('is_warmup', false)
+          .eq('session.user_id', userId)
 
         if (error) {
           console.error('Error fetching workout data for insights:', error)
@@ -53,7 +54,7 @@ export function InsightsPanel({ userId }: InsightsPanelProps) {
           date: new Date(set.session.started_at),
           volume: calculateSetVolume(set.reps, set.weight),
           estimatedOneRM: calculateEstimated1RM(set.weight, set.reps),
-          sessionId: set.workout_session_id,
+          sessionId: set.session_id,
         }))
 
         const generatedInsights = generateInsights(workoutData)

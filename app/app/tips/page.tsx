@@ -202,7 +202,7 @@ export default function TipsPage() {
               <div>
                 <h4 className="font-semibold">Coach Yourself Insights</h4>
                 <p className="text-sm text-muted-foreground">
-                  Get automatic feedback on volume trends, muscle group balance, and PR streaks
+                  Get automatic feedback on volume trends, muscle group balance, and PR streaks.
                 </p>
               </div>
             </div>

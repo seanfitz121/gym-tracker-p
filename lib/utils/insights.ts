@@ -192,37 +192,45 @@ function detectPRStreak(workouts: WorkoutData[]): WorkoutInsight | null {
 }
 
 function analyzeTrainingFrequency(workouts: WorkoutData[], now: Date): WorkoutInsight | null {
-  const fourWeeksAgo = subWeeks(now, 4)
-  const recentWorkouts = workouts.filter(w => w.date >= fourWeeksAgo)
+  const oneWeekAgo = subWeeks(now, 1)
+  const recentWorkouts = workouts.filter(w => w.date >= oneWeekAgo)
   
   // Count unique workout sessions (not just unique days)
   const uniqueSessions = new Set(
     recentWorkouts.map(w => w.sessionId)
   ).size
 
-  const sessionsPerWeek = uniqueSessions / 4
-
-  if (sessionsPerWeek >= 4) {
+  if (uniqueSessions >= 5) {
     return {
       type: 'positive',
-      message: `Crushing it with ${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — excellent consistency!`,
+      message: `Crushing it with ${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} this week — beast mode!`,
       emoji: '💪'
     }
-  } else if (sessionsPerWeek >= 3) {
+  } else if (uniqueSessions >= 4) {
     return {
       type: 'positive',
-      message: `${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — solid routine!`,
+      message: `${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} this week — excellent consistency!`,
+      emoji: '🔥'
+    }
+  } else if (uniqueSessions >= 3) {
+    return {
+      type: 'positive',
+      message: `${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} this week — solid routine!`,
       emoji: '✅'
     }
-  } else if (sessionsPerWeek < 2) {
+  } else if (uniqueSessions >= 1) {
+    return {
+      type: 'neutral',
+      message: `${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} this week — keep building momentum!`,
+      emoji: '💪'
+    }
+  } else {
     return {
       type: 'warning',
-      message: `Only ${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — let's get back on track!`,
+      message: `No workouts logged this week — time to get back on track!`,
       emoji: '🎯'
     }
   }
-
-  return null
 }
 
 function detectImprovements(workouts: WorkoutData[], now: Date): WorkoutInsight | null {
