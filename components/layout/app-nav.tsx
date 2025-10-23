@@ -15,6 +15,11 @@ const navItems = [
 export function AppNav() {
   const pathname = usePathname()
 
+  const handleNavClick = () => {
+    // Dispatch instant loading event
+    window.dispatchEvent(new Event('navigation-start'))
+  }
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:relative md:border-t-0 md:border-b">
       <div className="flex justify-around items-center h-16">
@@ -26,6 +31,7 @@ export function AppNav() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={handleNavClick}
               className={cn(
                 'flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors',
                 isActive

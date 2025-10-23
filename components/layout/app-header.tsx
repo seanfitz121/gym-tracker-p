@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, Dumbbell } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, Dumbbell, HelpCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -36,6 +36,10 @@ export function AppHeader({ user }: AppHeaderProps) {
     window.addEventListener('profile-updated', handleProfileUpdate)
     return () => window.removeEventListener('profile-updated', handleProfileUpdate)
   }, [refresh])
+
+  const triggerLoading = () => {
+    window.dispatchEvent(new Event('navigation-start'))
+  }
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -65,6 +69,7 @@ export function AppHeader({ user }: AppHeaderProps) {
       <div className="flex items-center justify-between">
         <Link 
           href="/app/log" 
+          onClick={triggerLoading}
           className="flex items-center gap-2 group cursor-pointer hover:opacity-80 transition-opacity"
         >
           <div className="relative">
@@ -80,21 +85,33 @@ export function AppHeader({ user }: AppHeaderProps) {
             </span>
           </div>
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
-                <AvatarFallback>
-                  {profile?.avatar_url ? (
-                    <UserIcon className="h-5 w-5" />
-                  ) : (
-                    initials
-                  )}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-10 w-10"
+            asChild
+          >
+            <Link href="/app/tips" onClick={triggerLoading}>
+              <HelpCircle className="h-5 w-5" />
+              <span className="sr-only">Tips & Guides</span>
+            </Link>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
+                  <AvatarFallback>
+                    {profile?.avatar_url ? (
+                      <UserIcon className="h-5 w-5" />
+                    ) : (
+                      initials
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
@@ -107,7 +124,11 @@ export function AppHeader({ user }: AppHeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/app/settings')}>
+            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/tips') }}>
+              <HelpCircle className="mr-2 h-4 w-4" />
+              Tips & Guides
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/settings') }}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
@@ -116,7 +137,8 @@ export function AppHeader({ user }: AppHeaderProps) {
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   )

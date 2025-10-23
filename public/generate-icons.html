@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Plate Progress Icons</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #3b82f6;
+      text-align: center;
+    }
+    .canvas-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 30px 0;
+    }
+    .canvas-wrapper {
+      text-align: center;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    canvas {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .instructions {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .instructions h3 {
+      margin-top: 0;
+      color: #3b82f6;
+    }
+    .instructions ol {
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏋️ Plate Progress Icon Generator</h1>
+  
+  <div class="canvas-container">
+    <div class="canvas-wrapper">
+      <h3>Apple Touch Icon (180x180)</h3>
+      <canvas id="apple-icon" width="180" height="180"></canvas>
+      <br>
+      <button onclick="downloadIcon('apple-icon', 'apple-touch-icon.png')">Download</button>
+    </div>
+    
+    <div class="canvas-wrapper">
+      <h3>PWA Icon 192x192</h3>
+      <canvas id="icon-192" width="192" height="192"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon-192', 'icon-192.png')">Download</button>
+    </div>
+    
+    <div class="canvas-wrapper">
+      <h3>PWA Icon 512x512</h3>
+      <canvas id="icon-512" width="512" height="512"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon-512', 'icon-512.png')">Download</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <h3>Favicon 32x32</h3>
+      <canvas id="favicon-32" width="32" height="32"></canvas>
+      <br>
+      <button onclick="downloadIcon('favicon-32', 'favicon-32x32.png')">Download</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <h3>Favicon 16x16</h3>
+      <canvas id="favicon-16" width="16" height="16"></canvas>
+      <br>
+      <button onclick="downloadIcon('favicon-16', 'favicon-16x16.png')">Download</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h3>📋 Installation Instructions</h3>
+    <ol>
+      <li>Click each "Download" button above to save all 5 icons</li>
+      <li>Place the downloaded files in your <code>public/</code> folder:
+        <ul>
+          <li><code>apple-touch-icon.png</code> (new - for iOS home screen)</li>
+          <li><code>icon-192.png</code> (replace existing)</li>
+          <li><code>icon-512.png</code> (replace existing)</li>
+          <li><code>favicon-32x32.png</code> (new - for browser tab)</li>
+          <li><code>favicon-16x16.png</code> (new - for browser tab)</li>
+        </ul>
+      </li>
+      <li>Commit and deploy to Vercel</li>
+      <li><strong>On iOS:</strong> Delete the existing home screen shortcut and re-add it to see the new dumbbell icon! 🏋️</li>
+    </ol>
+  </div>
+
+  <script>
+    function drawDumbbellIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      
+      // Gradient background (blue to purple)
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#3b82f6');
+      gradient.addColorStop(1, '#9333ea');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Draw dumbbell
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const scale = size / 180; // Base scale on 180px design
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3 * scale;
+      
+      // Left weight
+      const leftWeight = {
+        x: centerX - 50 * scale,
+        y: centerY,
+        width: 20 * scale,
+        height: 60 * scale,
+        radius: 5 * scale
+      };
+      
+      // Right weight
+      const rightWeight = {
+        x: centerX + 30 * scale,
+        y: centerY,
+        width: 20 * scale,
+        height: 60 * scale,
+        radius: 5 * scale
+      };
+      
+      // Bar
+      const bar = {
+        x: centerX - 30 * scale,
+        y: centerY,
+        width: 60 * scale,
+        height: 8 * scale
+      };
+      
+      // Draw rounded rectangle helper
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.fill();
+      }
+      
+      // Draw left weight
+      roundRect(
+        leftWeight.x - leftWeight.width / 2,
+        leftWeight.y - leftWeight.height / 2,
+        leftWeight.width,
+        leftWeight.height,
+        leftWeight.radius
+      );
+      
+      // Draw right weight
+      roundRect(
+        rightWeight.x - rightWeight.width / 2,
+        rightWeight.y - rightWeight.height / 2,
+        rightWeight.width,
+        rightWeight.height,
+        rightWeight.radius
+      );
+      
+      // Draw bar
+      roundRect(
+        bar.x - bar.width / 2,
+        bar.y - bar.height / 2,
+        bar.width,
+        bar.height,
+        bar.height / 2
+      );
+      
+      // Add highlight shine effect
+      const shineGradient = ctx.createLinearGradient(0, 0, 0, size);
+      shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+      shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = shineGradient;
+      ctx.fillRect(0, 0, size, size);
+    }
+
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Generate all icons on page load
+    window.onload = () => {
+      drawDumbbellIcon(document.getElementById('apple-icon'), 180);
+      drawDumbbellIcon(document.getElementById('icon-192'), 192);
+      drawDumbbellIcon(document.getElementById('icon-512'), 512);
+      drawDumbbellIcon(document.getElementById('favicon-32'), 32);
+      drawDumbbellIcon(document.getElementById('favicon-16'), 16);
+    };
+  </script>
+</body>
+</html>
+
