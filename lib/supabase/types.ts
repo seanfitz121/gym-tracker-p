@@ -13,17 +13,23 @@ export type Database = {
         Row: {
           id: string
           display_name: string | null
+          avatar_url: string | null
           created_at: string
+          updated_at: string | null
         }
         Insert: {
           id: string
           display_name?: string | null
+          avatar_url?: string | null
           created_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
           display_name?: string | null
+          avatar_url?: string | null
           created_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -212,6 +218,10 @@ export type Database = {
           forgiveness_used_at: string | null
           badges: string[]
           weekly_goal: Json | null
+          daily_xp_earned: number
+          rank_code: string | null
+          pro_rank_code: string | null
+          rank_scale_code: string
           created_at: string
           updated_at: string
         }
@@ -226,6 +236,10 @@ export type Database = {
           forgiveness_used_at?: string | null
           badges?: string[]
           weekly_goal?: Json | null
+          daily_xp_earned?: number
+          rank_code?: string | null
+          pro_rank_code?: string | null
+          rank_scale_code?: string
           created_at?: string
           updated_at?: string
         }
@@ -240,8 +254,102 @@ export type Database = {
           forgiveness_used_at?: string | null
           badges?: string[]
           weekly_goal?: Json | null
+          daily_xp_earned?: number
+          rank_code?: string | null
+          pro_rank_code?: string | null
+          rank_scale_code?: string
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_user: {
+        Row: {
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      announcement: {
+        Row: {
+          id: string
+          user_id: string
+          message: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          message: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          message?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      rank_scale: {
+        Row: {
+          code: string
+          name: string
+          description: string | null
+          is_premium: boolean
+          created_at: string
+        }
+        Insert: {
+          code: string
+          name: string
+          description?: string | null
+          is_premium?: boolean
+          created_at?: string
+        }
+        Update: {
+          code?: string
+          name?: string
+          description?: string | null
+          is_premium?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      rank_definition: {
+        Row: {
+          code: string
+          scale_code: string
+          name: string
+          min_xp: number
+          icon: string | null
+          color: string | null
+          created_at: string
+        }
+        Insert: {
+          code: string
+          scale_code: string
+          name: string
+          min_xp: number
+          icon?: string | null
+          color?: string | null
+          created_at?: string
+        }
+        Update: {
+          code?: string
+          scale_code?: string
+          name?: string
+          min_xp?: number
+          icon?: string | null
+          color?: string | null
+          created_at?: string
         }
         Relationships: []
       }
