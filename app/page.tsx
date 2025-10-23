@@ -1,10 +1,15 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { AutoRedirect } from '@/components/auth/auto-redirect'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dumbbell, TrendingUp, Trophy, Zap, Target, BarChart3, Clock, Smartphone } from 'lucide-react'
+
+// Force dynamic rendering - don't cache this page
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function Home() {
   // Check if user is already signed in
@@ -18,6 +23,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      {/* Client-side auth check as backup */}
+      <AutoRedirect />
+      
       {/* Navigation */}
       <nav className="border-b sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
