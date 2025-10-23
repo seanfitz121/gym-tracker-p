@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - SFWeb Gym Tracker',
-  description: 'Privacy policy and data handling practices for SFWeb Gym Tracker',
+  title: 'Privacy Policy - Plate Progress',
+  description: 'Privacy policy and data handling practices for Plate Progress',
 }
 
 export default function PrivacyPage() {
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
           <h2>Introduction</h2>
           <p>
-            Welcome to SFWeb Gym Tracker ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our app.
+            Welcome to Plate Progress ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our app.
           </p>
 
           <h2>Information We Collect</h2>
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
             If you have any questions about this privacy policy, please contact us at:
           </p>
           <p>
-            Email: privacy@sfwebgym.com
+            Email: privacy@plateprogress.com
           </p>
         </article>
       </div>

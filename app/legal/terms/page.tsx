@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service - SFWeb Gym Tracker',
-  description: 'Terms of service and usage agreement for SFWeb Gym Tracker',
+  title: 'Terms of Service - Plate Progress',
+  description: 'Terms of service and usage agreement for Plate Progress',
 }
 
 export default function TermsPage() {
@@ -27,12 +27,12 @@ export default function TermsPage() {
 
           <h2>Agreement to Terms</h2>
           <p>
-            By accessing and using SFWeb Gym Tracker ("the App"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.
+            By accessing and using Plate Progress ("the App"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.
           </p>
 
           <h2>Description of Service</h2>
           <p>
-            SFWeb Gym Tracker is a mobile web application that allows users to:
+            Plate Progress is a mobile web application that allows users to:
           </p>
           <ul>
             <li>Log workout sessions and exercises</li>
@@ -82,7 +82,7 @@ export default function TermsPage() {
 
           <h2>Intellectual Property</h2>
           <p>
-            The App's design, features, functionality, and code are owned by SFWeb Gym Tracker and are protected by copyright, trademark, and other intellectual property laws.
+            The App's design, features, functionality, and code are owned by Plate Progress and are protected by copyright, trademark, and other intellectual property laws.
           </p>
 
           <h2>Service Availability</h2>
@@ -97,7 +97,7 @@ export default function TermsPage() {
 
           <h2>Limitation of Liability</h2>
           <p>
-            To the maximum extent permitted by law, SFWeb Gym Tracker shall not be liable for:
+            To the maximum extent permitted by law, Plate Progress shall not be liable for:
           </p>
           <ul>
             <li>Any indirect, incidental, or consequential damages</li>
@@ -126,7 +126,7 @@ export default function TermsPage() {
             For questions about these terms, contact us at:
           </p>
           <p>
-            Email: legal@sfwebgym.com
+            Email: legal@plateprogress.com
           </p>
         </article>
       </div>

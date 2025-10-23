@@ -174,8 +174,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For questions or issues:
 - Open an issue on GitHub
-- Email: support@sfwebgym.com
+- Email: support@plateprogress.com
 
 ---
 
-Built with 💪 by SFWeb
+Built with 💪 by Plate Progress

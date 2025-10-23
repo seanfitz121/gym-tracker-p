@@ -1,6 +1,6 @@
 {
-  "name": "SFWeb Gym Tracker",
-  "short_name": "GymTracker",
+  "name": "Plate Progress",
+  "short_name": "PlateProgress",
   "description": "Track your workouts, see your progress, crush your PRs",
   "start_url": "/",
   "display": "standalone",

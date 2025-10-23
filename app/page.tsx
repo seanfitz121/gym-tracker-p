@@ -11,8 +11,15 @@ export default function Home() {
       <nav className="border-b sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Dumbbell className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-lg">Gym Tracker</span>
+            <Dumbbell className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 bg-clip-text text-transparent">
+                Plate
+              </span>
+              <span className="text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-500 dark:to-blue-500 bg-clip-text text-transparent -mt-0.5">
+                Progress
+              </span>
+            </div>
           </div>
           <Button asChild size="sm">
             <Link href="/auth">Sign In</Link>
@@ -155,7 +162,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <Dumbbell className="h-4 w-4" />
-              <span>© 2024 Gym Tracker</span>
+              <span>© 2024 Plate Progress</span>
             </div>
             <div className="flex gap-6">
               <Link href="/legal/privacy" className="hover:text-gray-900 dark:hover:text-gray-100">
