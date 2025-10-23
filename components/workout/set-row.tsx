@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Copy, Trash2, Timer } from 'lucide-react'
+import { playStartSound } from '@/lib/utils/sounds'
 import type { ActiveSet } from '@/lib/types'
 
 interface SetRowProps {
@@ -33,6 +34,7 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
             size="sm"
             onClick={() => {
               duplicateSet(exerciseId, set.id)
+              playStartSound()
               startRestTimer(60)
             }}
             className="h-8 px-2"

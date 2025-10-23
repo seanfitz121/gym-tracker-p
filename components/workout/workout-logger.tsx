@@ -19,6 +19,7 @@ import { Play, Square, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { calculateSessionDuration, formatDuration } from '@/lib/utils/calculations'
 import { celebratePR } from '@/lib/utils/confetti'
+import { playStartSound, playCelebrationSound } from '@/lib/utils/sounds'
 
 interface WorkoutLoggerProps {
   userId: string
@@ -50,6 +51,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
   }, [activeWorkout])
 
   const handleStartWorkout = () => {
+    playStartSound()
     const now = new Date()
     const title = `Workout - ${now.toLocaleDateString()}`
     startWorkout(title)
@@ -120,6 +122,9 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         if (xpAwarded === 0) {
           toast.info('Workout saved! (Cooldown active or daily XP limit reached)')
         }
+        
+        // Play celebration sound for workout completion
+        playCelebrationSound()
         
         if (leveledUp) {
           celebratePR()

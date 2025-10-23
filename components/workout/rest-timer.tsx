@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/lib/store/settings-store'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Timer, X } from 'lucide-react'
+import { playStartSound, playStopSound, playRestCompleteSound } from '@/lib/utils/sounds'
 
 export function RestTimer() {
   const { restTimer, startRestTimer, stopRestTimer } = useWorkoutStore()
@@ -23,7 +24,8 @@ export function RestTimer() {
       setRemaining(left)
 
       if (left === 0) {
-        // Play sound or vibrate
+        // Play completion sound and vibrate
+        playRestCompleteSound()
         if ('vibrate' in navigator) {
           navigator.vibrate([200, 100, 200])
         }
@@ -38,11 +40,21 @@ export function RestTimer() {
     return () => clearInterval(interval)
   }, [restTimer, stopRestTimer])
 
+  const handleStartTimer = (duration: number) => {
+    playStartSound()
+    startRestTimer(duration)
+  }
+
+  const handleStopTimer = () => {
+    playStopSound()
+    stopRestTimer()
+  }
+
   if (!restTimer.active) {
     return (
       <div className="fixed bottom-20 right-4 md:bottom-4 flex gap-2">
         <Button
-          onClick={() => startRestTimer(30)}
+          onClick={() => handleStartTimer(30)}
           variant="secondary"
           size="sm"
         >
@@ -50,7 +62,7 @@ export function RestTimer() {
           30s
         </Button>
         <Button
-          onClick={() => startRestTimer(60)}
+          onClick={() => handleStartTimer(60)}
           variant="secondary"
           size="sm"
         >
@@ -58,7 +70,7 @@ export function RestTimer() {
           60s
         </Button>
         <Button
-          onClick={() => startRestTimer(90)}
+          onClick={() => handleStartTimer(90)}
           variant="secondary"
           size="sm"
         >
@@ -94,7 +106,7 @@ export function RestTimer() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={stopRestTimer}
+            onClick={handleStopTimer}
             className={isDone ? 'text-white hover:bg-green-600' : ''}
           >
             <X className="h-4 w-4" />

@@ -13,6 +13,7 @@ interface WorkoutData {
   date: Date
   volume: number
   estimatedOneRM: number
+  sessionId: string
 }
 
 /**
@@ -194,29 +195,29 @@ function analyzeTrainingFrequency(workouts: WorkoutData[], now: Date): WorkoutIn
   const fourWeeksAgo = subWeeks(now, 4)
   const recentWorkouts = workouts.filter(w => w.date >= fourWeeksAgo)
   
-  // Count unique workout days
-  const uniqueDays = new Set(
-    recentWorkouts.map(w => w.date.toDateString())
+  // Count unique workout sessions (not just unique days)
+  const uniqueSessions = new Set(
+    recentWorkouts.map(w => w.sessionId)
   ).size
 
-  const weeksPerDay = uniqueDays / 4
+  const sessionsPerWeek = uniqueSessions / 4
 
-  if (weeksPerDay >= 4) {
+  if (sessionsPerWeek >= 4) {
     return {
       type: 'positive',
-      message: `Crushing it with ${uniqueDays} workouts in 4 weeks — excellent consistency!`,
+      message: `Crushing it with ${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — excellent consistency!`,
       emoji: '💪'
     }
-  } else if (weeksPerDay >= 3) {
+  } else if (sessionsPerWeek >= 3) {
     return {
       type: 'positive',
-      message: `${uniqueDays} workouts in 4 weeks — solid routine!`,
+      message: `${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — solid routine!`,
       emoji: '✅'
     }
-  } else if (weeksPerDay < 2) {
+  } else if (sessionsPerWeek < 2) {
     return {
       type: 'warning',
-      message: `Only ${uniqueDays} workouts in 4 weeks — let's get back on track!`,
+      message: `Only ${uniqueSessions} workout${uniqueSessions !== 1 ? 's' : ''} in 4 weeks — let's get back on track!`,
       emoji: '🎯'
     }
   }

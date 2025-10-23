@@ -12,7 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor, Volume2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface SettingsFormProps {
@@ -20,7 +21,7 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ userId }: SettingsFormProps) {
-  const { defaultWeightUnit, defaultRestTimer, chartSmoothing, updateSettings } = useSettingsStore()
+  const { defaultWeightUnit, defaultRestTimer, chartSmoothing, soundsEnabled, updateSettings } = useSettingsStore()
   const { profile, loading: profileLoading, refresh } = useProfile(userId)
   const { updateProfile, loading: updateLoading } = useUpdateProfile()
   const { uploadAvatar, uploading } = useUploadAvatar()
@@ -59,6 +60,11 @@ export function SettingsForm({ userId }: SettingsFormProps) {
   const handleThemeChange = (value: 'light' | 'dark' | 'system') => {
     setTheme(value)
     toast.success('Theme updated')
+  }
+
+  const handleSoundsToggle = (checked: boolean) => {
+    updateSettings({ soundsEnabled: checked })
+    toast.success(checked ? 'Sounds enabled' : 'Sounds disabled')
   }
 
   const handleUpdateDisplayName = async () => {
@@ -243,6 +249,25 @@ export function SettingsForm({ userId }: SettingsFormProps) {
                 : `Using ${theme} mode`
               }
             </p>
+          </div>
+
+          {/* Sound Effects */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="flex items-center gap-2">
+                  <Volume2 className="h-4 w-4" />
+                  Sound Effects
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Play sounds for workouts, rest timer, and actions
+                </p>
+              </div>
+              <Switch
+                checked={soundsEnabled}
+                onCheckedChange={handleSoundsToggle}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -53,6 +53,7 @@ export function InsightsPanel({ userId }: InsightsPanelProps) {
           date: new Date(set.session.started_at),
           volume: calculateSetVolume(set.reps, set.weight),
           estimatedOneRM: calculateEstimated1RM(set.weight, set.reps),
+          sessionId: set.workout_session_id,
         }))
 
         const generatedInsights = generateInsights(workoutData)

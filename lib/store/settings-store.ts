@@ -13,6 +13,7 @@ export const useSettingsStore = create<SettingsState>()(
       defaultRestTimer: 60,
       chartSmoothing: 'low',
       privacyMode: true,
+      soundsEnabled: true,
       
       updateSettings: (settings) => {
         set((state) => ({

@@ -142,5 +142,7 @@ export interface AppSettings {
   defaultRestTimer: number // seconds
   chartSmoothing: 'off' | 'low' | 'high'
   privacyMode: boolean
+  soundsEnabled: boolean
+  updateSettings?: (settings: Partial<AppSettings>) => void
 }
 
