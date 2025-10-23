@@ -1,0 +1,57 @@
+# SFWeb Gym Tracker - Cursor Rules
+
+## Project Context
+This is a mobile-first workout tracking web app built with Next.js, TypeScript, and Supabase.
+
+## Code Style
+- Use TypeScript for all new files
+- Prefer functional components with hooks
+- Use async/await over promises
+- Keep components small and focused
+- Extract reusable logic into custom hooks
+
+## File Organization
+- Components in `components/` (organized by feature)
+- Pages in `app/` (Next.js App Router)
+- Utilities in `lib/`
+- Types in `lib/types/`
+- Hooks in `lib/hooks/`
+
+## Naming Conventions
+- Components: PascalCase (e.g., `WorkoutLogger.tsx`)
+- Hooks: camelCase with "use" prefix (e.g., `useWorkouts.ts`)
+- Utils: camelCase (e.g., `calculations.ts`)
+- Files: kebab-case for non-component files
+
+## Database
+- All queries should respect RLS policies
+- Use Supabase client from `lib/supabase/client` or `lib/supabase/server`
+- Server components: use `createClient()` from server.ts
+- Client components: use `createClient()` from client.ts
+
+## Performance
+- Use React.memo for expensive renders
+- Lazy load heavy components
+- Optimize images with Next.js Image
+- Keep bundle size small
+
+## Security
+- Never expose private keys
+- Always validate user input
+- Use RLS for all database access
+- Sanitize user-generated content
+
+## UI/UX
+- Mobile-first design
+- Touch-friendly tap targets (min 44x44px)
+- Fast, responsive interactions
+- Clear loading states
+- Helpful error messages
+
+## Testing
+- Test auth flows
+- Test offline functionality
+- Test on real mobile devices
+- Check accessibility with screen readers
+
+
