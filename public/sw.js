@@ -1,5 +1,5 @@
 // Service Worker for offline support
-const CACHE_NAME = 'sfweb-gym-v1'
+const CACHE_NAME = 'plateprogress-v2'
 const OFFLINE_URL = '/offline.html'
 
 const CACHE_URLS = [
@@ -51,22 +51,19 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Return cached response if found
-      if (cachedResponse) {
-        return cachedResponse
-      }
-
-      // Try network with redirect: 'follow' mode
-      return fetch(event.request, { redirect: 'follow' })
+  // Use network-first strategy for /app routes (always fetch fresh)
+  const isAppRoute = url.pathname.startsWith('/app')
+  
+  if (isAppRoute) {
+    event.respondWith(
+      fetch(event.request, { redirect: 'follow' })
         .then((response) => {
           // Don't cache redirects or non-successful responses
           if (!response || response.status !== 200 || response.type === 'opaqueredirect') {
             return response
           }
 
-          // Clone and cache the response
+          // Clone and cache the response for offline fallback
           const responseToCache = response.clone()
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache)
@@ -75,12 +72,51 @@ self.addEventListener('fetch', (event) => {
           return response
         })
         .catch(() => {
-          // Return offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE_URL)
-          }
+          // Fallback to cache if network fails (offline)
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse
+            }
+            // Return offline page for navigation requests
+            if (event.request.mode === 'navigate') {
+              return caches.match(OFFLINE_URL)
+            }
+          })
         })
-    })
-  )
+    )
+  } else {
+    // Use cache-first for static assets (landing page, etc.)
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        // Return cached response if found
+        if (cachedResponse) {
+          return cachedResponse
+        }
+
+        // Try network with redirect: 'follow' mode
+        return fetch(event.request, { redirect: 'follow' })
+          .then((response) => {
+            // Don't cache redirects or non-successful responses
+            if (!response || response.status !== 200 || response.type === 'opaqueredirect') {
+              return response
+            }
+
+            // Clone and cache the response
+            const responseToCache = response.clone()
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache)
+            })
+
+            return response
+          })
+          .catch(() => {
+            // Return offline page for navigation requests
+            if (event.request.mode === 'navigate') {
+              return caches.match(OFFLINE_URL)
+            }
+          })
+      })
+    )
+  }
 })
 

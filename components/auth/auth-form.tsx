@@ -43,7 +43,8 @@ export function AuthForm() {
         if (error) throw error
 
         toast.success('Signed in successfully!')
-        window.location.href = '/app/log'
+        // Force hard reload to bypass service worker cache
+        window.location.replace('/app/log')
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred')
