@@ -1,12 +1,10 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="6" fill="#3b82f6"/>
-  <path d="M8 12H10V20H8V12Z" fill="white"/>
-  <path d="M22 12H24V20H22V12Z" fill="white"/>
-  <path d="M10 15H22V17H10V15Z" fill="white"/>
-  <circle cx="10" cy="14" r="2" fill="white"/>
-  <circle cx="10" cy="18" r="2" fill="white"/>
-  <circle cx="22" cy="14" r="2" fill="white"/>
-  <circle cx="22" cy="18" r="2" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Dumbbell icon for Plate Progress -->
+  <rect x="10" y="35" width="10" height="30" rx="2" fill="#3b82f6"/>
+  <rect x="80" y="35" width="10" height="30" rx="2" fill="#3b82f6"/>
+  <rect x="35" y="45" width="30" height="10" rx="2" fill="#3b82f6"/>
+  <circle cx="25" cy="50" r="8" fill="#9333ea"/>
+  <circle cx="75" cy="50" r="8" fill="#9333ea"/>
+  <rect x="20" y="40" width="10" height="20" rx="2" fill="#9333ea" opacity="0.8"/>
+  <rect x="70" y="40" width="10" height="20" rx="2" fill="#9333ea" opacity="0.8"/>
 </svg>
-
-
