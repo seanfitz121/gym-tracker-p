@@ -464,12 +464,163 @@ export type Database = {
         }
         Relationships: []
       }
+      weight_log: {
+        Row: {
+          id: string
+          user_id: string
+          weight: number
+          unit: 'kg' | 'lb'
+          logged_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          weight: number
+          unit?: 'kg' | 'lb'
+          logged_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          weight?: number
+          unit?: 'kg' | 'lb'
+          logged_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      weight_goal: {
+        Row: {
+          id: string
+          user_id: string
+          target_weight: number
+          unit: 'kg' | 'lb'
+          goal_type: 'lose' | 'maintain' | 'gain'
+          start_weight: number | null
+          start_date: string
+          target_date: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          target_weight: number
+          unit?: 'kg' | 'lb'
+          goal_type: 'lose' | 'maintain' | 'gain'
+          start_weight?: number | null
+          start_date?: string
+          target_date?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          target_weight?: number
+          unit?: 'kg' | 'lb'
+          goal_type?: 'lose' | 'maintain' | 'gain'
+          start_weight?: number | null
+          start_date?: string
+          target_date?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      body_metrics: {
+        Row: {
+          id: string
+          user_id: string
+          height_cm: number | null
+          waist_cm: number | null
+          neck_cm: number | null
+          hip_cm: number | null
+          bodyfat_est: number | null
+          gender: 'male' | 'female' | null
+          logged_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          height_cm?: number | null
+          waist_cm?: number | null
+          neck_cm?: number | null
+          hip_cm?: number | null
+          bodyfat_est?: number | null
+          gender?: 'male' | 'female' | null
+          logged_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          height_cm?: number | null
+          waist_cm?: number | null
+          neck_cm?: number | null
+          hip_cm?: number | null
+          bodyfat_est?: number | null
+          gender?: 'male' | 'female' | null
+          logged_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hydration_log: {
+        Row: {
+          id: string
+          user_id: string
+          amount_ml: number
+          logged_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          amount_ml: number
+          logged_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          amount_ml?: number
+          logged_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_hydration_streak: {
+        Args: {
+          p_user_id: string
+          p_goal_ml: number
+        }
+        Returns: number
+      }
+      get_daily_hydration_total: {
+        Args: {
+          p_user_id: string
+          p_date: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       unit_weight: 'kg' | 'lb'

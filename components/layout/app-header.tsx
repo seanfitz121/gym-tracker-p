@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
+import { ThemeLogo } from '@/components/common/theme-logo'
 import { toast } from 'sonner'
 
 interface AppHeaderProps {
@@ -75,9 +75,7 @@ export function AppHeader({ user }: AppHeaderProps) {
           onClick={triggerLoading}
           className="group cursor-pointer hover:opacity-80 transition-opacity flex items-center"
         >
-          <Image
-            src="/platep2.png"
-            alt="Plate Progress"
+          <ThemeLogo
             width={140}
             height={40}
             className="h-8 w-auto md:h-10 object-contain"
@@ -140,6 +138,24 @@ export function AppHeader({ user }: AppHeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/weight') }}>
+              <Scale className="mr-2 h-4 w-4" />
+              Weight Tracker
+              {isPremium && (
+                <span className="ml-auto">
+                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
+                </span>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/hydration') }}>
+              <Droplet className="mr-2 h-4 w-4" />
+              Hydration Tracker
+              {isPremium && (
+                <span className="ml-auto">
+                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
+                </span>
+              )}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/patch-notes') }}>
               <FileText className="mr-2 h-4 w-4" />
               Patch Notes

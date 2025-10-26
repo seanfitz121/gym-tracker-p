@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { AuthForm } from '@/components/auth/auth-form'
+import { ThemeLogo } from '@/components/common/theme-logo'
 import { ArrowLeft, Dumbbell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -25,9 +25,7 @@ export default async function AuthPage() {
           </Link>
           <div className="mt-12">
             <div className="mb-6">
-              <Image
-                src="/platep2.png"
-                alt="Plate Progress"
+              <ThemeLogo
                 width={200}
                 height={50}
                 className="h-12 w-auto"
@@ -74,9 +72,7 @@ export default async function AuthPage() {
               <span>Back</span>
             </Link>
             <div className="mb-4">
-              <Image
-                src="/platep2.png"
-                alt="Plate Progress"
+              <ThemeLogo
                 width={180}
                 height={45}
                 className="h-10 w-auto"

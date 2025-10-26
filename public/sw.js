@@ -1,5 +1,8 @@
 // Service Worker for offline support
-const CACHE_NAME = 'plateprogress-v3'
+// IMPORTANT: Update this version number with each deployment to force cache refresh
+const CACHE_VERSION = 'v1.2' // INCREMENT THIS ON EACH DEPLOY
+const BUILD_TIMESTAMP = '2025-01-26T23:00:00Z' // Update this on each build
+const CACHE_NAME = `plateprogress-${CACHE_VERSION}-${BUILD_TIMESTAMP}`
 const OFFLINE_URL = '/offline.html'
 
 const CACHE_URLS = [
@@ -32,7 +35,21 @@ self.addEventListener('activate', (event) => {
       )
     })
   )
+  // Force immediate control of all clients (including the current page)
   self.clients.claim()
+})
+
+// Message handler for manual update checks
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({
+      version: CACHE_VERSION,
+      buildTimestamp: BUILD_TIMESTAMP
+    })
+  }
 })
 
 // Fetch event - serve from cache, fallback to network

@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AutoRedirect } from '@/components/auth/auto-redirect'
+import { ThemeLogo } from '@/components/common/theme-logo'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -30,9 +30,7 @@ export default async function Home() {
       {/* Navigation */}
       <nav className="border-b sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Image
-            src="/platep2.png"
-            alt="Plate Progress"
+          <ThemeLogo
             width={160}
             height={40}
             className="h-10 w-auto"

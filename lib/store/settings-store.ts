@@ -14,6 +14,7 @@ export const useSettingsStore = create<SettingsState>()(
       chartSmoothing: 'low',
       privacyMode: true,
       soundsEnabled: true,
+      hydrationGoalMl: 3000, // 3L default
       
       updateSettings: (settings) => {
         set((state) => ({

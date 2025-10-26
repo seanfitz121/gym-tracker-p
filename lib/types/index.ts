@@ -143,6 +143,7 @@ export interface AppSettings {
   chartSmoothing: 'off' | 'low' | 'high'
   privacyMode: boolean
   soundsEnabled: boolean
+  hydrationGoalMl: number // milliliters, default 3000 (3L)
   updateSettings?: (settings: Partial<AppSettings>) => void
 }
 

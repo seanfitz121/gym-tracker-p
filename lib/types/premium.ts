@@ -30,14 +30,12 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     title: 'Weight Tracker',
     description: 'Track your bodyweight over time with beautiful charts and insights',
     icon: '⚖️',
-    comingSoon: true,
   },
   {
     id: 'hydration-tracker',
     title: 'Hydration Tracker',
     description: 'Monitor your daily water intake and stay hydrated',
     icon: '💧',
-    comingSoon: true,
   },
   {
     id: 'progress-photos',

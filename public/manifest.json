@@ -1,8 +1,9 @@
 {
   "name": "Plate Progress",
   "short_name": "PlateProgress",
+  "version": "1.2.0",
   "description": "Track your workouts, see your progress, crush your PRs",
-  "start_url": "/",
+  "start_url": "/?v=1.2.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
