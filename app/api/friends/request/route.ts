@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if users are already friends
-    // @ts-ignore - Table exists but types not yet regenerated
     const { data: existingFriend } = await supabase
       .from('friend')
       .select('*')
@@ -53,13 +52,11 @@ export async function POST(request: NextRequest) {
 
     if (targetProfile.friend_request_privacy === 'friends_of_friends') {
       // Check if they have mutual friends
-      // @ts-ignore - Table exists but types not yet regenerated
       const { data: mutualFriends } = await supabase
         .from('friend')
         .select('friend_id')
         .eq('user_id', user.id)
         .in('friend_id', 
-          // @ts-ignore - Table exists but types not yet regenerated
           supabase
             .from('friend')
             .select('friend_id')
@@ -72,7 +69,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Create friend request
-    // @ts-ignore - Table exists but types not yet regenerated
     const { data: friendRequest, error: createError } = await supabase
       .from('friend_request')
       .insert({
@@ -111,7 +107,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') || 'incoming' // incoming, outgoing, all
 
-    // @ts-ignore - Table exists but types not yet regenerated
     let query = supabase
       .from('friend_request')
       .select('*')

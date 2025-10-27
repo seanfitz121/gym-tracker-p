@@ -11,7 +11,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Get friends
-    // @ts-ignore - Table exists but types not yet regenerated
     const { data: friends, error: friendsError } = await supabase
       .from('friend')
       .select('friend_id, created_at')
@@ -42,7 +41,6 @@ export async function GET(request: NextRequest) {
     
     let weeklyXpData: any[] = []
     if (friendIds.length > 0) {
-      // @ts-ignore - Table exists but types not yet regenerated
       const { data: weeklyXp } = await supabase
         .from('weekly_xp')
         .select('user_id, xp, workouts')
@@ -116,14 +114,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete both directions of the friendship
-    // @ts-ignore - Table exists but types not yet regenerated
     const { error: deleteError1 } = await supabase
       .from('friend')
       .delete()
       .eq('user_id', user.id)
       .eq('friend_id', friend_id)
 
-    // @ts-ignore - Table exists but types not yet regenerated
     const { error: deleteError2 } = await supabase
       .from('friend')
       .delete()

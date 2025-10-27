@@ -26,8 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create gym
-    // @ts-ignore - Table exists but types not yet regenerated
-    const { data: gym, error: createError } = await supabase
+    const { data: gym, error: createError} = await supabase
       .from('gym')
       .insert({
         code,
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Auto-join owner as first member
-    // @ts-ignore - Table exists but types not yet regenerated
     await supabase
       .from('gym_member')
       .insert({

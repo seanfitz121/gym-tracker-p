@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit
 
     // Build base query
-    // @ts-ignore - Table exists but types not yet regenerated
     let query = supabase
       .from('weekly_xp')
       .select('user_id, xp, workouts, volume_kg, pr_count', { count: 'exact' })
@@ -78,7 +77,6 @@ export async function GET(request: NextRequest) {
       }
 
       // Get user's friends
-      // @ts-ignore - Table exists but types not yet regenerated
       const { data: friends } = await supabase
         .from('friend')
         .select('friend_id')
@@ -99,7 +97,6 @@ export async function GET(request: NextRequest) {
       }
 
       // Get gym members who opted in
-      // @ts-ignore - Table exists but types not yet regenerated
       const { data: members } = await supabase
         .from('gym_member')
         .select('user_id')
@@ -122,7 +119,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Check for flagged users (exclude from top ranks)
-    // @ts-ignore - Table exists but types not yet regenerated
     const { data: flaggedUsers } = await supabase
       .from('anti_cheat_flag')
       .select('user_id')
@@ -187,7 +183,6 @@ export async function GET(request: NextRequest) {
       
       if (!userInList) {
         // Find user's rank
-        // @ts-ignore - Table exists but types not yet regenerated
         const { data: userXp } = await supabase
           .from('weekly_xp')
           .select('xp, workouts, volume_kg, pr_count')
@@ -197,7 +192,6 @@ export async function GET(request: NextRequest) {
 
         if (userXp) {
           // Count how many users have more XP
-          // @ts-ignore - Table exists but types not yet regenerated
           const { count: higherCount } = await supabase
             .from('weekly_xp')
             .select('*', { count: 'exact', head: true })

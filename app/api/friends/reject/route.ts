@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Update request status to rejected
-    // @ts-ignore - Table exists but types not yet regenerated
     const { error: updateError } = await supabase
       .from('friend_request')
       .update({ status: 'rejected', updated_at: new Date().toISOString() })
