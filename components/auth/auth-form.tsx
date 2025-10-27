@@ -31,14 +31,22 @@ export function AuthForm() {
           return
         }
 
-        // Check if username is already taken
-        const { data: existingUser } = await supabase
-          .from('profile')
-          .select('username')
-          .eq('username', username)
-          .single()
+        // Check if username is already taken via API (to bypass RLS)
+        const checkResponse = await fetch('/api/users/check-username-available', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        })
 
-        if (existingUser) {
+        if (!checkResponse.ok) {
+          const checkData = await checkResponse.json()
+          toast.error(checkData.error || 'Failed to check username availability')
+          setLoading(false)
+          return
+        }
+
+        const { available } = await checkResponse.json()
+        if (!available) {
           toast.error('Username is already taken')
           setLoading(false)
           return
@@ -58,19 +66,27 @@ export function AuthForm() {
 
         if (signUpError) throw signUpError
 
-        // Create profile with username
+        // Create profile with username via API (to ensure proper permissions)
         if (authData.user) {
-          const { error: profileError } = await supabase
-            .from('profile')
-            .insert({
-              id: authData.user.id,
-              username,
-              display_name: username, // Default display_name to username
+          try {
+            const profileResponse = await fetch('/api/users/create-profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                userId: authData.user.id,
+                username,
+                displayName: username 
+              })
             })
 
-          if (profileError) {
-            console.error('Profile creation error:', profileError)
-            // Don't throw here as the user is created
+            if (!profileResponse.ok) {
+              const profileError = await profileResponse.json()
+              console.error('Profile creation error:', profileError)
+              // Continue anyway - user is created
+            }
+          } catch (err) {
+            console.error('Failed to create profile:', err)
+            // Continue anyway - user can set up profile later
           }
         }
 
