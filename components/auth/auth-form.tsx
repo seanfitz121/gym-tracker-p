@@ -66,30 +66,7 @@ export function AuthForm() {
 
         if (signUpError) throw signUpError
 
-        // Create profile with username via API (to ensure proper permissions)
-        if (authData.user) {
-          try {
-            const profileResponse = await fetch('/api/users/create-profile', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                userId: authData.user.id,
-                username,
-                displayName: username 
-              })
-            })
-
-            if (!profileResponse.ok) {
-              const profileError = await profileResponse.json()
-              console.error('Profile creation error:', profileError)
-              // Continue anyway - user is created
-            }
-          } catch (err) {
-            console.error('Failed to create profile:', err)
-            // Continue anyway - user can set up profile later
-          }
-        }
-
+        // Profile is automatically created by database trigger
         toast.success('Account created! Please check your email to confirm.')
       } else {
         // Login with email or username
