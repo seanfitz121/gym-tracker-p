@@ -211,7 +211,7 @@ export function AuthForm() {
                 required
                 minLength={3}
                 maxLength={20}
-                pattern="^[a-zA-Z0-9_-]{3,20}$"
+                pattern="[a-zA-Z0-9_\-]{3,20}"
                 className="h-11"
               />
               <p className="text-xs text-gray-500">
