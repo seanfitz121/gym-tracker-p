@@ -22,6 +22,7 @@ export async function GET(
     }
 
     // Verify friendship
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: friendship } = await supabase
       .from('friend')
       .select('*')
@@ -97,6 +98,7 @@ export async function GET(
 
     // Get weekly XP data for timeline
     const weeksAgo = Math.ceil(days / 7)
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: weeklyXp } = await supabase
       .from('weekly_xp')
       .select('user_id, iso_week, xp, workouts, volume_kg')

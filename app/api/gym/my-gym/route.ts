@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's gym membership
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: membership } = await supabase
       .from('gym_member')
       .select('gym_code, is_approved')
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get gym details
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: gym, error: gymError } = await supabase
       .from('gym')
       .select('*')
@@ -33,6 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get member count
+    // @ts-ignore - Table exists but types not yet regenerated
     const { count: memberCount } = await supabase
       .from('gym_member')
       .select('*', { count: 'exact', head: true })

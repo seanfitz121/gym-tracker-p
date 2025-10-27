@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'pending'
 
+    // @ts-ignore - Table exists but types not yet regenerated
     let query = supabase
       .from('anti_cheat_flag')
       .select('*')
@@ -90,7 +91,8 @@ export async function PATCH(request: NextRequest) {
 
     const newStatus = action === 'clear' ? 'cleared' : 'confirmed'
 
-    const { error: updateError } = await supabase
+      // @ts-ignore - Table exists but types not yet regenerated
+      const { error: updateError } = await supabase
       .from('anti_cheat_flag')
       .update({
         status: newStatus,

@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Get gym memberships for users
     const userIds = Array.from(userStats.keys())
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: gymMemberships } = await supabase
       .from('gym_member')
       .select('user_id, gym_code')
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     }))
 
     if (updates.length > 0) {
+      // @ts-ignore - Table exists but types not yet regenerated
       const { error: upsertError } = await supabase
         .from('weekly_xp')
         .upsert(updates, {

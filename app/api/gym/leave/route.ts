@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Remove membership
+    // @ts-ignore - Table exists but types not yet regenerated
     const { error: deleteError } = await supabase
       .from('gym_member')
       .delete()

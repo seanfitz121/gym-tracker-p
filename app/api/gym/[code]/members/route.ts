@@ -10,6 +10,7 @@ export async function GET(
     const { code: gymCode } = await params
 
     // Get gym members
+    // @ts-ignore - Table exists but types not yet regenerated
     const { data: members, error } = await supabase
       .from('gym_member')
       .select('user_id, joined_at, opt_in, is_approved')
