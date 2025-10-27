@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { friend_id: string } }
+  { params }: { params: Promise<{ friend_id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const friendId = params.friend_id
+    const { friend_id: friendId } = await params
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '7')
 
