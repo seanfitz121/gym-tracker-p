@@ -69,13 +69,13 @@ export function SettingsForm({ userId }: SettingsFormProps) {
 
   const handleUpdateDisplayName = async () => {
     if (!displayName.trim()) {
-      toast.error('Nickname cannot be empty')
+      toast.error('Display name cannot be empty')
       return
     }
 
     const result = await updateProfile(userId, { display_name: displayName.trim() })
     if (result) {
-      toast.success('Nickname updated')
+      toast.success('Display name updated')
       setIsEditingName(false)
       refresh()
       // Notify other components that profile was updated
@@ -83,7 +83,7 @@ export function SettingsForm({ userId }: SettingsFormProps) {
         window.dispatchEvent(new Event('profile-updated'))
       }, 100)
     } else {
-      toast.error('Failed to update nickname')
+      toast.error('Failed to update display name')
     }
   }
 
@@ -180,14 +180,27 @@ export function SettingsForm({ userId }: SettingsFormProps) {
             </div>
           </div>
 
+          {/* Username (read-only) */}
+          <div className="space-y-2">
+            <Label>Username</Label>
+            <Input
+              value={(profile as any)?.username || 'Loading...'}
+              disabled
+              className="bg-gray-50 dark:bg-gray-900"
+            />
+            <p className="text-xs text-gray-500">
+              Your unique username cannot be changed
+            </p>
+          </div>
+
           {/* Display Name */}
           <div className="space-y-2">
-            <Label>Nickname</Label>
+            <Label>Display Name</Label>
             <div className="flex gap-2">
               <Input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter your nickname"
+                placeholder="Enter your display name"
                 className="flex-1"
                 disabled={updateLoading || profileLoading}
                 onFocus={() => setIsEditingName(true)}
@@ -202,6 +215,9 @@ export function SettingsForm({ userId }: SettingsFormProps) {
                 </Button>
               )}
             </div>
+            <p className="text-xs text-gray-500">
+              Your display name shown to other users
+            </p>
           </div>
         </CardContent>
       </Card>

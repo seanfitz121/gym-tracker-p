@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 
 export function AuthForm() {
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -23,20 +24,88 @@ export function AuthForm() {
       const supabase = createClient()
 
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Validate username format
+        if (!/^[a-zA-Z0-9_-]{3,20}$/.test(username)) {
+          toast.error('Username must be 3-20 characters (letters, numbers, _, -)')
+          setLoading(false)
+          return
+        }
+
+        // Check if username is already taken
+        const { data: existingUser } = await supabase
+          .from('profile')
+          .select('username')
+          .eq('username', username)
+          .single()
+
+        if (existingUser) {
+          toast.error('Username is already taken')
+          setLoading(false)
+          return
+        }
+
+        // Create auth user
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/app/log`,
+            data: {
+              username,
+            }
           },
         })
 
-        if (error) throw error
+        if (signUpError) throw signUpError
+
+        // Create profile with username
+        if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profile')
+            .insert({
+              id: authData.user.id,
+              username,
+              display_name: username, // Default display_name to username
+            })
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError)
+            // Don't throw here as the user is created
+          }
+        }
 
         toast.success('Account created! Please check your email to confirm.')
       } else {
+        // Login with email or username
+        let loginEmail = email
+
+        // Check if input looks like a username (no @ symbol)
+        if (!email.includes('@')) {
+          // Look up email by username via API
+          try {
+            const response = await fetch('/api/auth/username-to-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username: email })
+            })
+
+            if (!response.ok) {
+              toast.error('Invalid username or password')
+              setLoading(false)
+              return
+            }
+
+            const data = await response.json()
+            loginEmail = data.email
+          } catch (err) {
+            toast.error('Invalid username or password')
+            setLoading(false)
+            return
+          }
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: loginEmail,
           password,
         })
 
@@ -114,12 +183,34 @@ export function AuthForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleEmailPassword} className="space-y-4">
+          {isSignUp && (
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="cool_username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                minLength={3}
+                maxLength={20}
+                pattern="^[a-zA-Z0-9_-]{3,20}$"
+                className="h-11"
+              />
+              <p className="text-xs text-gray-500">
+                3-20 characters (letters, numbers, _, -)
+              </p>
+            </div>
+          )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">
+              {isSignUp ? 'Email' : 'Email or Username'}
+            </Label>
             <Input
               id="email"
-              type="email"
-              placeholder="you@example.com"
+              type={isSignUp ? 'email' : 'text'}
+              placeholder={isSignUp ? 'you@example.com' : 'email or username'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

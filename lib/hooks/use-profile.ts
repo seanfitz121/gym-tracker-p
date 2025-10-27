@@ -25,16 +25,9 @@ export function useProfile(userId?: string) {
           .single()
 
         if (error) {
-          // If profile doesn't exist, create it
+          // Profile doesn't exist - this is expected for users who haven't completed setup
           if (error.code === 'PGRST116') {
-            const { data: newProfile, error: insertError } = await supabase
-              .from('profile')
-              .insert({ id: userId })
-              .select()
-              .single()
-
-            if (insertError) throw insertError
-            setProfile(newProfile)
+            setProfile(null)
           } else {
             throw error
           }

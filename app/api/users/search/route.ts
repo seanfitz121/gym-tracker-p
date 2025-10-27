@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Query must be at least 2 characters' }, { status: 400 })
     }
 
-    // Search for users by display_name (case-insensitive, partial match)
+    // Search for users by username (case-insensitive, partial match)
     const { data: users, error } = await supabase
       .from('profile')
-      .select('id, display_name, avatar_url')
-      .ilike('display_name', `%${query.trim()}%`)
+      .select('id, username, display_name, avatar_url')
+      .ilike('username', `%${query.trim()}%`)
       .neq('id', user.id) // Exclude current user
       .limit(10)
 

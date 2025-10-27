@@ -58,7 +58,7 @@ export function SendFriendRequestDialog({ onRequestSent }: SendFriendRequestDial
         return
       }
 
-      toast.success(`Friend request sent to ${targetUser.display_name}!`)
+      toast.success(`Friend request sent to @${targetUser.username}!`)
 
       setUsername('')
       setOpen(false)
