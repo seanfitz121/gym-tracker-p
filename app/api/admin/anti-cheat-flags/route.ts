@@ -45,14 +45,17 @@ export async function GET(request: NextRequest) {
     const userIds = flags.map(f => f.user_id)
     const { data: profiles } = await supabase
       .from('profile')
-      .select('user_id, display_name, avatar_url')
-      .in('user_id', userIds)
+      .select('id, display_name, avatar_url')
+      .in('id', userIds)
 
     // Attach profiles to flags
-    const flagsWithProfiles = flags.map(flag => ({
-      ...flag,
-      user_profile: profiles?.find(p => p.user_id === flag.user_id)
-    }))
+    const flagsWithProfiles = flags.map(flag => {
+      const profile = profiles?.find(p => p.id === flag.user_id)
+      return {
+        ...flag,
+        user_profile: profile ? { ...profile, user_id: profile.id } : null
+      }
+    })
 
     return NextResponse.json({ flags: flagsWithProfiles })
   } catch (error) {

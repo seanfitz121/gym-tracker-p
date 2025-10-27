@@ -350,7 +350,8 @@ export function useAddBadge() {
       }
 
       // Check if badge already exists
-      if (current.badges.includes(badgeId)) {
+      const currentBadges = current.badges || []
+      if (currentBadges.includes(badgeId)) {
         return false
       }
 
@@ -358,7 +359,7 @@ export function useAddBadge() {
       await supabase
         .from('user_gamification')
         .update({
-          badges: [...current.badges, badgeId],
+          badges: [...currentBadges, badgeId],
         })
         .eq('user_id', userId)
 

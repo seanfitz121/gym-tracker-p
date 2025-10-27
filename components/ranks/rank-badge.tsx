@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils'
 import type { UserRank } from '@/lib/types'
 
 interface RankBadgeProps {
-  rank: UserRank
+  rank?: UserRank
+  rankCode?: string | null
   size?: 'sm' | 'md' | 'lg'
   showIcon?: boolean
   showName?: boolean
@@ -61,13 +62,23 @@ const sizeMap = {
 
 export function RankBadge({ 
   rank, 
+  rankCode,
   size = 'md', 
   showIcon = true, 
   showName = true,
   className 
 }: RankBadgeProps) {
-  const Icon = iconMap[rank.icon || 'star'] || Star
-  const colorClass = colorMap[rank.color || 'slate'] || colorMap.slate
+  // If only rankCode is provided, create a simple rank object
+  const displayRank: UserRank = rank || {
+    code: rankCode || 'unknown',
+    name: rankCode || 'Unknown',
+    scale: 'default',
+    color: 'slate',
+    icon: 'star'
+  }
+
+  const Icon = iconMap[displayRank.icon || 'star'] || Star
+  const colorClass = colorMap[displayRank.color || 'slate'] || colorMap.slate
   const sizeClasses = sizeMap[size]
 
   return (
@@ -81,7 +92,7 @@ export function RankBadge({
       )}
     >
       {showIcon && <Icon className={sizeClasses.icon} />}
-      {showName && <span>{rank.name}</span>}
+      {showName && <span>{displayRank.name}</span>}
     </Badge>
   )
 }

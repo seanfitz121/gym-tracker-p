@@ -160,7 +160,7 @@ export function Leaderboard({ userId, currentGymCode }: LeaderboardProps) {
                               <Badge variant="outline" className="text-xs">New</Badge>
                             )}
                             {entry.is_flagged && (
-                              <AlertCircle className="h-4 w-4 text-yellow-500" title="Flagged" />
+                              <AlertCircle className="h-4 w-4 text-yellow-500" />
                             )}
                           </div>
                           {entry.rank_code && (

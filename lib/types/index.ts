@@ -1,4 +1,4 @@
-import type { Database } from '../supabase/types'
+import type { Database } from '../supabase/database.types'
 
 // Database types
 export type Profile = Database['public']['Tables']['profile']['Row'] & {

@@ -154,7 +154,7 @@ export function WorkoutSessionDetails({ sessionId, onClose, userId }: WorkoutSes
           weight: set.weight,
           weightUnit: set.weight_unit,
           rpe: set.rpe || undefined,
-          isWarmup: set.is_warmup,
+          isWarmup: set.is_warmup || false,
         })
       })
     })
@@ -197,8 +197,8 @@ export function WorkoutSessionDetails({ sessionId, onClose, userId }: WorkoutSes
               weight: set.weight,
               weightUnit: set.weight_unit,
               rpe: set.rpe || undefined,
-              isWarmup: set.is_warmup,
-              isDropStep: set.is_drop_step,
+              isWarmup: set.is_warmup || false,
+              isDropStep: set.is_drop_step || false,
               dropOrder: set.drop_order || undefined,
             })
           })

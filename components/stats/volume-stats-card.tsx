@@ -55,6 +55,8 @@ export function VolumeStatsCard({ userId }: VolumeStatsCardProps) {
         let yearVolume = 0
 
         sets.forEach((set) => {
+          if (!set.created_at) return
+          
           const setDate = new Date(set.created_at)
           // Convert weight to kg if it's in lb
           const weightInKg = set.weight_unit === 'lb' 

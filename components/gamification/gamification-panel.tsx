@@ -83,7 +83,7 @@ export function GamificationPanel({ userId }: GamificationPanelProps) {
               <div className="bg-yellow-50 dark:bg-yellow-950/30 p-3 rounded-lg">
                 <Trophy className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
                 <div className="text-xs text-gray-600 dark:text-gray-400">Badges</div>
-                <div className="text-lg font-bold">{gamification.badges.length}</div>
+                <div className="text-lg font-bold">{gamification.badges?.length || 0}</div>
               </div>
             </div>
 

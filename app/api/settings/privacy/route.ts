@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const { data: profile } = await supabase
       .from('profile')
       .select('friend_request_privacy, show_on_global_leaderboard, show_on_gym_leaderboard, friends_list_public')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (!profile) {
@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('profile')
       .update(updates)
-      .eq('user_id', user.id)
+      .eq('id', user.id)
 
     if (updateError) throw updateError
 

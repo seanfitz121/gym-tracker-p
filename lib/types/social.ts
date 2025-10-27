@@ -201,10 +201,10 @@ export interface AntiCheatThresholds {
 // ============================================================================
 
 export interface PrivacySettings {
-  friend_request_privacy: FriendRequestPrivacy
-  show_on_global_leaderboard: boolean
-  show_on_gym_leaderboard: boolean
-  friends_list_public: boolean
+  friend_requests: FriendRequestPrivacy
+  global_leaderboard: string
+  gym_leaderboard: string
+  public_profile: boolean
 }
 
 // ============================================================================

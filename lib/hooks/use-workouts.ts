@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '../supabase/client'
-import type { WorkoutSession, SetEntry, WorkoutSessionWithSets, ActiveWorkout } from '../types'
+import type { WorkoutSession, SetEntry, WorkoutSessionWithSets, ActiveWorkout, BlockType } from '../types'
 import { calculateEstimated1RM } from '../utils/calculations'
 import { validateWorkout, createAntiCheatFlag } from '../utils/anti-cheat'
 
@@ -90,7 +90,11 @@ export function useWorkoutSession(sessionId?: string) {
         setSession({
           ...sessionData,
           sets: setsData || [],
-          blocks: blocksData || [],
+          blocks: (blocksData || []).map(block => ({
+            ...block,
+            block_type: block.block_type as BlockType,
+            rest_between_rounds: block.rest_between_rounds || 0,
+          })),
         })
       } catch (err) {
         setError(err as Error)

@@ -15,41 +15,42 @@ interface ToolCardProps {
 }
 
 function ToolCard({ href, icon, title, description, isPremium, comingSoon }: ToolCardProps) {
-  const CardWrapper = comingSoon ? 'div' : Link
+  const content = (
+    <Card className={`h-full ${comingSoon ? 'opacity-60' : 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600'}`}>
+      <CardHeader className="space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-3 w-fit">
+            {icon}
+          </div>
+          <div className="flex gap-2">
+            {isPremium && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                Premium
+              </Badge>
+            )}
+            {comingSoon && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Soon
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div>
+          <CardTitle className="text-lg">{title}</CardTitle>
+          <CardDescription className="mt-2">{description}</CardDescription>
+        </div>
+      </CardHeader>
+    </Card>
+  )
 
-  return (
-    <CardWrapper 
-      href={comingSoon ? undefined : href}
-      className={comingSoon ? 'block' : 'block transition-all hover:scale-[1.02] active:scale-[0.98]'}
-    >
-      <Card className={`h-full ${comingSoon ? 'opacity-60' : 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-600'}`}>
-        <CardHeader className="space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-3 w-fit">
-              {icon}
-            </div>
-            <div className="flex gap-2">
-              {isPremium && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Lock className="h-3 w-3" />
-                  Premium
-                </Badge>
-              )}
-              {comingSoon && (
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  Soon
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div>
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription className="mt-2">{description}</CardDescription>
-          </div>
-        </CardHeader>
-      </Card>
-    </CardWrapper>
+  return comingSoon ? (
+    <div className="block">{content}</div>
+  ) : (
+    <Link href={href} className="block transition-all hover:scale-[1.02] active:scale-[0.98]">
+      {content}
+    </Link>
   )
 }
 

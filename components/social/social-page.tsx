@@ -93,7 +93,7 @@ export function SocialPage({ userId }: SocialPageProps) {
 
       {isAdmin && (
         <div className="fixed bottom-4 right-4">
-          <Shield className="h-6 w-6 text-yellow-500" title="Admin" />
+          <Shield className="h-6 w-6 text-yellow-500" />
         </div>
       )}
     </div>

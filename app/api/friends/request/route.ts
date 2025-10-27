@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const { data: targetProfile } = await supabase
       .from('profile')
       .select('friend_request_privacy')
-      .eq('user_id', to_user_id)
+      .eq('id', to_user_id)
       .single()
 
     if (!targetProfile) {
@@ -52,16 +52,20 @@ export async function POST(request: NextRequest) {
 
     if (targetProfile.friend_request_privacy === 'friends_of_friends') {
       // Check if they have mutual friends
+      // First get the target user's friends
+      const { data: targetFriends } = await supabase
+        .from('friend')
+        .select('friend_id')
+        .eq('user_id', to_user_id)
+
+      const targetFriendIds = targetFriends?.map(f => f.friend_id) || []
+
+      // Then check if current user is friends with any of them
       const { data: mutualFriends } = await supabase
         .from('friend')
         .select('friend_id')
         .eq('user_id', user.id)
-        .in('friend_id', 
-          supabase
-            .from('friend')
-            .select('friend_id')
-            .eq('user_id', to_user_id)
-        )
+        .in('friend_id', targetFriendIds)
 
       if (!mutualFriends || mutualFriends.length === 0) {
         return NextResponse.json({ error: 'You must have mutual friends to send a request' }, { status: 403 })
@@ -129,15 +133,36 @@ export async function GET(request: NextRequest) {
       const userIds = [...new Set(requests.flatMap(r => [r.from_user, r.to_user]))]
       const { data: profiles } = await supabase
         .from('profile')
-        .select('user_id, display_name, avatar_url, rank_code')
+        .select('id, display_name, avatar_url')
+        .in('id', userIds)
+
+      // Get rank_code from user_gamification
+      const { data: gamificationData } = await supabase
+        .from('user_gamification')
+        .select('user_id, rank_code')
         .in('user_id', userIds)
 
       // Attach profiles to requests
-      const requestsWithProfiles = requests.map(req => ({
-        ...req,
-        from_profile: profiles?.find(p => p.user_id === req.from_user),
-        to_profile: profiles?.find(p => p.user_id === req.to_user)
-      }))
+      const requestsWithProfiles = requests.map(req => {
+        const fromProfile = profiles?.find(p => p.id === req.from_user)
+        const toProfile = profiles?.find(p => p.id === req.to_user)
+        const fromGamification = gamificationData?.find(g => g.user_id === req.from_user)
+        const toGamification = gamificationData?.find(g => g.user_id === req.to_user)
+        
+        return {
+          ...req,
+          from_profile: fromProfile ? { 
+            ...fromProfile, 
+            user_id: fromProfile.id,
+            rank_code: fromGamification?.rank_code || null
+          } : null,
+          to_profile: toProfile ? { 
+            ...toProfile, 
+            user_id: toProfile.id,
+            rank_code: toGamification?.rank_code || null
+          } : null
+        }
+      })
 
       return NextResponse.json({ requests: requestsWithProfiles })
     }

@@ -26,14 +26,28 @@ export async function GET(
     const memberIds = members.map(m => m.user_id)
     const { data: profiles } = await supabase
       .from('profile')
-      .select('user_id, display_name, avatar_url, rank_code')
+      .select('id, display_name, avatar_url')
+      .in('id', memberIds)
+
+    // Get rank_code from user_gamification
+    const { data: gamificationData } = await supabase
+      .from('user_gamification')
+      .select('user_id, rank_code')
       .in('user_id', memberIds)
 
     // Attach profiles to members
-    const membersWithProfiles = members.map(member => ({
-      ...member,
-      profile: profiles?.find(p => p.user_id === member.user_id)
-    }))
+    const membersWithProfiles = members.map(member => {
+      const profile = profiles?.find(p => p.id === member.user_id)
+      const gamification = gamificationData?.find(g => g.user_id === member.user_id)
+      return {
+        ...member,
+        profile: profile ? { 
+          ...profile, 
+          user_id: profile.id,
+          rank_code: gamification?.rank_code || null
+        } : null
+      }
+    })
 
     return NextResponse.json({ members: membersWithProfiles })
   } catch (error) {

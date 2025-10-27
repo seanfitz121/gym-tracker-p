@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
     // Get profiles for friends
     const { data: profiles } = await supabase
       .from('profile')
-      .select('user_id, display_name, avatar_url, rank_code')
-      .in('user_id', friendIds)
+      .select('id, display_name, avatar_url')
+      .in('id', friendIds)
 
     // Get gamification data for friends
     const { data: gamificationData } = await supabase
       .from('user_gamification')
-      .select('user_id, total_xp, current_streak')
+      .select('user_id, total_xp, current_streak, rank_code')
       .in('user_id', friendIds)
 
     // Get weekly XP for each friend (current week)
@@ -66,17 +66,17 @@ export async function GET(request: NextRequest) {
 
     // Build friends with stats
     const friendsWithStats = friends.map(friend => {
-      const profile = profiles?.find(p => p.user_id === friend.friend_id)
+      const profile = profiles?.find(p => p.id === friend.friend_id)
       const gamification = gamificationData?.find(g => g.user_id === friend.friend_id)
       const weeklyData = weeklyXpData.find(wx => wx.user_id === friend.friend_id)
       const topPR = topPRs?.find(pr => pr.user_id === friend.friend_id)
       const exercise = topPR ? exercises?.find(e => e.id === topPR.exercise_id) : null
 
       return {
-        user_id: friend.friend_id,
+        user_id: friend.friend_id, // Keep as user_id for backwards compatibility
         display_name: profile?.display_name,
         avatar_url: profile?.avatar_url,
-        rank_code: profile?.rank_code,
+        rank_code: gamification?.rank_code || null,
         weekly_xp: weeklyData?.xp || 0,
         total_workouts: weeklyData?.workouts || 0,
         current_streak: gamification?.current_streak || 0,

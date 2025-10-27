@@ -41,35 +41,47 @@ export async function GET(
     // Get both users' profiles
     const { data: profiles } = await supabase
       .from('profile')
-      .select('user_id, display_name, avatar_url, rank_code')
-      .in('user_id', [user.id, friendId])
+      .select('id, display_name, avatar_url')
+      .in('id', [user.id, friendId])
 
-    const userProfile = profiles?.find(p => p.user_id === user.id)
-    const friendProfile = profiles?.find(p => p.user_id === friendId)
+    const userProfile = profiles?.find(p => p.id === user.id)
+    const friendProfile = profiles?.find(p => p.id === friendId)
 
     // Get gamification stats
     const { data: gamificationStats } = await supabase
       .from('user_gamification')
-      .select('user_id, total_xp, current_streak, total_workouts')
+      .select('user_id, total_xp, current_streak, rank_code')
       .in('user_id', [user.id, friendId])
 
     const userGamification = gamificationStats?.find(g => g.user_id === user.id)
     const friendGamification = gamificationStats?.find(g => g.user_id === friendId)
 
+    // Get total workout counts for both users
+    const { count: userTotalWorkouts } = await supabase
+      .from('workout_session')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    const { count: friendTotalWorkouts } = await supabase
+      .from('workout_session')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', friendId)
+
     // Get workouts in date range for both users
     const { data: workouts } = await supabase
       .from('workout_session')
-      .select(`
-        id,
-        user_id,
-        created_at,
-        total_volume_kg,
-        set_entries:set_entry(count)
-      `)
+      .select('id, user_id, created_at')
       .in('user_id', [user.id, friendId])
       .gte('created_at', startDate.toISOString())
       .lte('created_at', endDate.toISOString())
       .order('created_at', { ascending: true })
+
+    // Get set entries for these workouts to calculate volume and count sets
+    const workoutIds = workouts?.map(w => w.id) || []
+    const { data: setEntries } = await supabase
+      .from('set_entry')
+      .select('session_id, weight, reps, weight_unit, is_warmup')
+      .in('session_id', workoutIds)
 
     // Get PR counts in date range
     const { count: userPRCount } = await supabase
@@ -108,11 +120,25 @@ export async function GET(
     const userWorkouts = workouts?.filter(w => w.user_id === user.id) || []
     const friendWorkouts = workouts?.filter(w => w.user_id === friendId) || []
 
-    const userTotalVolume = userWorkouts.reduce((sum, w) => sum + (Number(w.total_volume_kg) || 0), 0)
-    const friendTotalVolume = friendWorkouts.reduce((sum, w) => sum + (Number(w.total_volume_kg) || 0), 0)
+    // Calculate volume from set entries (weight * reps, convert lb to kg if needed)
+    const calculateVolume = (sessionId: string) => {
+      const sets = setEntries?.filter(s => s.session_id === sessionId) || []
+      return sets.reduce((sum, set) => {
+        const weightInKg = set.weight_unit === 'lb' ? set.weight * 0.453592 : set.weight
+        return sum + (weightInKg * set.reps)
+      }, 0)
+    }
 
-    const userTotalSets = userWorkouts.reduce((sum, w) => sum + (w.set_entries?.count || 0), 0)
-    const friendTotalSets = friendWorkouts.reduce((sum, w) => sum + (w.set_entries?.count || 0), 0)
+    const userTotalVolume = userWorkouts.reduce((sum, w) => sum + calculateVolume(w.id), 0)
+    const friendTotalVolume = friendWorkouts.reduce((sum, w) => sum + calculateVolume(w.id), 0)
+
+    // Count sets (excluding warmups)
+    const countSets = (sessionId: string) => {
+      return setEntries?.filter(s => s.session_id === sessionId && !s.is_warmup).length || 0
+    }
+
+    const userTotalSets = userWorkouts.reduce((sum, w) => sum + countSets(w.id), 0)
+    const friendTotalSets = friendWorkouts.reduce((sum, w) => sum + countSets(w.id), 0)
 
     // Calculate weekly XP in period
     const userWeeklyXp = weeklyXp?.filter(wx => wx.user_id === user.id) || []
@@ -142,10 +168,10 @@ export async function GET(
         id: user.id,
         display_name: userProfile?.display_name,
         avatar_url: userProfile?.avatar_url,
-        rank_code: userProfile?.rank_code,
+        rank_code: userGamification?.rank_code,
         total_xp: userGamification?.total_xp || 0,
         current_streak: userGamification?.current_streak || 0,
-        total_workouts: userGamification?.total_workouts || 0,
+        total_workouts: userTotalWorkouts || 0,
         total_prs: userTotalPRs || 0,
         period_stats: {
           xp: userXpInPeriod,
@@ -159,10 +185,10 @@ export async function GET(
         id: friendId,
         display_name: friendProfile?.display_name,
         avatar_url: friendProfile?.avatar_url,
-        rank_code: friendProfile?.rank_code,
+        rank_code: friendGamification?.rank_code,
         total_xp: friendGamification?.total_xp || 0,
         current_streak: friendGamification?.current_streak || 0,
-        total_workouts: friendGamification?.total_workouts || 0,
+        total_workouts: friendTotalWorkouts || 0,
         total_prs: friendTotalPRs || 0,
         period_stats: {
           xp: friendXpInPeriod,

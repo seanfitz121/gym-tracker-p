@@ -26,7 +26,7 @@ export function calculateSetVolume(reps: number, weight: number): number {
 /**
  * Calculate total volume for multiple sets
  */
-export function calculateTotalVolume(sets: Array<{ reps: number; weight: number; is_warmup?: boolean }>): number {
+export function calculateTotalVolume(sets: Array<{ reps: number; weight: number; is_warmup?: boolean | null }>): number {
   return sets
     .filter(set => !set.is_warmup)
     .reduce((total, set) => total + calculateSetVolume(set.reps, set.weight), 0)

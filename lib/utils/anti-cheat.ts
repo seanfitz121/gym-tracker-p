@@ -83,28 +83,12 @@ export async function validateWorkout(
     severity = severity === 'high' ? 'high' : 'medium'
   }
 
-  // Check for user's historical patterns (anomaly detection)
-  const supabase = createClient()
-  
-  // Get user's last 10 workouts
-  const { data: recentSessions } = await supabase
-    .from('workout_session')
-    .select('total_volume_kg, xp_earned, created_at')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  if (recentSessions && recentSessions.length >= 5) {
-    const avgVolume = recentSessions.reduce((sum, s) => sum + (Number(s.total_volume_kg) || 0), 0) / recentSessions.length
-    
-    // Flag if this workout is >5x their median
-    if (totalVolumeKg > avgVolume * 5) {
-      flags.push(`Volume spike: ${Math.round(totalVolumeKg)}kg vs ${Math.round(avgVolume)}kg median (5x spike)`)
-      severity = 'medium'
-    }
-  }
+  // Note: Historical pattern checking (volume spike detection) is disabled
+  // because workout_session doesn't store total_volume_kg - it would need to be 
+  // calculated from set_entry table which would be too expensive for validation
 
   // Check account age (new user throttling)
+  const supabase = createClient()
   const { data: profile } = await supabase
     .from('profile')
     .select('account_verified_at')

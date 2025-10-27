@@ -27,20 +27,39 @@ export async function POST(request: NextRequest) {
 
     const { data: sessions, error: sessionsError } = await supabase
       .from('workout_session')
-      .select('user_id, total_volume_kg, xp_earned, created_at')
+      .select('id, user_id, created_at')
       .gte('created_at', startOfWeek.toISOString())
 
     if (sessionsError) throw sessionsError
+
+    // Get set entries for all sessions to calculate volume and XP
+    const sessionIds = sessions?.map(s => s.id) || []
+    const { data: setEntries } = await supabase
+      .from('set_entry')
+      .select('session_id, weight, reps, weight_unit, is_warmup')
+      .in('session_id', sessionIds)
+
+    // Calculate volume for each session
+    const sessionVolumes = new Map<string, number>()
+    setEntries?.forEach(set => {
+      const weightInKg = set.weight_unit === 'lb' ? set.weight * 0.453592 : set.weight
+      const volume = weightInKg * set.reps
+      sessionVolumes.set(set.session_id, (sessionVolumes.get(set.session_id) || 0) + volume)
+    })
 
     // Group by user
     const userStats = new Map<string, { xp: number, workouts: number, volume: number }>()
 
     sessions?.forEach(session => {
+      const volume = sessionVolumes.get(session.id) || 0
+      // Calculate XP: base 100 per workout + 1 XP per kg of volume
+      const xp = 100 + Math.floor(volume)
+      
       const existing = userStats.get(session.user_id) || { xp: 0, workouts: 0, volume: 0 }
       userStats.set(session.user_id, {
-        xp: existing.xp + (session.xp_earned || 0),
+        xp: existing.xp + xp,
         workouts: existing.workouts + 1,
-        volume: existing.volume + (Number(session.total_volume_kg) || 0)
+        volume: existing.volume + volume
       })
     })
 

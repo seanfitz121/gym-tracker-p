@@ -1,20 +1,9 @@
 // Premium Subscription Types
+import type { Database } from '../supabase/database.types'
 
 export type SubscriptionStatus = 'active' | 'inactive' | 'canceled' | 'past_due' | 'trialing'
 
-export interface PremiumSubscription {
-  id: string
-  user_id: string
-  stripe_customer_id: string | null
-  stripe_subscription_id: string | null
-  stripe_price_id: string | null
-  status: SubscriptionStatus
-  current_period_start: string | null
-  current_period_end: string | null
-  cancel_at_period_end: boolean
-  created_at: string
-  updated_at: string
-}
+export type PremiumSubscription = Database['public']['Tables']['premium_subscription']['Row']
 
 export interface PremiumFeature {
   id: string

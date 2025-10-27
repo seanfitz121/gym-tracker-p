@@ -20,14 +20,31 @@ export async function GET(request: NextRequest) {
     // Search for users by display_name (case-insensitive, partial match)
     const { data: users, error } = await supabase
       .from('profile')
-      .select('user_id, display_name, avatar_url, rank_code')
+      .select('id, display_name, avatar_url')
       .ilike('display_name', `%${query.trim()}%`)
-      .neq('user_id', user.id) // Exclude current user
+      .neq('id', user.id) // Exclude current user
       .limit(10)
 
     if (error) throw error
 
-    return NextResponse.json({ users: users || [] })
+    // Get rank_code from user_gamification
+    if (!users || users.length === 0) {
+      return NextResponse.json({ users: [] })
+    }
+
+    const userIds = users.map(u => u.id)
+    const { data: gamificationData } = await supabase
+      .from('user_gamification')
+      .select('user_id, rank_code')
+      .in('user_id', userIds)
+    
+    const formattedUsers = users.map(u => ({
+      ...u,
+      user_id: u.id,
+      rank_code: gamificationData?.find(g => g.user_id === u.id)?.rank_code || null
+    }))
+
+    return NextResponse.json({ users: formattedUsers })
   } catch (error) {
     console.error('Error searching users:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
