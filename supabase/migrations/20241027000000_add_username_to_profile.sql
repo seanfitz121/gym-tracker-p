@@ -7,7 +7,7 @@ CREATE UNIQUE INDEX profile_username_unique ON profile(username);
 -- For existing users, generate temporary usernames from their email or ID
 -- This will need to be updated by users on first login
 UPDATE profile 
-SET username = 'user_' || substr(id, 1, 8)
+SET username = 'user_' || substr(id::text, 1, 8)
 WHERE username IS NULL;
 
 -- Make username NOT NULL after populating existing rows
