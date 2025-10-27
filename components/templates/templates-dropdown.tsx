@@ -1,69 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { useTemplates, useCreateTemplate, useDeleteTemplate } from '@/lib/hooks/use-templates'
+import { useTemplates, useDeleteTemplate } from '@/lib/hooks/use-templates'
 import { useWorkoutStore } from '@/lib/store/workout-store'
 import { useGetOrCreateExercise } from '@/lib/hooks/use-exercises'
 import { TemplateCard } from './template-card'
-import { CreateTemplateDialog } from './create-template-dialog'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, LayoutTemplate } from 'lucide-react'
 import { toast } from 'sonner'
 import type { TemplatePayload } from '@/lib/types'
 
-interface TemplateManagerProps {
+interface TemplatesDropdownProps {
   userId: string
 }
 
-export function TemplateManager({ userId }: TemplateManagerProps) {
+export function TemplatesDropdown({ userId }: TemplatesDropdownProps) {
   const { templates, loading } = useTemplates(userId)
-  const { createTemplate } = useCreateTemplate()
   const { deleteTemplate } = useDeleteTemplate()
-  const { startWorkout, addExercise, addSet, addBlock, addExerciseToBlock, addSetToBlock, activeWorkout } = useWorkoutStore()
+  const { startWorkout, addExercise, addSet, addBlock, addExerciseToBlock, addSetToBlock } = useWorkoutStore()
   const { getOrCreate } = useGetOrCreateExercise()
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-
-  const handleCreateFromWorkout = async (name: string) => {
-    if (!activeWorkout) {
-      toast.error('No active workout to save as template')
-      return
-    }
-
-    const payload: TemplatePayload = {
-      exercises: activeWorkout.exercises.map((ex) => ({
-        name: ex.name,
-        bodyPart: ex.bodyPart,
-        sets: ex.sets.map((set) => ({
-          reps: set.reps,
-          weight: set.weight,
-          rpe: set.rpe,
-        })),
-      })),
-      blocks: activeWorkout.blocks?.map((block) => ({
-        blockType: block.blockType,
-        rounds: block.rounds,
-        restBetweenRounds: block.restBetweenRounds,
-        exercises: block.exercises.map((ex) => ({
-          name: ex.name,
-          bodyPart: ex.bodyPart,
-          sets: ex.sets.map((set) => ({
-            reps: set.reps,
-            weight: set.weight,
-            rpe: set.rpe,
-          })),
-        })),
-      })),
-    }
-
-    const template = await createTemplate(userId, name, payload)
-
-    if (template) {
-      toast.success('Template created!')
-      setShowCreateDialog(false)
-    } else {
-      toast.error('Failed to create template')
-    }
-  }
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleLoadTemplate = async (templatePayload: any, name: string) => {
     const payload = templatePayload as TemplatePayload
@@ -140,33 +96,45 @@ export function TemplateManager({ userId }: TemplateManagerProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-4 text-gray-500 text-sm">
         Loading templates...
       </div>
     )
   }
 
+  if (templates.length === 0) {
+    return (
+      <div className="text-center py-4 px-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+        <LayoutTemplate className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+        <p className="text-sm text-gray-500 mb-1">No templates yet</p>
+        <p className="text-xs text-gray-400">
+          Complete a workout, then save it as a template in Tools → Workout Templates
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Button
-        onClick={() => setShowCreateDialog(true)}
-        className="w-full"
-        size="lg"
-        disabled={!activeWorkout}
+        onClick={() => setIsExpanded(!isExpanded)}
+        variant="outline"
+        className="w-full justify-between"
+        size="sm"
       >
-        <Plus className="mr-2 h-5 w-5" />
-        Save Current Workout as Template
+        <span className="flex items-center gap-2">
+          <LayoutTemplate className="h-4 w-4" />
+          Start from Template ({templates.length})
+        </span>
+        {isExpanded ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
       </Button>
 
-      {templates.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No templates yet</p>
-          <p className="text-sm text-gray-400">
-            Start a workout and save it as a template for quick access
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
+      {isExpanded && (
+        <div className="space-y-2 pt-2 max-h-[400px] overflow-y-auto">
           {templates.map((template) => (
             <TemplateCard
               key={template.id}
@@ -177,12 +145,6 @@ export function TemplateManager({ userId }: TemplateManagerProps) {
           ))}
         </div>
       )}
-
-      <CreateTemplateDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSubmit={handleCreateFromWorkout}
-      />
     </div>
   )
 }

@@ -19,6 +19,7 @@ export type RankScale = Database['public']['Tables']['rank_scale']['Row']
 export type RankDefinition = Database['public']['Tables']['rank_definition']['Row']
 export type AdminUser = Database['public']['Tables']['admin_user']['Row']
 export type WeightUnit = 'kg' | 'lb'
+export type BlockType = 'superset' | 'triset' | 'giant' | 'drop'
 
 // Extended rank types
 export interface UserRank {
@@ -45,6 +46,15 @@ export interface SetEntryWithExercise extends SetEntry {
 
 export interface WorkoutSessionWithSets extends WorkoutSession {
   sets: SetEntryWithExercise[]
+  blocks?: Array<{
+    id: string
+    session_id: string
+    block_type: BlockType
+    rounds: number
+    rest_between_rounds: number
+    position: number
+    created_at: string
+  }>
 }
 
 export interface ExerciseWithPR extends Exercise {
@@ -63,8 +73,16 @@ export interface TemplateExercise {
   notes?: string
 }
 
+export interface TemplateBlock {
+  blockType: BlockType
+  exercises: TemplateExercise[]
+  rounds: number
+  restBetweenRounds: number
+}
+
 export interface TemplatePayload {
   exercises: TemplateExercise[]
+  blocks?: TemplateBlock[]
 }
 
 // Gamification types
@@ -81,6 +99,9 @@ export interface WeeklyGoal {
   prTarget: number
   volumeTarget: number
 }
+
+// Re-export social types
+export * from './social'
 
 export interface Challenge {
   id: string
@@ -119,6 +140,10 @@ export interface ActiveSet {
   weightUnit: WeightUnit
   rpe?: number
   isWarmup: boolean
+  blockId?: string // reference to block if part of superset/drop-set
+  roundIndex?: number // which round this set belongs to (1-indexed)
+  isDropStep?: boolean // true if this is a drop step in a drop set
+  dropOrder?: number // order of the drop (1 = first drop, 2 = second drop, etc.)
 }
 
 export interface ActiveExercise {
@@ -126,6 +151,18 @@ export interface ActiveExercise {
   name: string
   bodyPart?: string
   sets: ActiveSet[]
+  blockId?: string // reference to block if part of one
+}
+
+export interface ActiveBlock {
+  id: string // temporary client-side ID
+  blockType: BlockType
+  exercises: ActiveExercise[] // exercises in this block
+  rounds: number
+  currentRound: number
+  restBetweenRounds: number // in seconds
+  position: number // order within workout
+  completedRounds: number[] // array of completed round indices
 }
 
 export interface ActiveWorkout {
@@ -133,7 +170,8 @@ export interface ActiveWorkout {
   startedAt: Date
   title?: string
   notes?: string
-  exercises: ActiveExercise[]
+  exercises: ActiveExercise[] // standalone exercises not in blocks
+  blocks: ActiveBlock[] // superset/drop-set blocks
 }
 
 // Settings

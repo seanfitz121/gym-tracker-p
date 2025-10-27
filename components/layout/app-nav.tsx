@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Dumbbell, History, TrendingUp, LayoutTemplate } from 'lucide-react'
+import { Dumbbell, History, TrendingUp, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/app/log', label: 'Log', icon: Dumbbell },
   { href: '/app/history', label: 'History', icon: History },
   { href: '/app/progress', label: 'Progress', icon: TrendingUp },
-  { href: '/app/templates', label: 'Templates', icon: LayoutTemplate },
+  { href: '/app/social', label: 'Social', icon: Users },
 ]
 
 export function AppNav() {

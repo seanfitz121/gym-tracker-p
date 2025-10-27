@@ -9,24 +9,29 @@ import { useAddXP, useUpdateStreak, useAddBadge } from '@/lib/hooks/use-gamifica
 import { createClient } from '@/lib/supabase/client'
 import { ExerciseSelector } from './exercise-selector'
 import { ExerciseBlock } from './exercise-block'
+import { BlockCard } from './block-card'
+import { CreateBlockDialog } from './create-block-dialog'
 import { RestTimer } from './rest-timer'
+import { TemplatesDropdown } from '@/components/templates/templates-dropdown'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { Play, Square, Plus } from 'lucide-react'
+import { Play, Square, Plus, Layers } from 'lucide-react'
 import { toast } from 'sonner'
 import { calculateSessionDuration, formatDuration } from '@/lib/utils/calculations'
 import { celebratePR } from '@/lib/utils/confetti'
 import { playStartSound, playCelebrationSound } from '@/lib/utils/sounds'
+import type { BlockType } from '@/lib/types'
 
 interface WorkoutLoggerProps {
   userId: string
 }
 
 export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
-  const { activeWorkout, startWorkout, updateWorkout, addExercise, clearWorkout } = useWorkoutStore()
+  const { activeWorkout, startWorkout, updateWorkout, addExercise, addBlock, clearWorkout } = useWorkoutStore()
   const { defaultWeightUnit } = useSettingsStore()
   const { saveWorkout, loading: saving } = useSaveWorkout()
   const { checkAndCreatePR } = useCheckAndCreatePR()
@@ -35,6 +40,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
   const { addBadge } = useAddBadge()
   
   const [showExerciseSelector, setShowExerciseSelector] = useState(false)
+  const [showCreateBlockDialog, setShowCreateBlockDialog] = useState(false)
   const [showEndDialog, setShowEndDialog] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -62,11 +68,17 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
     setShowExerciseSelector(false)
   }
 
+  const handleCreateBlock = (blockType: BlockType, rounds: number, restBetweenRounds: number) => {
+    addBlock(blockType, rounds, restBetweenRounds)
+    toast.success('Block created! Add exercises to get started')
+  }
+
   const handleEndWorkout = async () => {
     if (!activeWorkout) return
 
-    // Check if workout has any sets
-    const totalSets = activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.length, 0)
+    // Check if workout has any sets (including blocks)
+    const totalSets = activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.length, 0) +
+                      activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.reduce((exSum, ex) => exSum + ex.sets.length, 0), 0)
     if (totalSets === 0) {
       toast.error('Add at least one set before ending workout')
       return
@@ -109,6 +121,17 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
           }
           // XP per work set
           totalXP += workSets.length
+        })
+        
+        // XP from blocks (supersets/drop-sets)
+        activeWorkout.blocks.forEach((block) => {
+          // Bonus XP for completing blocks
+          totalXP += 10 // Bonus for using advanced training methods
+          
+          block.exercises.forEach((exercise) => {
+            const workSets = exercise.sets.filter(s => !s.isWarmup)
+            totalXP += workSets.length
+          })
         })
 
         // Award XP with anti-cheat measures
@@ -181,15 +204,28 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         <CardHeader>
           <CardTitle className="text-xl text-center">Ready to Train?</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Button
             onClick={handleStartWorkout}
             size="lg"
             className="w-full"
           >
             <Play className="mr-2 h-5 w-5" />
-            Start Workout
+            Start Empty Workout
           </Button>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-gray-950 px-2 text-gray-500">
+                Or
+              </span>
+            </div>
+          </div>
+
+          <TemplatesDropdown userId={userId} />
         </CardContent>
       </Card>
     )
@@ -215,17 +251,31 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
             </div>
             <div>
               <div className="text-gray-500 text-xs">Exercises</div>
-              <div className="font-bold">{activeWorkout.exercises.length}</div>
+              <div className="font-bold">
+                {activeWorkout.exercises.length + activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.length, 0)}
+              </div>
             </div>
             <div>
               <div className="text-gray-500 text-xs">Sets</div>
-              <div className="font-bold">{activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => !s.isWarmup).length, 0)}</div>
+              <div className="font-bold">
+                {activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => !s.isWarmup).length, 0) +
+                 activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.reduce((exSum, ex) => exSum + ex.sets.filter(s => !s.isWarmup).length, 0), 0)}
+              </div>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Exercise Blocks */}
+      {/* Blocks (Supersets/Drop-sets) */}
+      {activeWorkout.blocks.map((block) => (
+        <BlockCard
+          key={block.id}
+          block={block}
+          userId={userId}
+        />
+      ))}
+
+      {/* Regular Exercise Blocks */}
       {activeWorkout.exercises.map((exercise) => (
         <ExerciseBlock
           key={exercise.id}
@@ -234,16 +284,25 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         />
       ))}
 
-      {/* Add Exercise Button */}
-      <Button
-        onClick={() => setShowExerciseSelector(true)}
-        variant="outline"
-        className="w-full"
-        size="lg"
-      >
-        <Plus className="mr-2 h-5 w-5" />
-        Add Exercise
-      </Button>
+      {/* Add Exercise/Block Buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          onClick={() => setShowExerciseSelector(true)}
+          variant="outline"
+          size="lg"
+        >
+          <Plus className="mr-2 h-5 w-5" />
+          Exercise
+        </Button>
+        <Button
+          onClick={() => setShowCreateBlockDialog(true)}
+          variant="outline"
+          size="lg"
+        >
+          <Layers className="mr-2 h-5 w-5" />
+          Block
+        </Button>
+      </div>
 
       {/* Action Buttons */}
       <div className="space-y-2">
@@ -276,6 +335,13 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
           onClose={() => setShowExerciseSelector(false)}
         />
       )}
+
+      {/* Create Block Dialog */}
+      <CreateBlockDialog
+        open={showCreateBlockDialog}
+        onOpenChange={setShowCreateBlockDialog}
+        onCreateBlock={handleCreateBlock}
+      />
 
       {/* End Workout Confirmation */}
       <AlertDialog open={showEndDialog} onOpenChange={setShowEndDialog}>

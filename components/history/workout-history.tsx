@@ -195,6 +195,7 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
           <WorkoutSessionDetails
             sessionId={selectedSessionId}
             onClose={() => setSelectedSessionId(null)}
+            userId={userId}
           />
         </Drawer>
       )}

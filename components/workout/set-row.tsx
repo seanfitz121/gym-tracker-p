@@ -13,38 +13,56 @@ import type { ActiveSet } from '@/lib/types'
 interface SetRowProps {
   exerciseId: string
   set: ActiveSet
+  userId?: string
+  compact?: boolean
+  onUpdate?: (updates: Partial<ActiveSet>) => void
+  onRemove?: () => void
 }
 
-export function SetRow({ exerciseId, set }: SetRowProps) {
+export function SetRow({ exerciseId, set, userId, compact, onUpdate, onRemove }: SetRowProps) {
   const { updateSet, removeSet, duplicateSet, startRestTimer } = useWorkoutStore()
 
   const handleUpdate = (field: keyof ActiveSet, value: any) => {
-    updateSet(exerciseId, set.id, { [field]: value })
+    if (onUpdate) {
+      onUpdate({ [field]: value })
+    } else {
+      updateSet(exerciseId, set.id, { [field]: value })
+    }
+  }
+
+  const handleRemove = () => {
+    if (onRemove) {
+      onRemove()
+    } else {
+      removeSet(exerciseId, set.id)
+    }
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-3">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+    <div className={`bg-gray-50 dark:bg-gray-900 rounded-lg space-y-3 ${compact ? 'p-2' : 'p-3'}`}>
+      <div className={`flex items-center justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
+        <span className={`font-semibold text-gray-700 dark:text-gray-300 ${compact ? 'text-xs' : 'text-sm'}`}>
           Set {set.setOrder}
         </span>
         <div className="flex gap-1">
+          {!compact && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                duplicateSet(exerciseId, set.id)
+                playStartSound()
+                startRestTimer(60)
+              }}
+              className="h-8 px-2"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              duplicateSet(exerciseId, set.id)
-              playStartSound()
-              startRestTimer(60)
-            }}
-            className="h-8 px-2"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => removeSet(exerciseId, set.id)}
+            onClick={handleRemove}
             className="h-8 px-2 text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />
@@ -52,7 +70,7 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className={`grid grid-cols-2 ${compact ? 'gap-2' : 'gap-3'}`}>
         {/* Weight */}
         <div>
           <Label className="text-xs text-gray-500 mb-1">Weight</Label>
@@ -61,7 +79,7 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
             value={set.weight || ''}
             onChange={(e) => handleUpdate('weight', parseFloat(e.target.value) || 0)}
             placeholder="0"
-            className="h-11 text-base"
+            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
             step="0.5"
             min="0"
           />
@@ -75,13 +93,13 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
             value={set.reps || ''}
             onChange={(e) => handleUpdate('reps', parseInt(e.target.value) || 0)}
             placeholder="0"
-            className="h-11 text-base"
+            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
             min="0"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 items-end">
+      <div className={`grid grid-cols-3 items-end ${compact ? 'gap-1' : 'gap-2'}`}>
         {/* Unit */}
         <div>
           <Label className="text-xs text-gray-500 mb-1">Unit</Label>
@@ -89,7 +107,7 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
             value={set.weightUnit}
             onValueChange={(value) => handleUpdate('weightUnit', value)}
           >
-            <SelectTrigger className="h-11">
+            <SelectTrigger className={compact ? 'h-9' : 'h-11'}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -107,7 +125,7 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
             value={set.rpe || ''}
             onChange={(e) => handleUpdate('rpe', parseFloat(e.target.value) || undefined)}
             placeholder="—"
-            className="h-11 text-base"
+            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
             step="0.5"
             min="0"
             max="10"
@@ -115,15 +133,17 @@ export function SetRow({ exerciseId, set }: SetRowProps) {
         </div>
 
         {/* Warmup */}
-        <div className="flex items-center justify-center h-11">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox
-              checked={set.isWarmup}
-              onCheckedChange={(checked) => handleUpdate('isWarmup', !!checked)}
-            />
-            <span className="text-xs text-gray-600">Warmup</span>
-          </label>
-        </div>
+        {!compact && (
+          <div className="flex items-center justify-center h-11">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={set.isWarmup}
+                onCheckedChange={(checked) => handleUpdate('isWarmup', !!checked)}
+              />
+              <span className="text-xs text-gray-600">Warmup</span>
+            </label>
+          </div>
+        )}
       </div>
     </div>
   )

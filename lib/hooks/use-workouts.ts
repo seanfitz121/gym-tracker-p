@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '../supabase/client'
 import type { WorkoutSession, SetEntry, WorkoutSessionWithSets, ActiveWorkout } from '../types'
 import { calculateEstimated1RM } from '../utils/calculations'
+import { validateWorkout, createAntiCheatFlag } from '../utils/anti-cheat'
 
 export function useWorkoutSessions(userId?: string, limit?: number) {
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
@@ -68,6 +69,7 @@ export function useWorkoutSession(sessionId?: string) {
 
         if (sessionError) throw sessionError
 
+        // Fetch all sets
         const { data: setsData, error: setsError } = await supabase
           .from('set_entry')
           .select('*, exercise(*)')
@@ -76,9 +78,19 @@ export function useWorkoutSession(sessionId?: string) {
 
         if (setsError) throw setsError
 
+        // Fetch blocks for this session
+        const { data: blocksData, error: blocksError } = await supabase
+          .from('block')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('position')
+
+        if (blocksError) throw blocksError
+
         setSession({
           ...sessionData,
           sets: setsData || [],
+          blocks: blocksData || [],
         })
       } catch (err) {
         setError(err as Error)
@@ -106,6 +118,37 @@ export function useSaveWorkout() {
     setError(null)
 
     try {
+      // Anti-cheat validation
+      const validation = await validateWorkout(userId, workout)
+      
+      if (!validation.passed) {
+        console.warn('Anti-cheat flags detected:', validation.flags)
+        
+        // Create flag in database for review
+        await createAntiCheatFlag(
+          userId,
+          validation.flags.join('; '),
+          validation.severity,
+          {
+            flags: validation.flags,
+            workout_summary: {
+              total_sets: workout.exercises.reduce((sum, ex) => sum + ex.sets.length, 0),
+              total_blocks: workout.blocks?.length || 0,
+              duration_ms: Date.now() - (typeof workout.startedAt === 'string' 
+                ? new Date(workout.startedAt).getTime() 
+                : workout.startedAt.getTime())
+            }
+          }
+        )
+
+        // For high severity, reject the workout
+        if (validation.severity === 'high') {
+          throw new Error('Workout flagged for suspicious activity. Please contact support if you believe this is an error.')
+        }
+
+        // For medium/low severity, allow but flag for review
+      }
+
       const supabase = createClient()
 
       // Create workout session
@@ -133,6 +176,31 @@ export function useSaveWorkout() {
 
       console.log('Session created:', session)
 
+      // Create blocks first if any exist
+      const blockIdMap = new Map<string, string>() // temp ID -> real ID
+      if (workout.blocks && workout.blocks.length > 0) {
+        for (const block of workout.blocks) {
+          const { data: blockData, error: blockError } = await supabase
+            .from('block')
+            .insert({
+              session_id: session.id,
+              block_type: block.blockType,
+              rounds: block.rounds,
+              rest_between_rounds: block.restBetweenRounds,
+              position: block.position,
+            })
+            .select()
+            .single()
+
+          if (blockError) {
+            console.error('Block creation error:', blockError)
+            throw blockError
+          }
+
+          blockIdMap.set(block.id, blockData.id)
+        }
+      }
+
       // Create all sets
       const allSets: Array<{
         session_id: string
@@ -143,8 +211,13 @@ export function useSaveWorkout() {
         weight_unit: 'kg' | 'lb'
         rpe?: number
         is_warmup: boolean
+        block_id?: string
+        round_index?: number
+        is_drop_step?: boolean
+        drop_order?: number
       }> = []
 
+      // Regular exercises
       for (const exercise of workout.exercises) {
         for (const set of exercise.sets) {
           allSets.push({
@@ -161,6 +234,38 @@ export function useSaveWorkout() {
           // Check for PRs on work sets
           if (!set.isWarmup) {
             await checkForPRs(exercise.id, set.weight, set.reps, set.weightUnit)
+          }
+        }
+      }
+
+      // Block exercises
+      if (workout.blocks && workout.blocks.length > 0) {
+        for (const block of workout.blocks) {
+          const realBlockId = blockIdMap.get(block.id)
+          if (!realBlockId) continue
+
+          for (const exercise of block.exercises) {
+            for (const set of exercise.sets) {
+              allSets.push({
+                session_id: session.id,
+                exercise_id: exercise.id,
+                set_order: set.setOrder,
+                reps: set.reps,
+                weight: set.weight,
+                weight_unit: set.weightUnit,
+                rpe: set.rpe,
+                is_warmup: set.isWarmup || false,
+                block_id: realBlockId,
+                round_index: set.roundIndex,
+                is_drop_step: set.isDropStep,
+                drop_order: set.dropOrder,
+              })
+
+              // Check for PRs on work sets
+              if (!set.isWarmup) {
+                await checkForPRs(exercise.id, set.weight, set.reps, set.weightUnit)
+              }
+            }
           }
         }
       }
