@@ -1,0 +1,326 @@
+// Utilities for generating CSV and PDF exports
+
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import type {
+  ExportWorkout,
+  ExportTemplate,
+  ExportWeeklySummary,
+} from '@/lib/types/export';
+import { format } from 'date-fns';
+
+// ============================================================================
+// CSV GENERATORS
+// ============================================================================
+
+/**
+ * Generate CSV for a single workout
+ */
+export function generateWorkoutCSV(workout: ExportWorkout): string {
+  const lines: string[] = [];
+
+  // Header info
+  lines.push(`Workout: ${workout.title || 'Untitled Workout'}`);
+  lines.push(`Date: ${format(new Date(workout.started_at), 'PPP')}`);
+  if (workout.duration_minutes) {
+    lines.push(`Duration: ${workout.duration_minutes} minutes`);
+  }
+  lines.push(`Total Sets: ${workout.total_sets}`);
+  lines.push(`Total Volume: ${workout.total_volume_kg.toFixed(1)} kg`);
+  lines.push(''); // Empty line
+
+  // Exercise data
+  lines.push('Exercise,Set,Reps,Weight,Unit,RPE,Warmup');
+
+  workout.exercises.forEach((exercise) => {
+    exercise.sets.forEach((set) => {
+      lines.push(
+        [
+          exercise.name,
+          set.set_number,
+          set.reps,
+          set.weight,
+          set.weight_unit,
+          set.rpe || '',
+          set.is_warmup ? 'Yes' : 'No',
+        ].join(',')
+      );
+    });
+  });
+
+  return lines.join('\n');
+}
+
+/**
+ * Generate CSV for a workout template
+ */
+export function generateTemplateCSV(template: ExportTemplate): string {
+  const lines: string[] = [];
+
+  // Header
+  lines.push(`Template: ${template.name}`);
+  lines.push('');
+  lines.push('Exercise,Sets,Target Reps,Target Weight,Notes');
+
+  // Exercise data
+  template.exercises.forEach((exercise) => {
+    lines.push(
+      [
+        exercise.name,
+        exercise.sets,
+        exercise.target_reps || '',
+        exercise.target_weight || '',
+        exercise.notes || '',
+      ].join(',')
+    );
+  });
+
+  return lines.join('\n');
+}
+
+/**
+ * Generate CSV for weekly summary
+ */
+export function generateWeeklySummaryCSV(summary: ExportWeeklySummary): string {
+  const lines: string[] = [];
+
+  // Header
+  lines.push(`Weekly Summary: ${format(new Date(summary.week_start), 'PP')} - ${format(new Date(summary.week_end), 'PP')}`);
+  lines.push(`Total Workouts: ${summary.total_workouts}`);
+  lines.push(`Total Sets: ${summary.total_sets}`);
+  lines.push(`Total Volume: ${summary.total_volume_kg.toFixed(1)} kg`);
+  lines.push(`Total Duration: ${summary.total_duration_minutes} minutes`);
+  lines.push(`XP Earned: ${summary.xp_earned}`);
+  lines.push('');
+
+  // Workout list
+  lines.push('Date,Title,Sets,Volume (kg),Duration (min)');
+  summary.workouts.forEach((workout) => {
+    lines.push(
+      [
+        format(new Date(workout.started_at), 'PP'),
+        workout.title || 'Untitled',
+        workout.total_sets,
+        workout.total_volume_kg.toFixed(1),
+        workout.duration_minutes || 0,
+      ].join(',')
+    );
+  });
+
+  return lines.join('\n');
+}
+
+// ============================================================================
+// PDF GENERATORS
+// ============================================================================
+
+/**
+ * Generate PDF for a single workout
+ */
+export function generateWorkoutPDF(workout: ExportWorkout): jsPDF {
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(workout.title || 'Untitled Workout', 14, 20);
+
+  // Metadata
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Date: ${format(new Date(workout.started_at), 'PPP')}`, 14, 28);
+  if (workout.duration_minutes) {
+    doc.text(`Duration: ${workout.duration_minutes} minutes`, 14, 34);
+  }
+  doc.text(`Total Sets: ${workout.total_sets}`, 14, 40);
+  doc.text(`Total Volume: ${workout.total_volume_kg.toFixed(1)} kg`, 14, 46);
+
+  // Exercise tables
+  let yOffset = 56;
+
+  workout.exercises.forEach((exercise, index) => {
+    // Check if we need a new page
+    if (yOffset > 250) {
+      doc.addPage();
+      yOffset = 20;
+    }
+
+    // Exercise name
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(exercise.name, 14, yOffset);
+    yOffset += 6;
+
+    // Sets table
+    const tableData = exercise.sets.map((set) => [
+      `Set ${set.set_number}`,
+      `${set.reps} reps`,
+      `${set.weight} ${set.weight_unit}`,
+      set.rpe ? `RPE ${set.rpe}` : '-',
+      set.is_warmup ? 'Warmup' : '',
+    ]);
+
+    autoTable(doc, {
+      startY: yOffset,
+      head: [['Set', 'Reps', 'Weight', 'RPE', 'Type']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [79, 70, 229] }, // Indigo
+      margin: { left: 14 },
+      styles: { fontSize: 9 },
+    });
+
+    yOffset = (doc as any).lastAutoTable.finalY + 10;
+  });
+
+  // Footer
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.text(
+    `Generated by SF Gym Tracker on ${format(new Date(), 'PP')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  );
+
+  return doc;
+}
+
+/**
+ * Generate PDF for a workout template
+ */
+export function generateTemplatePDF(template: ExportTemplate): jsPDF {
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Template: ${template.name}`, 14, 20);
+
+  // Template table
+  const tableData = template.exercises.map((exercise) => [
+    exercise.name,
+    exercise.sets.toString(),
+    exercise.target_reps || '-',
+    exercise.target_weight || '-',
+    exercise.notes || '-',
+  ]);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [['Exercise', 'Sets', 'Target Reps', 'Target Weight', 'Notes']],
+    body: tableData,
+    theme: 'striped',
+    headStyles: { fillColor: [79, 70, 229] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 10 },
+  });
+
+  // Footer
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.text(
+    `Generated by SF Gym Tracker on ${format(new Date(), 'PP')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  );
+
+  return doc;
+}
+
+/**
+ * Generate PDF for weekly summary
+ */
+export function generateWeeklySummaryPDF(summary: ExportWeeklySummary): jsPDF {
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Weekly Summary', 14, 20);
+
+  // Period
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(
+    `${format(new Date(summary.week_start), 'PP')} - ${format(new Date(summary.week_end), 'PP')}`,
+    14,
+    28
+  );
+
+  // Summary stats
+  doc.setFontSize(10);
+  const stats = [
+    `Total Workouts: ${summary.total_workouts}`,
+    `Total Sets: ${summary.total_sets}`,
+    `Total Volume: ${summary.total_volume_kg.toFixed(1)} kg`,
+    `Total Duration: ${summary.total_duration_minutes} minutes`,
+    `XP Earned: ${summary.xp_earned}`,
+  ];
+
+  stats.forEach((stat, index) => {
+    doc.text(stat, 14, 36 + index * 6);
+  });
+
+  // Workouts table
+  const tableData = summary.workouts.map((workout) => [
+    format(new Date(workout.started_at), 'PP'),
+    workout.title || 'Untitled',
+    workout.total_sets.toString(),
+    `${workout.total_volume_kg.toFixed(1)} kg`,
+    `${workout.duration_minutes || 0} min`,
+  ]);
+
+  autoTable(doc, {
+    startY: 70,
+    head: [['Date', 'Workout', 'Sets', 'Volume', 'Duration']],
+    body: tableData,
+    theme: 'striped',
+    headStyles: { fillColor: [79, 70, 229] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 10 },
+  });
+
+  // Footer
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.text(
+    `Generated by SF Gym Tracker on ${format(new Date(), 'PP')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  );
+
+  return doc;
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Trigger browser download of a file
+ */
+export function downloadFile(content: string | Blob, filename: string) {
+  const blob = typeof content === 'string' ? new Blob([content], { type: 'text/csv' }) : content;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Generate filename for export
+ */
+export function generateFilename(
+  type: 'workout' | 'template' | 'weekly',
+  format: 'csv' | 'pdf',
+  name?: string
+): string {
+  const date = format === 'csv' ? new Date().toISOString().split('T')[0] : format;
+  const safeName = name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'export';
+  return `${type}_${safeName}_${date}.${format}`;
+}
+

@@ -191,32 +191,28 @@ export function PremiumPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="relative z-10">
-            {/* Coming Soon Overlay */}
-            <div className="relative">
-              <Button
-                disabled
-                size="lg"
-                className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-500 text-white shadow-xl opacity-50 cursor-not-allowed"
-              >
-                <Crown className="h-6 w-6 mr-2" />
-                Upgrade to Premium Now
-                <Sparkles className="h-6 w-6 ml-2" />
-              </Button>
-              
-              {/* Coming Soon Badge */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white px-6 py-3 rounded-xl shadow-2xl border-2 border-white transform -rotate-3 animate-pulse">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
-                    <span className="font-black text-lg uppercase tracking-wide">Coming Soon</span>
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Button
+              onClick={() => createCheckoutSession()}
+              disabled={checkoutLoading}
+              size="lg"
+              className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-500 hover:from-purple-700 hover:via-pink-700 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="h-6 w-6 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Crown className="h-6 w-6 mr-2" />
+                  Upgrade to Premium Now
+                  <Sparkles className="h-6 w-6 ml-2" />
+                </>
+              )}
+            </Button>
             
             <p className="text-xs text-center mt-4 text-gray-500 dark:text-gray-400">
-              ⚠️ Premium features currently in development
+              Secure checkout powered by Stripe
             </p>
           </CardContent>
         </Card>
@@ -229,51 +225,60 @@ export function PremiumPage() {
             Premium Features
           </h2>
           <p className="text-gray-600 dark:text-gray-400">Everything you need to reach your fitness goals</p>
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full text-sm font-medium">
-            <Zap className="h-4 w-4" />
-            <span>Currently in development - Stay tuned!</span>
-          </div>
         </div>
         <div className="grid gap-5">
-          {PREMIUM_FEATURES.map((feature, index) => (
-            <Card 
-              key={feature.id} 
-              className="group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-2 border-transparent hover:border-purple-500/50 bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-900 dark:to-purple-950/20 relative overflow-hidden"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/0 to-yellow-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-yellow-500/5 transition-all duration-500"></div>
-              <CardContent className="p-6 relative z-10">
-                <div className="flex items-start gap-4">
-                  <div className="text-5xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
-                    {feature.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        {feature.title}
-                      </h3>
-                      {feature.comingSoon && (
-                        <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
-                          Coming Soon
-                        </Badge>
-                      )}
+          {PREMIUM_FEATURES.map((feature, index) => {
+            const FeatureCard = (
+              <Card 
+                key={feature.id} 
+                className={`group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-2 border-transparent hover:border-purple-500/50 bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-900 dark:to-purple-950/20 relative overflow-hidden ${feature.link ? 'cursor-pointer' : ''}`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/0 to-yellow-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-yellow-500/5 transition-all duration-500"></div>
+                <CardContent className="p-6 relative z-10">
+                  <div className="flex items-start gap-4">
+                    <div className="text-5xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
                     </div>
-                    <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                  {isPremium && (
-                    <div className="flex-shrink-0">
-                      <div className="relative">
-                        <Check className="h-6 w-6 text-green-600 relative z-10" />
-                        <div className="absolute inset-0 bg-green-400 blur-lg opacity-50"></div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                          {feature.title}
+                        </h3>
+                        {feature.comingSoon && (
+                          <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                            Coming Soon
+                          </Badge>
+                        )}
+                        {feature.link && (
+                          <ExternalLink className="h-4 w-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
                       </div>
+                      <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    {isPremium && !feature.comingSoon && (
+                      <div className="flex-shrink-0">
+                        <div className="relative">
+                          <Check className="h-6 w-6 text-green-600 relative z-10" />
+                          <div className="absolute inset-0 bg-green-400 blur-lg opacity-50"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+
+            return feature.link ? (
+              <Link key={feature.id} href={feature.link}>
+                {FeatureCard}
+              </Link>
+            ) : (
+              FeatureCard
+            );
+          })}
         </div>
       </div>
 

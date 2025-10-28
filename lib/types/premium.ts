@@ -11,6 +11,7 @@ export interface PremiumFeature {
   description: string
   icon: string
   comingSoon?: boolean
+  link?: string
 }
 
 export const PREMIUM_FEATURES: PremiumFeature[] = [
@@ -19,39 +20,45 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     title: 'Weight Tracker',
     description: 'Track your bodyweight over time with beautiful charts and insights',
     icon: '⚖️',
+    link: '/app/weight',
   },
   {
     id: 'hydration-tracker',
     title: 'Hydration Tracker',
     description: 'Monitor your daily water intake and stay hydrated',
     icon: '💧',
+    link: '/app/hydration',
   },
   {
     id: 'progress-photos',
     title: 'Progress Photos',
-    description: 'Upload and compare transformation photos side-by-side',
+    description: 'Upload and compare transformation photos side-by-side with secure storage',
     icon: '📸',
-    comingSoon: true,
+    link: '/app/progress-photos',
   },
   {
     id: 'export-data',
     title: 'Export Workouts',
-    description: 'Download your workout history as CSV or PDF',
+    description: 'Download your workout history, templates, and weekly summaries as CSV or PDF',
     icon: '📊',
-    comingSoon: true,
   },
   {
     id: 'prestige-mode',
     title: 'Prestige Mode',
-    description: 'Reset your level for exclusive prestige badges and rewards',
+    description: 'Reset your level for exclusive prestige badges and infinite progression',
     icon: '🏆',
-    comingSoon: true,
   },
   {
     id: 'golden-flair',
     title: 'Golden Name Flair',
-    description: 'Stand out with a premium golden username display',
+    description: 'Stand out with a premium golden username display across the entire app',
     icon: '✨',
+  },
+  {
+    id: 'more-coming',
+    title: 'More Coming Soon',
+    description: 'We\'re constantly adding new premium features based on your feedback!',
+    icon: '🚀',
     comingSoon: true,
   },
 ]

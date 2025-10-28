@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { CreateTemplateDialog } from '@/components/templates/create-template-dialog'
+import { ExportButton } from '@/components/export/export-button'
 import { Calendar, Clock, Dumbbell, Trash2, Copy, Layers, Save } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
@@ -424,6 +425,15 @@ export function WorkoutSessionDetails({ sessionId, onClose, userId }: WorkoutSes
                 Save as Template
               </Button>
             )}
+          </div>
+          <div className="flex gap-2">
+            <ExportButton
+              type="workout"
+              id={sessionId}
+              variant="outline"
+              size="sm"
+              showLabel={true}
+            />
           </div>
           <div className="flex justify-end">
             <AlertDialog>

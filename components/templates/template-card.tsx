@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { ExportButton } from '@/components/export/export-button'
 import { Play, Trash2 } from 'lucide-react'
 import type { Template, TemplatePayload } from '@/lib/types'
 
@@ -76,14 +77,23 @@ export function TemplateCard({ template, onLoad, onDelete }: TemplateCardProps) 
           )}
         </div>
 
-        <Button
-          onClick={onLoad}
-          className="w-full"
-          variant="default"
-        >
-          <Play className="mr-2 h-4 w-4" />
-          Start from Template
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={onLoad}
+            className="flex-1"
+            variant="default"
+          >
+            <Play className="mr-2 h-4 w-4" />
+            Start from Template
+          </Button>
+          <ExportButton
+            type="template"
+            id={template.id}
+            variant="outline"
+            size="default"
+            showLabel={false}
+          />
+        </div>
       </CardContent>
     </Card>
   )

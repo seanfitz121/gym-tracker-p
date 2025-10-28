@@ -7,6 +7,7 @@ import { WorkoutSessionDetails } from './workout-session-details'
 import { Drawer } from '@/components/ui/drawer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { ExportButton } from '@/components/export/export-button'
 import { startOfWeek, endOfWeek, format, isSameWeek, isSameDay, parseISO } from 'date-fns'
 import { Calendar, Clock, Dumbbell } from 'lucide-react'
 import { calculateSessionDuration } from '@/lib/utils/calculations'
@@ -119,7 +120,7 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
               <Card className="border-l-4 border-l-blue-600">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <CardTitle className="text-base font-semibold">
                         {format(week.weekStart, 'MMM d')} - {format(week.weekEnd, 'MMM d, yyyy')}
                       </CardTitle>
@@ -127,9 +128,19 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
                         Week {format(week.weekStart, 'w')}
                       </p>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {week.sessions.length} {week.sessions.length === 1 ? 'workout' : 'workouts'}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {week.sessions.length} {week.sessions.length === 1 ? 'workout' : 'workouts'}
+                      </Badge>
+                      <ExportButton
+                        type="weekly"
+                        weekStart={week.weekStart.toISOString()}
+                        weekEnd={week.weekEnd.toISOString()}
+                        variant="ghost"
+                        size="sm"
+                        showLabel={false}
+                      />
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
