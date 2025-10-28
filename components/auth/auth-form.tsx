@@ -57,7 +57,7 @@ export function AuthForm() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/app/log`,
+            emailRedirectTo: `${window.location.origin}/app/dashboard`,
             data: {
               username,
             }
@@ -106,7 +106,7 @@ export function AuthForm() {
 
         toast.success('Signed in successfully!')
         // Force hard reload to bypass service worker cache
-        window.location.replace('/app/log')
+        window.location.replace('/app/dashboard')
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred')
@@ -124,7 +124,7 @@ export function AuthForm() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/app/log`,
+          emailRedirectTo: `${window.location.origin}/app/dashboard`,
         },
       })
 

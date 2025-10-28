@@ -49,22 +49,22 @@ export function SocialPage({ userId }: SocialPageProps) {
       </div>
 
       <Tabs defaultValue="friends" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="friends">
-            <Users className="h-4 w-4 mr-2" />
-            Friends
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="friends" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+            <Users className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Friends</span>
           </TabsTrigger>
-          <TabsTrigger value="leaderboards">
-            <Trophy className="h-4 w-4 mr-2" />
-            Leaderboards
+          <TabsTrigger value="leaderboards" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+            <Trophy className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Leaderboards</span>
           </TabsTrigger>
-          <TabsTrigger value="gym">
-            <Dumbbell className="h-4 w-4 mr-2" />
-            Gym
+          <TabsTrigger value="gym" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+            <Dumbbell className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Gym</span>
           </TabsTrigger>
-          <TabsTrigger value="privacy">
-            <Settings className="h-4 w-4 mr-2" />
-            Privacy
+          <TabsTrigger value="privacy" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+            <Settings className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Privacy</span>
           </TabsTrigger>
         </TabsList>
 

@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Dumbbell, Users, LogOut, Plus, Loader2, Check } from 'lucide-react'
+import { Dumbbell, Users, LogOut, Plus, Loader2, Check, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Gym {
@@ -31,6 +31,15 @@ interface Gym {
   user_is_owner: boolean
 }
 
+interface PendingRequest {
+  user_id: string
+  username: string
+  display_name: string
+  avatar_url?: string | null
+  rank_code?: string
+  joined_at: string
+}
+
 interface GymManagerProps {
   userId: string
   onGymChange?: (gymCode: string | null) => void
@@ -42,6 +51,8 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
   const [joinCode, setJoinCode] = useState('')
   const [joinLoading, setJoinLoading] = useState(false)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([])
+  const [requestsLoading, setRequestsLoading] = useState(false)
 
   const fetchCurrentGym = async () => {
     try {
@@ -52,12 +63,54 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
         if (data.gym) {
           setCurrentGym(data.gym)
           onGymChange?.(data.gym.code)
+          
+          // If user is owner, fetch pending requests
+          if (data.gym.user_is_owner) {
+            fetchPendingRequests(data.gym.code)
+          }
         }
       }
     } catch (error) {
       console.error('Error fetching gym:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchPendingRequests = async (gymCode: string) => {
+    setRequestsLoading(true)
+    try {
+      const res = await fetch(`/api/gym/${gymCode}/pending`)
+      if (res.ok) {
+        const data = await res.json()
+        setPendingRequests(data.requests || [])
+      }
+    } catch (error) {
+      console.error('Error fetching pending requests:', error)
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  const handleApproveReject = async (userId: string, action: 'approve' | 'reject') => {
+    if (!currentGym) return
+
+    try {
+      const res = await fetch(`/api/gym/${currentGym.code}/pending`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, action })
+      })
+
+      if (!res.ok) throw new Error('Failed to process request')
+
+      toast.success(action === 'approve' ? 'Member approved!' : 'Request rejected')
+      
+      // Refresh pending requests
+      fetchPendingRequests(currentGym.code)
+    } catch (error) {
+      console.error('Error processing request:', error)
+      toast.error('Failed to process request')
     }
   }
 
@@ -136,6 +189,58 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
 
   return (
     <div className="space-y-4">
+      {/* Pending Requests (Owner Only) */}
+      {currentGym?.user_is_owner && pendingRequests.length > 0 && (
+        <Card className="border-yellow-500 dark:border-yellow-600">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+              <Users className="h-5 w-5" />
+              Pending Join Requests ({pendingRequests.length})
+            </CardTitle>
+            <CardDescription>
+              Review and approve or reject members wanting to join your gym
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {requestsLoading ? (
+              <div className="flex justify-center p-4">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              pendingRequests.map(request => (
+                <div
+                  key={request.user_id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">{request.display_name}</p>
+                    <p className="text-sm text-gray-500">@{request.username}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={() => handleApproveReject(request.user_id, 'approve')}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleApproveReject(request.user_id, 'reject')}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {currentGym ? (
         <Card>
           <CardHeader>

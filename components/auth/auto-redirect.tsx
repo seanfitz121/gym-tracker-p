@@ -14,7 +14,7 @@ export function AutoRedirect() {
       
       if (user) {
         // User is authenticated, redirect to app
-        router.replace('/app/log')
+        router.replace('/app/dashboard')
       }
     }
 
