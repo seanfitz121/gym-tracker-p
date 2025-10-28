@@ -67,6 +67,9 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
+      subscription_data: {
+        trial_period_days: 7, // 7-day free trial
+      },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/app/premium?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/app/premium?canceled=true`,
       metadata: {
@@ -80,8 +83,16 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('Create checkout session error:', error)
+    // Log more details for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { 
+        error: 'Failed to create checkout session',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500, headers: corsHeaders }
     )
   }

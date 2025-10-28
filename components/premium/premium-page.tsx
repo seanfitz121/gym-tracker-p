@@ -20,7 +20,7 @@ import {
   Loader2,
   ExternalLink
 } from 'lucide-react'
-import { usePremiumStatus, useCreateCheckoutSession } from '@/lib/hooks/use-premium'
+import { usePremiumStatus, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-premium'
 import { PREMIUM_FEATURES, PREMIUM_PRICE } from '@/lib/types/premium'
 import { format } from 'date-fns'
 
@@ -28,6 +28,7 @@ export function PremiumPage() {
   const searchParams = useSearchParams()
   const { subscription, isPremium, loading } = usePremiumStatus()
   const { createCheckoutSession, loading: checkoutLoading } = useCreateCheckoutSession()
+  const { createPortalSession, loading: portalLoading } = useCreatePortalSession()
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export function PremiumPage() {
       {/* Current Subscription Status */}
       {isPremium && subscription && (
         <Card className="mb-8 border-2 border-purple-500/50 bg-gradient-to-br from-purple-900/10 via-pink-900/10 to-yellow-900/10 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-yellow-950/30 relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10 shimmer"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10 shimmer pointer-events-none"></div>
           <CardHeader className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -154,18 +155,22 @@ export function PremiumPage() {
             </div>
             <Separator className="my-4" />
             <Button
-              asChild
+              onClick={() => createPortalSession()}
+              disabled={portalLoading}
               variant="outline"
               className="w-full"
             >
-              <Link 
-                href="https://billing.stripe.com/p/login/eVq00k1Bdb2b1gu91jgUM00" 
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Manage Subscription
-                <ExternalLink className="h-4 w-4 ml-2" />
-              </Link>
+              {portalLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Manage Subscription
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -174,20 +179,27 @@ export function PremiumPage() {
       {/* Pricing Card */}
       {!isPremium && (
         <Card className="mb-8 border-2 border-purple-500 bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-yellow-950/30 shadow-2xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-yellow-500/10 pointer-events-none"></div>
           <CardHeader className="text-center relative z-10">
             <div className="mx-auto mb-6 p-4 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl w-fit relative shadow-xl">
               <Zap className="h-10 w-10 text-white animate-pulse" />
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 blur-2xl opacity-50 animate-pulse"></div>
             </div>
             <div className="mb-2">
-              <span className="text-5xl md:text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-500 bg-clip-text text-transparent">
-                €{PREMIUM_PRICE}
-              </span>
-              <span className="text-xl font-medium text-gray-600 dark:text-gray-400">/month</span>
+              <div className="inline-flex items-baseline gap-2">
+                <span className="text-5xl md:text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-500 bg-clip-text text-transparent">
+                  €{PREMIUM_PRICE}
+                </span>
+                <span className="text-xl font-medium text-gray-600 dark:text-gray-400">/month</span>
+              </div>
+              <div className="mt-2">
+                <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0 shadow-lg text-sm px-3 py-1">
+                  7-Day Free Trial
+                </Badge>
+              </div>
             </div>
             <CardDescription className="text-base">
-              Cancel anytime • No commitments • Full access instantly
+              Try free for 7 days • Cancel anytime • No commitments
             </CardDescription>
           </CardHeader>
           <CardContent className="relative z-10">
@@ -205,14 +217,14 @@ export function PremiumPage() {
               ) : (
                 <>
                   <Crown className="h-6 w-6 mr-2" />
-                  Upgrade to Premium Now
+                  Start 7-Day Free Trial
                   <Sparkles className="h-6 w-6 ml-2" />
                 </>
               )}
             </Button>
             
             <p className="text-xs text-center mt-4 text-gray-500 dark:text-gray-400">
-              Secure checkout powered by Stripe
+              No charge today • First payment in 7 days • Powered by Stripe
             </p>
           </CardContent>
         </Card>
@@ -234,7 +246,7 @@ export function PremiumPage() {
                 className={`group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-2 border-transparent hover:border-purple-500/50 bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-900 dark:to-purple-950/20 relative overflow-hidden ${feature.link ? 'cursor-pointer' : ''}`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/0 to-yellow-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-yellow-500/5 transition-all duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/0 to-yellow-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-yellow-500/5 transition-all duration-500 pointer-events-none"></div>
                 <CardContent className="p-6 relative z-10">
                   <div className="flex items-start gap-4">
                     <div className="text-5xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">

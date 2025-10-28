@@ -101,7 +101,9 @@ export function useCreateCheckoutSession() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session')
+        const errorData = await response.json()
+        console.error('Checkout session error details:', errorData)
+        throw new Error(errorData.details || 'Failed to create checkout session')
       }
 
       const { url } = await response.json()
