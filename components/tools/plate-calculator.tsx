@@ -114,12 +114,12 @@ export function PlateCalculator() {
   const renderPlateBar = (plates: number[]) => {
     if (plates.length === 0) return null
 
-    const renderPlate = (plate: number, idx: number) => {
+    const renderPlate = (plate: number, key: string | number) => {
       const height = Math.min(56 + plate * 1.8, 96)
       const width = Math.max(32, Math.min(plate * 1.2, 56))
       return (
         <div
-          key={idx}
+          key={key}
           className="flex items-center justify-center bg-gradient-to-b from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 border-2 border-blue-800 dark:border-blue-900 rounded flex-shrink-0"
           style={{ 
             width: `${width}px`,

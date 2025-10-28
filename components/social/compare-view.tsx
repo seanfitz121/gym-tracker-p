@@ -91,6 +91,8 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
   // Fetch exercises that both users have done
   useEffect(() => {
     const fetchExercises = async () => {
+      if (!data?.user?.id || !data?.friend?.id) return
+      
       try {
         const supabase = createClient()
         
@@ -98,7 +100,7 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
         const { data: sessions } = await supabase
           .from('workout_session')
           .select('id, user_id')
-          .in('user_id', [data?.user.id, data?.friend.id])
+          .in('user_id', [data.user.id, data.friend.id])
         
         if (!sessions) return
 
@@ -137,7 +139,7 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
   // Fetch PRs for selected exercise
   useEffect(() => {
     const fetchPRs = async () => {
-      if (!selectedExercise || !data) return
+      if (!selectedExercise || !data?.user?.id || !data?.friend?.id) return
       
       setPrLoading(true)
       try {
