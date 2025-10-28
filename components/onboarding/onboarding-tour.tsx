@@ -134,38 +134,21 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
       },
     ]
 
-    // Add mobile-specific step about home screen installation
-    if (isMobile) {
-      tourSteps.push({
-        popover: {
-          title: '📱 Get the Best Experience!',
-          description: `<div style="line-height: 1.6;">
-            <p style="margin-bottom: 12px;"><strong>Add PlateProgress to your home screen</strong> for the best experience!</p>
+    // Add final step with mobile-specific home screen reminder
+    tourSteps.push({
+      popover: {
+        title: isMobile ? '📱 Add to Home Screen!' : 'You\'re All Set! 💪',
+        description: isMobile 
+          ? `<div style="line-height: 1.6;">
+            <p style="margin-bottom: 12px;"><strong>Get the best experience!</strong></p>
             <ul style="margin-left: 16px; margin-bottom: 12px;">
               <li style="margin-bottom: 6px;">✨ <strong>Fullscreen app</strong> - No browser bars</li>
               <li style="margin-bottom: 6px;">⚡ <strong>Faster loading</strong> - Works offline</li>
-              <li style="margin-bottom: 6px;">🔔 <strong>Push notifications</strong> - Stay motivated</li>
               <li style="margin-bottom: 6px;">📊 <strong>Better performance</strong> - Smoother experience</li>
             </ul>
-            <p style="font-weight: 600; color: #3b82f6;">Click "Next" to see the installation guide, or skip to finish the tour.</p>
-          </div>`,
-          onNextClick: async () => {
-            await markOnboardingComplete()
-            router.push('/app/tips#install-app')
-            if (driverRef.current) {
-              driverRef.current.destroy()
-            }
-          },
-        }
-      })
-    }
-
-    // Add final step
-    tourSteps.push({
-      popover: {
-        title: isMobile ? 'Ready to Start! 💪' : 'You\'re All Set! 💪',
-        description: isMobile 
-          ? 'Don\'t forget to add the app to your home screen! Ready to start your fitness journey? Click "Log Workout" to record your first session!' 
+            <p style="margin-bottom: 12px;"><strong>How to install:</strong> Tap the share button in your browser and select "Add to Home Screen".</p>
+            <p style="font-weight: 600; color: #3b82f6;">See detailed instructions in Tips & Guides!</p>
+          </div>`
           : 'Ready to start your fitness journey? Click "Log Workout" to record your first session!',
       }
     })
