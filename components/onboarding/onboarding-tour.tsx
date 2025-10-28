@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -11,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Rocket, Sparkles } from 'lucide-react'
+import { Rocket, Sparkles, Smartphone } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface OnboardingTourProps {
@@ -21,7 +22,19 @@ interface OnboardingTourProps {
 
 export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourProps) {
   const [showWelcome, setShowWelcome] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const driverRef = useRef<ReturnType<typeof driver> | null>(null)
+  const router = useRouter()
+
+  // Check if user is on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -48,85 +61,118 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
   const handleStartTour = () => {
     setShowWelcome(false)
     
+    // Build the steps array
+    const tourSteps = [
+      {
+        popover: {
+          title: 'Welcome to PlateProgress! 🎉',
+          description: 'This is your workout tracking dashboard. Let\'s take a quick tour of the key features!',
+        }
+      },
+      {
+        element: '[data-tour="log-workout"]',
+        popover: {
+          title: 'Log Your Workouts',
+          description: 'Click here to start logging your first workout. Track sets, reps, and weights!',
+          side: 'bottom' as const,
+          align: 'center' as const,
+        }
+      },
+      {
+        element: '[data-tour="level-progress"]',
+        popover: {
+          title: 'Level Up System',
+          description: 'Earn XP and level up as you work out. Track your progress and unlock new ranks!',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        }
+      },
+      {
+        element: '[data-tour="volume-stats"]',
+        popover: {
+          title: 'Volume Statistics',
+          description: 'See how much total weight you\'ve moved. Watch your progress grow over time!',
+          side: 'top' as const,
+          align: 'start' as const,
+        }
+      },
+      {
+        element: '[data-tour="tools"]',
+        popover: {
+          title: 'Helpful Tools',
+          description: 'Access calculators and trackers like 1RM Calculator, Plate Calculator, Weight & Hydration tracking.',
+          side: 'top' as const,
+          align: 'start' as const,
+        }
+      },
+      {
+        element: '[data-tour="nav-history"]',
+        popover: {
+          title: 'Review Your History',
+          description: 'Look back at all your past workouts and see your journey.',
+          side: 'top' as const,
+          align: 'center' as const,
+        }
+      },
+      {
+        element: '[data-tour="nav-progress"]',
+        popover: {
+          title: 'Track Progress',
+          description: 'View charts and PRs to see how your lifts are improving over time.',
+          side: 'top' as const,
+          align: 'center' as const,
+        }
+      },
+      {
+        element: '[data-tour="nav-social"]',
+        popover: {
+          title: 'Connect & Compete',
+          description: 'Add friends, join gyms, and compete on leaderboards. Make fitness social!',
+          side: 'top' as const,
+          align: 'center' as const,
+        }
+      },
+    ]
+
+    // Add mobile-specific step about home screen installation
+    if (isMobile) {
+      tourSteps.push({
+        popover: {
+          title: '📱 Get the Best Experience!',
+          description: `<div style="line-height: 1.6;">
+            <p style="margin-bottom: 12px;"><strong>Add PlateProgress to your home screen</strong> for the best experience!</p>
+            <ul style="margin-left: 16px; margin-bottom: 12px;">
+              <li style="margin-bottom: 6px;">✨ <strong>Fullscreen app</strong> - No browser bars</li>
+              <li style="margin-bottom: 6px;">⚡ <strong>Faster loading</strong> - Works offline</li>
+              <li style="margin-bottom: 6px;">🔔 <strong>Push notifications</strong> - Stay motivated</li>
+              <li style="margin-bottom: 6px;">📊 <strong>Better performance</strong> - Smoother experience</li>
+            </ul>
+            <p style="font-weight: 600; color: #3b82f6;">Click "Next" to see the installation guide, or skip to finish the tour.</p>
+          </div>`,
+          onNextClick: async () => {
+            await markOnboardingComplete()
+            router.push('/app/tips#install-app')
+            if (driverRef.current) {
+              driverRef.current.destroy()
+            }
+          },
+        }
+      })
+    }
+
+    // Add final step
+    tourSteps.push({
+      popover: {
+        title: isMobile ? 'Ready to Start! 💪' : 'You\'re All Set! 💪',
+        description: isMobile 
+          ? 'Don\'t forget to add the app to your home screen! Ready to start your fitness journey? Click "Log Workout" to record your first session!' 
+          : 'Ready to start your fitness journey? Click "Log Workout" to record your first session!',
+      }
+    })
+    
     const driverObj = driver({
       showProgress: true,
-      steps: [
-        {
-          popover: {
-            title: 'Welcome to PlateProgress! 🎉',
-            description: 'This is your workout tracking dashboard. Let\'s take a quick tour of the key features!',
-          }
-        },
-        {
-          element: '[data-tour="log-workout"]',
-          popover: {
-            title: 'Log Your Workouts',
-            description: 'Click here to start logging your first workout. Track sets, reps, and weights!',
-            side: 'bottom',
-            align: 'center',
-          }
-        },
-        {
-          element: '[data-tour="level-progress"]',
-          popover: {
-            title: 'Level Up System',
-            description: 'Earn XP and level up as you work out. Track your progress and unlock new ranks!',
-            side: 'bottom',
-            align: 'start',
-          }
-        },
-        {
-          element: '[data-tour="volume-stats"]',
-          popover: {
-            title: 'Volume Statistics',
-            description: 'See how much total weight you\'ve moved. Watch your progress grow over time!',
-            side: 'top',
-            align: 'start',
-          }
-        },
-        {
-          element: '[data-tour="tools"]',
-          popover: {
-            title: 'Helpful Tools',
-            description: 'Access calculators and trackers like 1RM Calculator, Plate Calculator, Weight & Hydration tracking.',
-            side: 'top',
-            align: 'start',
-          }
-        },
-        {
-          element: '[data-tour="nav-history"]',
-          popover: {
-            title: 'Review Your History',
-            description: 'Look back at all your past workouts and see your journey.',
-            side: 'top',
-            align: 'center',
-          }
-        },
-        {
-          element: '[data-tour="nav-progress"]',
-          popover: {
-            title: 'Track Progress',
-            description: 'View charts and PRs to see how your lifts are improving over time.',
-            side: 'top',
-            align: 'center',
-          }
-        },
-        {
-          element: '[data-tour="nav-social"]',
-          popover: {
-            title: 'Connect & Compete',
-            description: 'Add friends, join gyms, and compete on leaderboards. Make fitness social!',
-            side: 'top',
-            align: 'center',
-          }
-        },
-        {
-          popover: {
-            title: 'You\'re All Set! 💪',
-            description: 'Ready to start your fitness journey? Click "Log Workout" to record your first session!',
-          }
-        },
-      ],
+      steps: tourSteps,
       onDestroyStarted: async () => {
         await markOnboardingComplete()
         if (driverRef.current) {

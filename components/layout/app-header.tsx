@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet, Wrench } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeLogo } from '@/components/common/theme-logo'
@@ -89,9 +89,9 @@ export function AppHeader({ user }: AppHeaderProps) {
             className="h-10 w-10"
             asChild
           >
-            <Link href="/app/tips" onClick={triggerLoading}>
-              <HelpCircle className="h-5 w-5" />
-              <span className="sr-only">Tips & Guides</span>
+            <Link href="/app/tools" onClick={triggerLoading}>
+              <Wrench className="h-5 w-5" />
+              <span className="sr-only">Tools</span>
             </Link>
           </Button>
           <Button 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Scale, Droplets, LayoutTemplate, Lock, Sparkles } from 'lucide-react'
+import { Scale, Droplets, LayoutTemplate, Lock, Sparkles, Calculator } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 interface ToolCardProps {
@@ -65,6 +65,20 @@ export function ToolsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ToolCard
+          href="/app/tools/1rm-calculator"
+          icon={<Calculator className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+          title="1RM Calculator"
+          description="Estimate your one-rep max and get working weight percentages using multiple formulas"
+        />
+
+        <ToolCard
+          href="/app/tools/plate-calculator"
+          icon={<Scale className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+          title="Plate Calculator"
+          description="Calculate which plates to load on each side of the barbell to reach your target weight"
+        />
+
         <ToolCard
           href="/app/weight"
           icon={<Scale className="h-6 w-6 text-blue-600 dark:text-blue-400" />}

@@ -17,6 +17,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Dumbbell, Users, LogOut, Plus, Loader2, Check, X } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { RankBadge } from '@/components/ranks/rank-badge'
 import { toast } from 'sonner'
 
 interface Gym {
@@ -33,11 +35,24 @@ interface Gym {
 
 interface PendingRequest {
   user_id: string
-  username: string
+  username?: string | null
   display_name: string
   avatar_url?: string | null
   rank_code?: string
   joined_at: string
+}
+
+interface GymMember {
+  user_id: string
+  joined_at: string
+  opt_in: boolean
+  is_approved: boolean
+  profile: {
+    user_id: string
+    display_name: string
+    avatar_url?: string | null
+    rank_code?: string | null
+  } | null
 }
 
 interface GymManagerProps {
@@ -53,8 +68,11 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([])
   const [requestsLoading, setRequestsLoading] = useState(false)
+  const [membersDialogOpen, setMembersDialogOpen] = useState(false)
+  const [members, setMembers] = useState<GymMember[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
 
-  const fetchCurrentGym = async () => {
+  const fetchCurrentGym = async (skipPendingRequests = false) => {
     try {
       // Get user's gym membership
       const res = await fetch('/api/gym/my-gym')
@@ -64,8 +82,8 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
           setCurrentGym(data.gym)
           onGymChange?.(data.gym.code)
           
-          // If user is owner, fetch pending requests
-          if (data.gym.user_is_owner) {
+          // If user is owner, fetch pending requests (unless explicitly skipped)
+          if (data.gym.user_is_owner && !skipPendingRequests) {
             fetchPendingRequests(data.gym.code)
           }
         }
@@ -92,10 +110,39 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
     }
   }
 
+  const fetchMembers = async (gymCode: string) => {
+    setMembersLoading(true)
+    try {
+      const res = await fetch(`/api/gym/${gymCode}/members`)
+      if (res.ok) {
+        const data = await res.json()
+        setMembers(data.members || [])
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error)
+      toast.error('Failed to load gym members')
+    } finally {
+      setMembersLoading(false)
+    }
+  }
+
+  const handleViewMembers = () => {
+    if (currentGym) {
+      fetchMembers(currentGym.code)
+      setMembersDialogOpen(true)
+    }
+  }
+
   const handleApproveReject = async (userId: string, action: 'approve' | 'reject') => {
     if (!currentGym) return
 
+    // Store the request being processed in case we need to restore it on error
+    const requestToProcess = pendingRequests.find(req => req.user_id === userId)
+    
     try {
+      // Optimistically remove the request from UI immediately
+      setPendingRequests(prev => prev.filter(req => req.user_id !== userId))
+      
       const res = await fetch(`/api/gym/${currentGym.code}/pending`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,16 +153,19 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
 
       toast.success(action === 'approve' ? 'Member approved!' : 'Request rejected')
       
-      // Immediately remove the request from UI
-      setPendingRequests(prev => prev.filter(req => req.user_id !== userId))
-      
-      // Also refresh the gym data to update member count if approved
+      // Refresh the gym data to update member count, but skip refetching pending requests
+      // (we already updated them optimistically above)
       if (action === 'approve') {
-        fetchCurrentGym()
+        fetchCurrentGym(true) // Skip pending requests refetch
       }
     } catch (error) {
       console.error('Error processing request:', error)
       toast.error('Failed to process request')
+      
+      // Restore the request to UI on error
+      if (requestToProcess) {
+        setPendingRequests(prev => [...prev, requestToProcess])
+      }
     }
   }
 
@@ -219,7 +269,9 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{request.display_name}</p>
-                    <p className="text-sm text-gray-500 truncate">@{request.username}</p>
+                    {request.username && (
+                      <p className="text-sm text-gray-500 truncate">@{request.username}</p>
+                    )}
                   </div>
                   <div className="flex gap-2 sm:flex-shrink-0">
                     <Button
@@ -271,10 +323,13 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <button 
+              onClick={handleViewMembers}
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors w-full text-left"
+            >
               <Users className="h-4 w-4" />
               <span>{currentGym.member_count} members</span>
-            </div>
+            </button>
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium">Gym Code:</span>
               <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{currentGym.code}</code>
@@ -334,6 +389,55 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Members Dialog */}
+      <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Gym Members
+            </DialogTitle>
+            <DialogDescription>
+              {currentGym?.name} members ({members.length})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {membersLoading ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              </div>
+            ) : members.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">No members yet</p>
+            ) : (
+              members.map(member => (
+                <div
+                  key={member.user_id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={member.profile?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {member.profile?.display_name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{member.profile?.display_name || 'Unknown'}</p>
+                    {member.profile?.rank_code && (
+                      <div className="mt-1">
+                        <RankBadge rankCode={member.profile.rank_code} size="sm" />
+                      </div>
+                    )}
+                  </div>
+                  {member.user_id === currentGym?.owner_id && (
+                    <Badge variant="secondary">Owner</Badge>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

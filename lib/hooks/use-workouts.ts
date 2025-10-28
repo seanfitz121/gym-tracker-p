@@ -5,6 +5,7 @@ import { createClient } from '../supabase/client'
 import type { WorkoutSession, SetEntry, WorkoutSessionWithSets, ActiveWorkout, BlockType } from '../types'
 import { calculateEstimated1RM } from '../utils/calculations'
 import { validateWorkout, createAntiCheatFlag } from '../utils/anti-cheat'
+import { updateWeeklyXp } from '../utils/weekly-xp'
 
 export function useWorkoutSessions(userId?: string, limit?: number) {
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
@@ -287,6 +288,10 @@ export function useSaveWorkout() {
       }
 
       console.log('Workout saved successfully:', session.id)
+      
+      // Update weekly_xp for real-time leaderboard updates
+      await updateWeeklyXp(supabase, userId, session.id)
+      
       return session.id
     } catch (err) {
       console.error('saveWorkout error:', err)
@@ -310,12 +315,27 @@ export function useDeleteWorkoutSession() {
 
     try {
       const supabase = createClient()
+      
+      // Get user_id before deleting the session
+      const { data: session } = await supabase
+        .from('workout_session')
+        .select('user_id')
+        .eq('id', sessionId)
+        .single()
+
       const { error } = await supabase
         .from('workout_session')
         .delete()
         .eq('id', sessionId)
 
       if (error) throw error
+      
+      // Update weekly_xp after deletion to keep leaderboards in sync
+      if (session?.user_id) {
+        // Pass a dummy session ID since we just need to recalculate the week
+        await updateWeeklyXp(supabase, session.user_id, sessionId)
+      }
+      
       return true
     } catch (err) {
       setError(err as Error)

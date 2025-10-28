@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, TrendingUp, Dumbbell, Trophy, Flame, Loader2 } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ArrowLeft, TrendingUp, Dumbbell, Trophy, Flame, Loader2, Award } from 'lucide-react'
 import { RankBadge } from '@/components/ranks/rank-badge'
+import { createClient } from '@/lib/supabase/client'
 import {
   LineChart,
   Line,
@@ -63,6 +65,10 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
   const [data, setData] = useState<CompareData | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState<7 | 30 | 90>(7)
+  const [exercises, setExercises] = useState<Array<{id: string, name: string, body_part?: string}>>([])
+  const [selectedExercise, setSelectedExercise] = useState<string>('')
+  const [prData, setPrData] = useState<{user: any[], friend: any[]} | null>(null)
+  const [prLoading, setPrLoading] = useState(false)
 
   useEffect(() => {
     const fetchCompareData = async () => {
@@ -81,6 +87,91 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
 
     fetchCompareData()
   }, [friendId, period])
+
+  // Fetch exercises that both users have done
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const supabase = createClient()
+        
+        // Get all exercises from set_entries for both users
+        const { data: sessions } = await supabase
+          .from('workout_session')
+          .select('id, user_id')
+          .in('user_id', [data?.user.id, data?.friend.id])
+        
+        if (!sessions) return
+
+        const sessionIds = sessions.map(s => s.id)
+        
+        const { data: sets } = await supabase
+          .from('set_entry')
+          .select('exercise_id, exercise:exercise_id(id, name, body_part)')
+          .in('session_id', sessionIds)
+        
+        if (!sets) return
+
+        // Get unique exercises
+        const uniqueExercises = new Map()
+        sets.forEach((set: any) => {
+          if (set.exercise && !uniqueExercises.has(set.exercise.id)) {
+            uniqueExercises.set(set.exercise.id, {
+              id: set.exercise.id,
+              name: set.exercise.name,
+              body_part: set.exercise.body_part
+            })
+          }
+        })
+
+        setExercises(Array.from(uniqueExercises.values()).sort((a, b) => a.name.localeCompare(b.name)))
+      } catch (error) {
+        console.error('Error fetching exercises:', error)
+      }
+    }
+
+    if (data) {
+      fetchExercises()
+    }
+  }, [data])
+
+  // Fetch PRs for selected exercise
+  useEffect(() => {
+    const fetchPRs = async () => {
+      if (!selectedExercise || !data) return
+      
+      setPrLoading(true)
+      try {
+        const supabase = createClient()
+        
+        // Fetch user's PRs
+        const { data: userPRs } = await supabase
+          .from('personal_record')
+          .select('*')
+          .eq('exercise_id', selectedExercise)
+          .eq('user_id', data.user.id)
+          .order('achieved_at', { ascending: false })
+        
+        // Fetch friend's PRs
+        const { data: friendPRs } = await supabase
+          .from('personal_record')
+          .select('*')
+          .eq('exercise_id', selectedExercise)
+          .eq('user_id', data.friend.id)
+          .order('achieved_at', { ascending: false })
+        
+        setPrData({
+          user: userPRs || [],
+          friend: friendPRs || []
+        })
+      } catch (error) {
+        console.error('Error fetching PRs:', error)
+      } finally {
+        setPrLoading(false)
+      }
+    }
+
+    fetchPRs()
+  }, [selectedExercise, data])
 
   if (loading || !data) {
     return (
@@ -109,18 +200,45 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
     const tie = userValue === friendValue
 
     return (
-      <div className="grid grid-cols-3 gap-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-        <div className={`flex flex-col items-center p-3 rounded ${userWins ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
-          <p className="text-2xl font-bold">{userValue.toLocaleString()}{unit}</p>
-          <p className="text-xs text-gray-500">{data.user.display_name}</p>
-        </div>
-        <div className="flex flex-col items-center justify-center">
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-4">
+        {/* Mobile: Icon and label at top */}
+        <div className="flex items-center justify-center gap-2 mb-3 sm:hidden">
           {icon}
-          <p className="text-xs text-gray-500 mt-1 text-center">{label}</p>
+          <p className="text-xs text-gray-500 font-medium">{label}</p>
         </div>
-        <div className={`flex flex-col items-center p-3 rounded ${!userWins && !tie ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
-          <p className="text-2xl font-bold">{friendValue.toLocaleString()}{unit}</p>
-          <p className="text-xs text-gray-500">{data.friend.display_name}</p>
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-[1fr_auto_1fr] gap-2 sm:gap-3 items-center">
+          {/* User Stats */}
+          <div className={`flex flex-col items-center justify-center p-2 sm:p-3 rounded min-w-0 ${userWins ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+            <p className="text-lg sm:text-2xl font-bold truncate w-full text-center">
+              {userValue.toLocaleString()}{unit}
+            </p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
+              {data.user.display_name}
+            </p>
+          </div>
+          
+          {/* Icon and Label - Desktop only */}
+          <div className="hidden sm:flex flex-col items-center justify-center px-2">
+            {icon}
+            <p className="text-xs text-gray-500 mt-1 text-center whitespace-nowrap">{label}</p>
+          </div>
+          
+          {/* Mobile divider */}
+          <div className="flex sm:hidden items-center justify-center">
+            <div className="h-8 w-px bg-gray-300 dark:bg-gray-700"></div>
+          </div>
+          
+          {/* Friend Stats */}
+          <div className={`flex flex-col items-center justify-center p-2 sm:p-3 rounded min-w-0 ${!userWins && !tie ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+            <p className="text-lg sm:text-2xl font-bold truncate w-full text-center">
+              {friendValue.toLocaleString()}{unit}
+            </p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
+              {data.friend.display_name}
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -136,30 +254,30 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
       </div>
 
       {/* User Headers */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <Avatar className="h-12 w-12">
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
               <AvatarImage src={data.user.avatar_url || undefined} />
               <AvatarFallback>{data.user.display_name?.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <p className="font-semibold">{data.user.display_name}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm sm:text-base truncate">{data.user.display_name}</p>
               {data.user.rank_code && <RankBadge rankCode={data.user.rank_code} size="sm" />}
-              <p className="text-xs text-gray-500">{data.user.total_xp} total XP</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 truncate">{data.user.total_xp.toLocaleString()} total XP</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <Avatar className="h-12 w-12">
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
               <AvatarImage src={data.friend.avatar_url || undefined} />
               <AvatarFallback>{data.friend.display_name?.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <p className="font-semibold">{data.friend.display_name}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm sm:text-base truncate">{data.friend.display_name}</p>
               {data.friend.rank_code && <RankBadge rankCode={data.friend.rank_code} size="sm" />}
-              <p className="text-xs text-gray-500">{data.friend.total_xp} total XP</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 truncate">{data.friend.total_xp.toLocaleString()} total XP</p>
             </div>
           </CardContent>
         </Card>
@@ -238,6 +356,143 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
             userValue={data.user.total_prs}
             friendValue={data.friend.total_prs}
           />
+        </CardContent>
+      </Card>
+
+      {/* Exercise PR Comparison */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-yellow-600" />
+            <CardTitle>Exercise PRs</CardTitle>
+          </div>
+          <CardDescription>
+            Compare personal records for specific exercises
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Select value={selectedExercise} onValueChange={setSelectedExercise}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select an exercise to compare PRs..." />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              {exercises.map((exercise) => (
+                <SelectItem key={exercise.id} value={exercise.id}>
+                  {exercise.name}
+                  {exercise.body_part && ` • ${exercise.body_part}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {selectedExercise && (
+            <>
+              {prLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* PR Comparison */}
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    {/* User's Best PR */}
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-4">
+                      <p className="text-xs text-gray-500 mb-2 text-center">{data.user.display_name}</p>
+                      {prData && prData.user.length > 0 ? (
+                        <div className="space-y-2">
+                          {/* Best PR */}
+                          <div className={`p-2 sm:p-3 rounded ${prData.user.length > 0 && prData.friend.length > 0 && (prData.user[0].estimated_1rm || 0) > (prData.friend[0]?.estimated_1rm || 0) ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                            <p className="text-lg sm:text-2xl font-bold text-center">
+                              {prData.user[0].weight} {prData.user[0].weight_unit}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                              {prData.user[0].reps} {prData.user[0].reps === 1 ? 'rep' : 'reps'}
+                            </p>
+                            {prData.user[0].estimated_1rm && (
+                              <p className="text-[10px] sm:text-xs text-gray-500 text-center mt-1">
+                                Est. 1RM: {Math.round(prData.user[0].estimated_1rm)} {prData.user[0].weight_unit}
+                              </p>
+                            )}
+                          </div>
+                          {/* Total PRs count */}
+                          <p className="text-[10px] sm:text-xs text-gray-500 text-center">
+                            {prData.user.length} {prData.user.length === 1 ? 'PR' : 'PRs'}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-400 text-center py-4">No PRs yet</p>
+                      )}
+                    </div>
+
+                    {/* Friend's Best PR */}
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-4">
+                      <p className="text-xs text-gray-500 mb-2 text-center">{data.friend.display_name}</p>
+                      {prData && prData.friend.length > 0 ? (
+                        <div className="space-y-2">
+                          {/* Best PR */}
+                          <div className={`p-2 sm:p-3 rounded ${prData.user.length > 0 && prData.friend.length > 0 && (prData.friend[0].estimated_1rm || 0) > (prData.user[0]?.estimated_1rm || 0) ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                            <p className="text-lg sm:text-2xl font-bold text-center">
+                              {prData.friend[0].weight} {prData.friend[0].weight_unit}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                              {prData.friend[0].reps} {prData.friend[0].reps === 1 ? 'rep' : 'reps'}
+                            </p>
+                            {prData.friend[0].estimated_1rm && (
+                              <p className="text-[10px] sm:text-xs text-gray-500 text-center mt-1">
+                                Est. 1RM: {Math.round(prData.friend[0].estimated_1rm)} {prData.friend[0].weight_unit}
+                              </p>
+                            )}
+                          </div>
+                          {/* Total PRs count */}
+                          <p className="text-[10px] sm:text-xs text-gray-500 text-center">
+                            {prData.friend.length} {prData.friend.length === 1 ? 'PR' : 'PRs'}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-400 text-center py-4">No PRs yet</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* All PRs History */}
+                  {prData && (prData.user.length > 1 || prData.friend.length > 1) && (
+                    <div className="border-t pt-4 dark:border-gray-700">
+                      <p className="text-sm font-semibold mb-3">PR History</p>
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                        {/* User's PR History */}
+                        <div className="space-y-2">
+                          {prData.user.slice(1, 5).map((pr, index) => (
+                            <div key={pr.id} className="bg-gray-100 dark:bg-gray-800 rounded p-2 text-xs">
+                              <p className="font-medium">
+                                {pr.weight} {pr.weight_unit} × {pr.reps}
+                              </p>
+                              <p className="text-[10px] text-gray-500">
+                                {new Date(pr.achieved_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Friend's PR History */}
+                        <div className="space-y-2">
+                          {prData.friend.slice(1, 5).map((pr, index) => (
+                            <div key={pr.id} className="bg-gray-100 dark:bg-gray-800 rounded p-2 text-xs">
+                              <p className="font-medium">
+                                {pr.weight} {pr.weight_unit} × {pr.reps}
+                              </p>
+                              <p className="text-[10px] text-gray-500">
+                                {new Date(pr.achieved_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 

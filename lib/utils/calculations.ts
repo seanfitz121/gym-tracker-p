@@ -2,18 +2,106 @@
  * Calculate estimated 1RM using Brzycki formula
  * Formula: 1RM = Weight / (1.0278 - 0.0278 × Reps)
  * Clips reps between 1-12 for sanity
+ * @deprecated Use estimate1RM with formula='brzycki' instead
  */
 export function calculateEstimated1RM(weight: number, reps: number): number {
-  if (weight <= 0 || reps <= 0) return 0
+  return estimate1RM(weight, reps, 'brzycki')
+}
+
+/**
+ * Calculate estimated 1RM using specified formula
+ * @param weight - Weight lifted
+ * @param reps - Number of reps (1-20)
+ * @param formula - Formula to use (epley, brzycki, lombardi)
+ * @returns Estimated 1RM
+ */
+export function estimate1RM(
+  weight: number, 
+  reps: number, 
+  formula: 'epley' | 'brzycki' | 'lombardi' = 'epley'
+): number {
+  if (weight <= 0 || reps < 1 || reps > 20) return 0
   
-  // Clip reps for sanity
-  const clippedReps = Math.max(1, Math.min(12, reps))
+  // If reps = 1, the 1RM is just the weight
+  if (reps === 1) return weight
   
-  // Brzycki formula
-  const estimated1RM = weight / (1.0278 - 0.0278 * clippedReps)
+  let estimated1RM: number
   
-  // Round to 1 decimal place
-  return Math.round(estimated1RM * 10) / 10
+  switch (formula) {
+    case 'epley':
+      // Epley: w * (1 + reps/30)
+      estimated1RM = weight * (1 + reps / 30)
+      break
+      
+    case 'brzycki':
+      // Brzycki: w * (36 / (37 - reps))
+      estimated1RM = weight * (36 / (37 - reps))
+      break
+      
+    case 'lombardi':
+      // Lombardi: w * reps^0.10
+      estimated1RM = weight * Math.pow(reps, 0.10)
+      break
+      
+    default:
+      estimated1RM = weight * (1 + reps / 30)
+  }
+  
+  // Round to 2 decimal places
+  return Math.round(estimated1RM * 100) / 100
+}
+
+/**
+ * Round weight to specified increment
+ * @param value - Weight to round
+ * @param rounding - Rounding increment (e.g., 0.5 for kg, 2.5 for lb)
+ * @returns Rounded weight
+ */
+export function roundWeight(value: number, rounding: number): number {
+  return Math.round(value / rounding) * rounding
+}
+
+/**
+ * Get default rounding for unit
+ * @param unit - Weight unit
+ * @returns Default rounding increment
+ */
+export function getDefaultRounding(unit: 'kg' | 'lb'): number {
+  return unit === 'kg' ? 0.5 : 2.5
+}
+
+/**
+ * Generate percentage table for 1RM
+ * @param estimated1RM - Calculated 1RM
+ * @param step - Step size for percentages (5 or 10)
+ * @param rounding - Rounding increment (optional, uses default based on unit)
+ * @param unit - Weight unit for default rounding
+ * @returns Array of percentage table entries
+ */
+export function generatePercentageTable(
+  estimated1RM: number,
+  step: number = 10,
+  rounding?: number,
+  unit: 'kg' | 'lb' = 'kg'
+): Array<{ percent: number; weight: number }> {
+  const roundingIncrement = rounding ?? getDefaultRounding(unit)
+  const table: Array<{ percent: number; weight: number }> = []
+  
+  // Generate from 50% to 100% 
+  const start = step === 5 ? 50 : 50
+  const end = 100
+  
+  for (let percent = end; percent >= start; percent -= step) {
+    const rawWeight = (estimated1RM * percent) / 100
+    const roundedWeight = roundWeight(rawWeight, roundingIncrement)
+    
+    table.push({
+      percent,
+      weight: roundedWeight
+    })
+  }
+  
+  return table
 }
 
 /**

@@ -35,7 +35,7 @@ export default function TipsPage() {
       <Separator />
 
       {/* PWA Installation */}
-      <Card>
+      <Card id="install-app">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-blue-600" />
