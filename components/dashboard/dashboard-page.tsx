@@ -6,6 +6,8 @@ import { GamificationPanel } from '@/components/gamification/gamification-panel'
 import { VolumeStatsCard } from '@/components/stats/volume-stats-card'
 import { OnboardingTour } from '@/components/onboarding/onboarding-tour'
 import { Button } from '@/components/ui/button'
+import { AdBanner } from '@/components/ads/ad-banner'
+import { AD_SLOTS } from '@/lib/config/ads'
 import Link from 'next/link'
 import { 
   Dumbbell, 
@@ -232,6 +234,16 @@ export function DashboardPage({ userId }: DashboardPageProps) {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Ad - Non-intrusive banner at bottom (free users only) */}
+      <div className="max-w-3xl mx-auto">
+        <AdBanner 
+          adSlot={AD_SLOTS.DASHBOARD_SIDEBAR} 
+          adFormat="horizontal"
+          className="my-6"
+          showPlaceholder={true}
+        />
       </div>
     </div>
     </>
