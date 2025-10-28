@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Get profiles for friends
     const { data: profiles } = await supabase
       .from('profile')
-      .select('id, display_name, avatar_url')
+      .select('id, display_name, avatar_url, is_premium, premium_flair_enabled')
       .in('id', friendIds)
 
     // Get gamification data for friends
@@ -80,6 +80,8 @@ export async function GET(request: NextRequest) {
         weekly_xp: weeklyData?.xp || 0,
         total_workouts: weeklyData?.workouts || 0,
         current_streak: gamification?.current_streak || 0,
+        is_premium: profile?.is_premium || false,
+        premium_flair_enabled: profile?.premium_flair_enabled ?? true,
         top_pr: topPR && exercise ? {
           exercise_name: exercise.name,
           weight: topPR.weight,

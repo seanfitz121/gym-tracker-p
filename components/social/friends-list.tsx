@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Users, UserPlus, X, Check, Search, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RankBadge } from '@/components/ranks/rank-badge'
+import { GoldenUsername } from '@/components/gamification/golden-username'
 
 interface Friend {
   user_id: string
@@ -17,6 +18,8 @@ interface Friend {
   rank_code?: string
   weekly_xp: number
   current_streak: number
+  is_premium?: boolean
+  premium_flair_enabled?: boolean
   top_pr?: {
     exercise_name: string
     weight: number
@@ -274,7 +277,13 @@ export function FriendsList({ userId, onCompare }: FriendsListProps) {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{friend.display_name}</p>
+                    <GoldenUsername
+                      username={friend.display_name}
+                      isPremium={friend.is_premium || false}
+                      flairEnabled={friend.premium_flair_enabled ?? true}
+                      className="font-medium truncate"
+                      showIcon={true}
+                    />
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       {friend.rank_code && (
                         <RankBadge rankCode={friend.rank_code} size="sm" />

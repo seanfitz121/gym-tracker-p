@@ -242,3 +242,36 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Golden Username Flair (Premium Feature) */
+.golden-username {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  text-shadow: 0 1px 2px rgba(255, 215, 0, 0.2);
+}
+
+/* Fallback for browsers that don't support background-clip */
+@supports not (background-clip: text) {
+  .golden-username {
+    color: #FFD700;
+    -webkit-text-fill-color: #FFD700;
+  }
+}
+
+/* Dark mode adjustment - slightly brighter */
+.dark .golden-username {
+  background: linear-gradient(135deg, #FFE55C 0%, #FFB347 50%, #FFE55C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .dark .golden-username {
+    color: #FFE55C;
+    -webkit-text-fill-color: #FFE55C;
+  }
+}

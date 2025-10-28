@@ -4,8 +4,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useSettingsStore } from '@/lib/store/settings-store'
 import { useProfile, useUpdateProfile, useUploadAvatar } from '@/lib/hooks/use-profile'
 import { useIsAdmin } from '@/lib/hooks/use-admin'
+import { usePremiumStatus } from '@/lib/hooks/use-premium'
 import { useTheme } from '@/lib/hooks/use-theme'
 import { AdminAnnouncementsManager } from '@/components/announcements/admin-announcements-manager'
+import { PrestigeCard } from '@/components/gamification/prestige-card'
+import { FlairToggle } from '@/components/settings/flair-toggle'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -26,6 +29,7 @@ export function SettingsForm({ userId }: SettingsFormProps) {
   const { updateProfile, loading: updateLoading } = useUpdateProfile()
   const { uploadAvatar, uploading } = useUploadAvatar()
   const { isAdmin, loading: adminLoading } = useIsAdmin(userId)
+  const { isPremium } = usePremiumStatus()
   const { theme, setTheme } = useTheme()
 
   const [displayName, setDisplayName] = useState('')
@@ -139,6 +143,15 @@ export function SettingsForm({ userId }: SettingsFormProps) {
       {isAdmin && !adminLoading && (
         <AdminAnnouncementsManager />
       )}
+
+      {/* Premium Features */}
+      <PrestigeCard isPremium={isPremium} />
+      
+      <FlairToggle 
+        isPremium={isPremium} 
+        initialFlairEnabled={(profile as any)?.premium_flair_enabled ?? true}
+        username={(profile as any)?.username || (profile as any)?.display_name || 'User'}
+      />
 
       {/* Profile Settings */}
       <Card>

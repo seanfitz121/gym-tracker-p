@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Users, Dumbbell, Globe, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { RankBadge } from '@/components/ranks/rank-badge'
+import { GoldenUsername } from '@/components/gamification/golden-username'
 import type { LeaderboardType, LeaderboardRange } from '@/lib/types'
 
 interface LeaderboardEntry {
@@ -22,6 +23,8 @@ interface LeaderboardEntry {
   pr_count: number
   is_flagged?: boolean
   is_new_account?: boolean
+  is_premium?: boolean
+  premium_flair_enabled?: boolean
 }
 
 interface LeaderboardData {
@@ -155,7 +158,13 @@ export function Leaderboard({ userId, currentGymCode }: LeaderboardProps) {
                         </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <p className="font-medium">{entry.display_name}</p>
+                            <GoldenUsername
+                              username={entry.display_name}
+                              isPremium={entry.is_premium || false}
+                              flairEnabled={entry.premium_flair_enabled ?? true}
+                              className="font-medium"
+                              showIcon={true}
+                            />
                             {entry.is_new_account && (
                               <Badge variant="outline" className="text-xs">New</Badge>
                             )}

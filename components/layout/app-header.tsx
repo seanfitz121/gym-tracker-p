@@ -15,10 +15,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet, Wrench } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet, Wrench, Camera } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeLogo } from '@/components/common/theme-logo'
+import { GoldenUsername } from '@/components/gamification/golden-username'
 import { toast } from 'sonner'
 
 interface AppHeaderProps {
@@ -129,9 +130,13 @@ export function AppHeader({ user }: AppHeaderProps) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {displayName}
-                </p>
+                <GoldenUsername
+                  username={displayName}
+                  isPremium={isPremium}
+                  flairEnabled={profile?.premium_flair_enabled ?? true}
+                  className="text-sm font-medium leading-none"
+                  showIcon={true}
+                />
                 <p className="text-xs leading-none text-muted-foreground">
                   {user.email}
                 </p>
@@ -156,6 +161,18 @@ export function AppHeader({ user }: AppHeaderProps) {
             >
               <Droplet className="mr-2 h-5 w-5" />
               <span className="text-base">Hydration Tracker</span>
+              {isPremium && (
+                <span className="ml-auto">
+                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
+                </span>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/progress-photos') }}
+              className="h-11 cursor-pointer"
+            >
+              <Camera className="mr-2 h-5 w-5" />
+              <span className="text-base">Progress Photos</span>
               {isPremium && (
                 <span className="ml-auto">
                   <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />

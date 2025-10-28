@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     const userIds = entries.map(e => e.user_id)
     const { data: profiles } = await supabase
       .from('profile')
-      .select('id, display_name, avatar_url, account_verified_at')
+      .select('id, display_name, avatar_url, account_verified_at, is_premium, premium_flair_enabled')
       .in('id', userIds)
 
     // Get rank_code from user_gamification
@@ -179,6 +179,8 @@ export async function GET(request: NextRequest) {
         volume_kg: Number(entry.volume_kg),
         pr_count: entry.pr_count,
         is_flagged: flaggedIds.includes(entry.user_id),
+        is_premium: profile?.is_premium || false,
+        premium_flair_enabled: profile?.premium_flair_enabled ?? true,
         is_new_account: newAccountIds.includes(entry.user_id)
       }
     })
