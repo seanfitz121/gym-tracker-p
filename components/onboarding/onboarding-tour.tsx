@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Joyride, { CallBackProps, STATUS, Step, ACTIONS, EVENTS } from 'react-joyride'
+import { useState, useEffect, useRef } from 'react'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,7 @@ interface OnboardingTourProps {
 
 export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourProps) {
   const [showWelcome, setShowWelcome] = useState(false)
-  const [runTour, setRunTour] = useState(false)
+  const driverRef = useRef<ReturnType<typeof driver> | null>(null)
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -32,134 +33,6 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
     }
   }, [onboardingCompleted])
 
-  const steps: Step[] = [
-    {
-      target: 'body',
-      content: (
-        <div className="space-y-3 p-2">
-          <h3 className="text-xl font-bold">Welcome to PlateProgress! 🎉</h3>
-          <p className="text-base">This is your workout tracking dashboard. Let's take a quick tour of the key features!</p>
-        </div>
-      ),
-      placement: 'center',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="log-workout"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Log Your Workouts</h4>
-          <p className="text-sm">Click here to start logging your first workout. Track sets, reps, and weights!</p>
-        </div>
-      ),
-      placement: 'bottom',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="level-progress"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Level Up System</h4>
-          <p className="text-sm">Earn XP and level up as you work out. Track your progress and unlock new ranks!</p>
-        </div>
-      ),
-      placement: 'bottom',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="volume-stats"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Volume Statistics</h4>
-          <p className="text-sm">See how much total weight you've moved. Watch your progress grow over time!</p>
-        </div>
-      ),
-      placement: 'top',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="tools"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Helpful Tools</h4>
-          <p className="text-sm">Access calculators and trackers like One Rep Max, Plate Calculator, Weight & Hydration tracking.</p>
-        </div>
-      ),
-      placement: 'top',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="nav-history"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Review Your History</h4>
-          <p className="text-sm">Look back at all your past workouts and see your journey.</p>
-        </div>
-      ),
-      placement: 'top',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="nav-progress"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Track Progress</h4>
-          <p className="text-sm">View charts and PRs to see how your lifts are improving over time.</p>
-        </div>
-      ),
-      placement: 'top',
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tour="nav-social"]',
-      content: (
-        <div className="space-y-2">
-          <h4 className="font-semibold text-lg">Connect & Compete</h4>
-          <p className="text-sm">Add friends, join gyms, and compete on leaderboards. Make fitness social!</p>
-        </div>
-      ),
-      placement: 'top',
-      disableBeacon: true,
-    },
-    {
-      target: 'body',
-      content: (
-        <div className="space-y-3 p-2">
-          <h3 className="text-xl font-bold">You're All Set! 💪</h3>
-          <p className="text-base">Ready to start your fitness journey? Click "Log Workout" to record your first session!</p>
-        </div>
-      ),
-      placement: 'center',
-      disableBeacon: true,
-    },
-  ]
-
-  const handleStartTour = () => {
-    setShowWelcome(false)
-    setRunTour(true)
-  }
-
-  const handleSkip = async () => {
-    setShowWelcome(false)
-    await markOnboardingComplete()
-  }
-
-  const handleJoyrideCallback = async (data: CallBackProps) => {
-    const { status, action, type } = data
-    const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
-
-    if (finishedStatuses.includes(status)) {
-      setRunTour(false)
-      await markOnboardingComplete()
-    }
-
-    // Handle skip button
-    if (action === ACTIONS.CLOSE && type === EVENTS.STEP_AFTER) {
-      setRunTour(false)
-      await markOnboardingComplete()
-    }
-  }
-
   const markOnboardingComplete = async () => {
     try {
       const supabase = createClient()
@@ -170,6 +43,119 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
     } catch (error) {
       console.error('Error marking onboarding complete:', error)
     }
+  }
+
+  const handleStartTour = () => {
+    setShowWelcome(false)
+    
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        {
+          popover: {
+            title: 'Welcome to PlateProgress! 🎉',
+            description: 'This is your workout tracking dashboard. Let\'s take a quick tour of the key features!',
+          }
+        },
+        {
+          element: '[data-tour="log-workout"]',
+          popover: {
+            title: 'Log Your Workouts',
+            description: 'Click here to start logging your first workout. Track sets, reps, and weights!',
+            side: 'bottom',
+            align: 'center',
+          }
+        },
+        {
+          element: '[data-tour="level-progress"]',
+          popover: {
+            title: 'Level Up System',
+            description: 'Earn XP and level up as you work out. Track your progress and unlock new ranks!',
+            side: 'bottom',
+            align: 'start',
+          }
+        },
+        {
+          element: '[data-tour="volume-stats"]',
+          popover: {
+            title: 'Volume Statistics',
+            description: 'See how much total weight you\'ve moved. Watch your progress grow over time!',
+            side: 'top',
+            align: 'start',
+          }
+        },
+        {
+          element: '[data-tour="tools"]',
+          popover: {
+            title: 'Helpful Tools',
+            description: 'Access calculators and trackers like 1RM Calculator, Plate Calculator, Weight & Hydration tracking.',
+            side: 'top',
+            align: 'start',
+          }
+        },
+        {
+          element: '[data-tour="nav-history"]',
+          popover: {
+            title: 'Review Your History',
+            description: 'Look back at all your past workouts and see your journey.',
+            side: 'top',
+            align: 'center',
+          }
+        },
+        {
+          element: '[data-tour="nav-progress"]',
+          popover: {
+            title: 'Track Progress',
+            description: 'View charts and PRs to see how your lifts are improving over time.',
+            side: 'top',
+            align: 'center',
+          }
+        },
+        {
+          element: '[data-tour="nav-social"]',
+          popover: {
+            title: 'Connect & Compete',
+            description: 'Add friends, join gyms, and compete on leaderboards. Make fitness social!',
+            side: 'top',
+            align: 'center',
+          }
+        },
+        {
+          popover: {
+            title: 'You\'re All Set! 💪',
+            description: 'Ready to start your fitness journey? Click "Log Workout" to record your first session!',
+          }
+        },
+      ],
+      onDestroyStarted: async () => {
+        await markOnboardingComplete()
+        if (driverRef.current) {
+          driverRef.current.destroy()
+        }
+      },
+      onDestroyed: async () => {
+        await markOnboardingComplete()
+      },
+      popoverClass: 'driverjs-theme-custom',
+      stagePadding: 8,
+      stageRadius: 12,
+      allowClose: true,
+      overlayOpacity: 0.5,
+      smoothScroll: true,
+      disableActiveInteraction: true,
+      showButtons: ['next', 'previous', 'close'],
+      nextBtnText: 'Next →',
+      prevBtnText: '← Back',
+      doneBtnText: 'Finish',
+    })
+
+    driverRef.current = driverObj
+    driverObj.drive()
+  }
+
+  const handleSkip = async () => {
+    setShowWelcome(false)
+    await markOnboardingComplete()
   }
 
   return (
@@ -212,64 +198,96 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
         </DialogContent>
       </Dialog>
 
-      {/* Tour */}
-      <Joyride
-        steps={steps}
-        run={runTour}
-        continuous
-        showProgress
-        showSkipButton
-        callback={handleJoyrideCallback}
-        scrollToFirstStep
-        scrollOffset={200}
-        disableScrolling={false}
-        spotlightClicks={false}
-        styles={{
-          options: {
-            primaryColor: '#3b82f6',
-            zIndex: 10000,
-            overlayColor: 'rgba(0, 0, 0, 0.4)',
-            spotlightShadow: '0 0 15px rgba(0, 0, 0, 0.5)',
-            beaconSize: 36,
-          },
-          tooltip: {
-            fontSize: 15,
-            borderRadius: 12,
-            padding: 20,
-          },
-          tooltipContainer: {
-            textAlign: 'left',
-          },
-          buttonNext: {
-            backgroundColor: '#3b82f6',
-            fontSize: 14,
-            padding: '10px 20px',
-            borderRadius: 8,
-            fontWeight: 600,
-          },
-          buttonBack: {
-            marginRight: 12,
-            fontSize: 14,
-            color: '#6b7280',
-            padding: '10px 16px',
-          },
-          buttonSkip: {
-            fontSize: 14,
-            color: '#6b7280',
-            padding: '10px 16px',
-          },
-          spotlight: {
-            borderRadius: 8,
-          },
-        }}
-        locale={{
-          back: 'Back',
-          close: 'Close',
-          last: 'Finish',
-          next: 'Next',
-          skip: 'Skip Tour',
-        }}
-      />
+      {/* Custom Driver.js Styles */}
+      <style jsx global>{`
+        .driver-popover.driverjs-theme-custom {
+          background-color: white;
+          color: #1f2937;
+          max-width: 350px;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark .driver-popover.driverjs-theme-custom {
+          background-color: #1f2937;
+          color: #f9fafb;
+        }
+
+        .driverjs-theme-custom .driver-popover-title {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .driverjs-theme-custom .driver-popover-description {
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .driverjs-theme-custom .driver-popover-progress-text {
+          font-size: 13px;
+          color: #6b7280;
+        }
+
+        .dark .driverjs-theme-custom .driver-popover-progress-text {
+          color: #9ca3af;
+        }
+
+        .driverjs-theme-custom .driver-popover-footer button {
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s;
+        }
+
+        .driverjs-theme-custom .driver-popover-next-btn {
+          background-color: #3b82f6;
+          color: white;
+        }
+
+        .driverjs-theme-custom .driver-popover-next-btn:hover {
+          background-color: #2563eb;
+        }
+
+        .driverjs-theme-custom .driver-popover-prev-btn {
+          background-color: #f3f4f6;
+          color: #4b5563;
+        }
+
+        .dark .driverjs-theme-custom .driver-popover-prev-btn {
+          background-color: #374151;
+          color: #d1d5db;
+        }
+
+        .driverjs-theme-custom .driver-popover-prev-btn:hover {
+          background-color: #e5e7eb;
+        }
+
+        .dark .driverjs-theme-custom .driver-popover-prev-btn:hover {
+          background-color: #4b5563;
+        }
+
+        .driverjs-theme-custom .driver-popover-close-btn {
+          color: #6b7280;
+        }
+
+        .driverjs-theme-custom .driver-popover-close-btn:hover {
+          color: #374151;
+        }
+
+        .dark .driverjs-theme-custom .driver-popover-close-btn:hover {
+          color: #f3f4f6;
+        }
+
+        .driver-overlay {
+          background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .driver-active-element {
+          border-radius: 12px;
+        }
+      `}</style>
     </>
   )
 }
