@@ -70,7 +70,7 @@ export async function DELETE(
     try {
       const { error: storageError } = await supabase.storage
         .from(BUCKET_NAME)
-        .remove(filePaths.filter(Boolean));
+        .remove(filePaths.filter((path): path is string => Boolean(path)));
 
       if (storageError) {
         console.warn('Storage cleanup warning (non-fatal):', storageError);

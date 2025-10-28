@@ -3,6 +3,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+type EligibilityData = {
+  eligible: boolean;
+  prestige_count?: number;
+  last_prestige_at?: string;
+  next_eligible_at?: string;
+  reason?: string;
+  current_xp?: number;
+  required_xp?: number;
+  days_remaining?: number;
+};
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -18,12 +29,14 @@ export async function GET() {
     }
 
     // Call the can_enter_prestige function
-    const { data: eligibilityData, error: eligibilityError } = await supabase.rpc(
+    const { data, error: eligibilityError } = await supabase.rpc(
       'can_enter_prestige',
       { p_user_id: user.id }
     );
+    
+    const eligibilityData = data as EligibilityData | null;
 
-    if (eligibilityError) {
+    if (eligibilityError || !eligibilityData) {
       console.error('Error checking prestige eligibility:', eligibilityError);
       return NextResponse.json(
         { error: 'Failed to check prestige eligibility' },

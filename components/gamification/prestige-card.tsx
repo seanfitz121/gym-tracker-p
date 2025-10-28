@@ -116,10 +116,10 @@ export function PrestigeCard({ isPremium }: PrestigeCardProps) {
                   </div>
                 </div>
                 <div className="text-sm text-green-700 dark:text-green-300">
-                  <p>Current XP: <strong>{status.current_xp?.toLocaleString()}</strong></p>
-                  {status.prestige_count > 0 && (
+                  <p>Current XP: <strong>{status?.current_xp?.toLocaleString()}</strong></p>
+                  {(status?.prestige_count ?? 0) > 0 && (
                     <p className="mt-1">
-                      Your next prestige will be: <strong>Prestige {status.prestige_count + 1}</strong>
+                      Your next prestige will be: <strong>Prestige {(status?.prestige_count ?? 0) + 1}</strong>
                     </p>
                   )}
                 </div>
@@ -132,12 +132,12 @@ export function PrestigeCard({ isPremium }: PrestigeCardProps) {
                     <p className="font-semibold">Prestige Cooldown Active</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       You can prestige again in{' '}
-                      {status.next_eligible_at &&
+                      {status?.next_eligible_at &&
                         formatDistanceToNow(new Date(status.next_eligible_at))}
                     </p>
                   </div>
                 </div>
-                {status.last_prestige_at && (
+                {status?.last_prestige_at && (
                   <p className="text-sm text-muted-foreground">
                     Last prestige:{' '}
                     {formatDistanceToNow(new Date(status.last_prestige_at), { addSuffix: true })}
@@ -158,14 +158,14 @@ export function PrestigeCard({ isPremium }: PrestigeCardProps) {
                     <div className="flex justify-between text-sm mb-1">
                       <span>Progress to Prestige</span>
                       <span className="font-medium">
-                        {status.current_xp.toLocaleString()} / {status.required_xp.toLocaleString()} XP
+                        {status?.current_xp?.toLocaleString()} / {status?.required_xp?.toLocaleString()} XP
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary transition-all"
                         style={{
-                          width: `${Math.min((status.current_xp / status.required_xp) * 100, 100)}%`,
+                          width: `${Math.min(((status?.current_xp ?? 0) / (status?.required_xp ?? 1)) * 100, 100)}%`,
                         }}
                       />
                     </div>

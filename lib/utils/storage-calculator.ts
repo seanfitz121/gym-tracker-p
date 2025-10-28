@@ -32,6 +32,8 @@ export async function calculateUserStorage(userId: string): Promise<number> {
     }
 
     for (const path of paths) {
+      if (!path) continue; // Skip null paths
+      
       try {
         // Get file metadata from storage
         const { data: fileData, error: fileError } = await supabase.storage

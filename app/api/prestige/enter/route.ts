@@ -3,6 +3,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+type PrestigeResult = {
+  success: boolean;
+  error?: string;
+  prestige_count?: number;
+  badge_name?: string;
+  next_eligible_at?: string;
+};
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -20,10 +28,12 @@ export async function POST(request: NextRequest) {
     console.log('[PRESTIGE] User attempting to prestige:', user.id);
 
     // Call the enter_prestige function
-    const { data: prestigeResult, error: prestigeError } = await supabase.rpc(
+    const { data, error: prestigeError } = await supabase.rpc(
       'enter_prestige',
       { p_user_id: user.id }
     );
+    
+    const prestigeResult = data as PrestigeResult | null;
 
     if (prestigeError) {
       console.error('[PRESTIGE] Error entering prestige:', prestigeError);
@@ -33,13 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if prestige was successful
-    if (!prestigeResult.success) {
-      console.log('[PRESTIGE] Prestige denied:', prestigeResult.error);
+    // Check if result is null or prestige was unsuccessful
+    if (!prestigeResult || !prestigeResult.success) {
+      console.log('[PRESTIGE] Prestige denied:', prestigeResult?.error);
       return NextResponse.json(
         { 
           success: false,
-          error: prestigeResult.error || 'Not eligible for prestige'
+          error: prestigeResult?.error || 'Not eligible for prestige'
         },
         { status: 403 }
       );
