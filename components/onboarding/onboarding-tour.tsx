@@ -137,10 +137,10 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
         await markOnboardingComplete()
       },
       popoverClass: 'driverjs-theme-custom',
-      stagePadding: 8,
+      stagePadding: 10,
       stageRadius: 12,
       allowClose: true,
-      overlayOpacity: 0.5,
+      overlayOpacity: 0.3,
       smoothScroll: true,
       disableActiveInteraction: true,
       showButtons: ['next', 'previous', 'close'],
@@ -280,12 +280,62 @@ export function OnboardingTour({ userId, onboardingCompleted }: OnboardingTourPr
           color: #f3f4f6;
         }
 
+        /* Lighter overlay - was too dark */
         .driver-overlay {
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.3) !important;
         }
 
+        /* Highlighted element with prominent glowing border */
         .driver-active-element {
-          border-radius: 12px;
+          border-radius: 12px !important;
+          /* Light mode: bright blue glowing border */
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.8), 
+                      0 0 0 8px rgba(59, 130, 246, 0.4),
+                      0 0 20px 10px rgba(59, 130, 246, 0.3) !important;
+          animation: pulse-highlight 2s ease-in-out infinite !important;
+        }
+
+        /* Dark mode: even brighter cyan/blue border for better visibility */
+        .dark .driver-active-element {
+          box-shadow: 0 0 0 4px rgba(96, 165, 250, 1), 
+                      0 0 0 8px rgba(96, 165, 250, 0.6),
+                      0 0 25px 12px rgba(96, 165, 250, 0.5) !important;
+        }
+
+        /* Pulsing animation for highlighted elements */
+        @keyframes pulse-highlight {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.8), 
+                        0 0 0 8px rgba(59, 130, 246, 0.4),
+                        0 0 20px 10px rgba(59, 130, 246, 0.3);
+          }
+          50% {
+            transform: scale(1.005);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 1), 
+                        0 0 0 8px rgba(59, 130, 246, 0.6),
+                        0 0 30px 15px rgba(59, 130, 246, 0.5);
+          }
+        }
+
+        /* Dark mode pulse animation */
+        .dark .driver-active-element {
+          animation: pulse-highlight-dark 2s ease-in-out infinite !important;
+        }
+
+        @keyframes pulse-highlight-dark {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 1), 
+                        0 0 0 8px rgba(96, 165, 250, 0.6),
+                        0 0 25px 12px rgba(96, 165, 250, 0.5);
+          }
+          50% {
+            transform: scale(1.005);
+            box-shadow: 0 0 0 5px rgba(96, 165, 250, 1), 
+                        0 0 0 10px rgba(96, 165, 250, 0.8),
+                        0 0 35px 18px rgba(96, 165, 250, 0.7);
+          }
         }
       `}</style>
     </>

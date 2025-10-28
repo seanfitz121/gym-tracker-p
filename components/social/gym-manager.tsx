@@ -106,8 +106,13 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
 
       toast.success(action === 'approve' ? 'Member approved!' : 'Request rejected')
       
-      // Refresh pending requests
-      fetchPendingRequests(currentGym.code)
+      // Immediately remove the request from UI
+      setPendingRequests(prev => prev.filter(req => req.user_id !== userId))
+      
+      // Also refresh the gym data to update member count if approved
+      if (action === 'approve') {
+        fetchCurrentGym()
+      }
     } catch (error) {
       console.error('Error processing request:', error)
       toast.error('Failed to process request')
@@ -210,17 +215,18 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
               pendingRequests.map(request => (
                 <div
                   key={request.user_id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
                 >
-                  <div className="flex-1">
-                    <p className="font-medium">{request.display_name}</p>
-                    <p className="text-sm text-gray-500">@{request.username}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{request.display_name}</p>
+                    <p className="text-sm text-gray-500 truncate">@{request.username}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 sm:flex-shrink-0">
                     <Button
                       size="sm"
                       variant="default"
                       onClick={() => handleApproveReject(request.user_id, 'approve')}
+                      className="flex-1 sm:flex-initial h-9"
                     >
                       <Check className="h-4 w-4 mr-1" />
                       Approve
@@ -229,6 +235,7 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
                       size="sm"
                       variant="outline"
                       onClick={() => handleApproveReject(request.user_id, 'reject')}
+                      className="flex-1 sm:flex-initial h-9"
                     >
                       <X className="h-4 w-4 mr-1" />
                       Reject

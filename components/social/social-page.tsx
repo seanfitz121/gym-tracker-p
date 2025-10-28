@@ -49,20 +49,20 @@ export function SocialPage({ userId }: SocialPageProps) {
       </div>
 
       <Tabs defaultValue="friends" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-          <TabsTrigger value="friends" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1">
+          <TabsTrigger value="friends" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2.5">
             <Users className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">Friends</span>
           </TabsTrigger>
-          <TabsTrigger value="leaderboards" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="leaderboards" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2.5">
             <Trophy className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">Leaderboards</span>
           </TabsTrigger>
-          <TabsTrigger value="gym" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="gym" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2.5">
             <Dumbbell className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">Gym</span>
           </TabsTrigger>
-          <TabsTrigger value="privacy" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="privacy" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2.5">
             <Settings className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">Privacy</span>
           </TabsTrigger>

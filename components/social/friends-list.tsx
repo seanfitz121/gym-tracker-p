@@ -188,32 +188,38 @@ export function FriendsList({ userId, onCompare }: FriendsListProps) {
           </CardHeader>
           <CardContent className="space-y-3">
             {incomingRequests.map(request => (
-              <div key={request.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Avatar>
+              <div key={request.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Avatar className="flex-shrink-0">
                     <AvatarImage src={request.from_profile?.avatar_url || undefined} />
                     <AvatarFallback>
                       {request.from_profile?.display_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-medium">{request.from_profile?.display_name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium truncate">{request.from_profile?.display_name}</p>
                     {request.from_profile?.rank_code && (
-                      <RankBadge rankCode={request.from_profile.rank_code} size="sm" />
+                      <div className="mt-1">
+                        <RankBadge rankCode={request.from_profile.rank_code} size="sm" />
+                      </div>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 sm:flex-shrink-0">
                   <Button
                     size="sm"
                     variant="default"
                     onClick={() => acceptRequest(request.id)}
                     disabled={actionLoading === request.id}
+                    className="flex-1 sm:flex-initial h-9"
                   >
                     {actionLoading === request.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Check className="h-4 w-4" />
+                      <>
+                        <Check className="h-4 w-4 sm:mr-0 mr-1" />
+                        <span className="sm:hidden">Accept</span>
+                      </>
                     )}
                   </Button>
                   <Button
@@ -221,8 +227,10 @@ export function FriendsList({ userId, onCompare }: FriendsListProps) {
                     variant="outline"
                     onClick={() => rejectRequest(request.id)}
                     disabled={actionLoading === request.id}
+                    className="flex-1 sm:flex-initial h-9"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4 sm:mr-0 mr-1" />
+                    <span className="sm:hidden">Reject</span>
                   </Button>
                 </div>
               </div>
@@ -257,40 +265,41 @@ export function FriendsList({ userId, onCompare }: FriendsListProps) {
             </p>
           ) : (
             filteredFriends.map(friend => (
-              <div key={friend.user_id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Avatar>
+              <div key={friend.user_id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Avatar className="flex-shrink-0">
                     <AvatarImage src={friend.avatar_url || undefined} />
                     <AvatarFallback>
                       {friend.display_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium">{friend.display_name}</p>
-                    <div className="flex gap-2 mt-1">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{friend.display_name}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {friend.rank_code && (
                         <RankBadge rankCode={friend.rank_code} size="sm" />
                       )}
                       <Badge variant="secondary" className="text-xs">
-                        {friend.weekly_xp} XP this week
+                        {friend.weekly_xp} XP
                       </Badge>
                       <Badge variant="outline" className="text-xs">
-                        {friend.current_streak} day streak
+                        {friend.current_streak}d
                       </Badge>
                     </div>
                     {friend.top_pr && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Top PR: {friend.top_pr.exercise_name} - {friend.top_pr.weight}{friend.top_pr.weight_unit} × {friend.top_pr.reps}
+                      <p className="text-xs text-gray-500 mt-1 truncate">
+                        PR: {friend.top_pr.exercise_name} - {friend.top_pr.weight}{friend.top_pr.weight_unit} × {friend.top_pr.reps}
                       </p>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 sm:flex-shrink-0">
                   {onCompare && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => onCompare(friend.user_id)}
+                      className="flex-1 sm:flex-initial h-9"
                     >
                       Compare
                     </Button>
@@ -304,6 +313,7 @@ export function FriendsList({ userId, onCompare }: FriendsListProps) {
                       }
                     }}
                     disabled={actionLoading === friend.user_id}
+                    className="h-9 w-9 p-0 flex-shrink-0"
                   >
                     {actionLoading === friend.user_id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

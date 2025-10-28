@@ -126,7 +126,7 @@ export function AppHeader({ user }: AppHeaderProps) {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">
@@ -138,43 +138,64 @@ export function AppHeader({ user }: AppHeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/weight') }}>
-              <Scale className="mr-2 h-4 w-4" />
-              Weight Tracker
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/weight') }}
+              className="h-11 cursor-pointer"
+            >
+              <Scale className="mr-2 h-5 w-5" />
+              <span className="text-base">Weight Tracker</span>
               {isPremium && (
                 <span className="ml-auto">
                   <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
                 </span>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/hydration') }}>
-              <Droplet className="mr-2 h-4 w-4" />
-              Hydration Tracker
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/hydration') }}
+              className="h-11 cursor-pointer"
+            >
+              <Droplet className="mr-2 h-5 w-5" />
+              <span className="text-base">Hydration Tracker</span>
               {isPremium && (
                 <span className="ml-auto">
                   <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
                 </span>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/patch-notes') }}>
-              <FileText className="mr-2 h-4 w-4" />
-              Patch Notes
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/patch-notes') }}
+              className="h-11 cursor-pointer"
+            >
+              <FileText className="mr-2 h-5 w-5" />
+              <span className="text-base">Patch Notes</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/blog') }}>
-              <Newspaper className="mr-2 h-4 w-4" />
-              Blog
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/blog') }}
+              className="h-11 cursor-pointer"
+            >
+              <Newspaper className="mr-2 h-5 w-5" />
+              <span className="text-base">Blog</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/tips') }}>
-              <HelpCircle className="mr-2 h-4 w-4" />
-              Tips & Guides
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/tips') }}
+              className="h-11 cursor-pointer"
+            >
+              <HelpCircle className="mr-2 h-5 w-5" />
+              <span className="text-base">Tips & Guides</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { triggerLoading(); router.push('/app/settings') }}>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/settings') }}
+              className="h-11 cursor-pointer"
+            >
+              <Settings className="mr-2 h-5 w-5" />
+              <span className="text-base">Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+            <DropdownMenuItem 
+              onClick={handleSignOut}
+              className="h-11 cursor-pointer"
+            >
+              <LogOut className="mr-2 h-5 w-5" />
+              <span className="text-base">Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
           </DropdownMenu>
