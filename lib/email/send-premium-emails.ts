@@ -21,7 +21,7 @@ export async function sendPremiumTrialWelcomeEmail({
     
     const formattedDate = format(trialEndDate, 'MMMM dd, yyyy')
     
-    const emailHtml = render(
+    const emailHtml = await render(
       PremiumTrialWelcomeEmail({
         displayName,
         trialEndDate: formattedDate,
@@ -66,7 +66,7 @@ export async function sendPremiumSubscriptionActiveEmail({
     
     const formattedDate = format(nextBillingDate, 'MMMM dd, yyyy')
     
-    const emailHtml = render(
+    const emailHtml = await render(
       PremiumSubscriptionActiveEmail({
         displayName,
         nextBillingDate: formattedDate,
