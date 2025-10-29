@@ -237,10 +237,10 @@ export function DashboardPage({ userId }: DashboardPageProps) {
       </div>
 
       {/* Ad - Non-intrusive banner at bottom (free users only) */}
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto pt-4">
         <AdBanner 
           adSlot={AD_SLOTS.DASHBOARD_SIDEBAR} 
-          adFormat="horizontal"
+          adFormat="auto"
           className="my-6"
           showPlaceholder={true}
         />

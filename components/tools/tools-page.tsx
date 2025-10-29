@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Scale, Droplets, LayoutTemplate, Lock, Sparkles, Calculator } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { AdBanner } from '@/components/ads/ad-banner'
+import { AD_SLOTS } from '@/lib/config/ads'
 
 interface ToolCardProps {
   href: string
@@ -127,6 +129,16 @@ export function ToolsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Ad - Content separator at bottom (free users only) */}
+      <div className="pt-4">
+        <AdBanner 
+          adSlot={AD_SLOTS.CONTENT_SEPARATOR}
+          adFormat="auto"
+          showPlaceholder={true}
+          className="max-w-3xl mx-auto"
+        />
+      </div>
     </div>
   )
 }

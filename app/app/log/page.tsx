@@ -3,6 +3,8 @@ import { WorkoutLogger } from '@/components/workout/workout-logger'
 import { GamificationPanel } from '@/components/gamification/gamification-panel'
 import { AnnouncementsList } from '@/components/announcements/announcements-list'
 import { VolumeStatsCard } from '@/components/stats/volume-stats-card'
+import { AdBanner } from '@/components/ads/ad-banner'
+import { AD_SLOTS } from '@/lib/config/ads'
 
 export default async function LogPage() {
   const supabase = await createClient()
@@ -18,6 +20,16 @@ export default async function LogPage() {
       <GamificationPanel userId={user.id} />
       <VolumeStatsCard userId={user.id} />
       <WorkoutLogger userId={user.id} />
+      
+      {/* Ad - Bottom banner after workout logger (free users only) */}
+      <div className="pt-2">
+        <AdBanner 
+          adSlot={AD_SLOTS.BOTTOM_BANNER}
+          adFormat="auto"
+          showPlaceholder={true}
+          className="max-w-3xl mx-auto"
+        />
+      </div>
     </div>
   )
 }

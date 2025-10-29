@@ -3,21 +3,30 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, username, displayName } = await request.json()
+    const { username, displayName } = await request.json()
 
-    if (!userId || !username) {
+    if (!username) {
       return NextResponse.json({ 
-        error: 'User ID and username are required' 
+        error: 'Username is required' 
       }, { status: 400 })
     }
 
     const supabase = await createClient()
+    
+    // SECURITY: Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ 
+        error: 'Unauthorized' 
+      }, { status: 401 })
+    }
 
-    // Create the profile
+    // Create the profile using authenticated user's ID
     const { data, error } = await supabase
       .from('profile')
       .insert({
-        id: userId,
+        id: user.id, // Use auth.uid() instead of client-provided userId
         username,
         display_name: displayName || username,
       })

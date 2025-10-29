@@ -16,6 +16,12 @@ export interface PremiumFeature {
 
 export const PREMIUM_FEATURES: PremiumFeature[] = [
   {
+    id: 'ad-free',
+    title: 'Ad-Free Experience',
+    description: 'Enjoy a completely ad-free experience across the entire app with no distractions',
+    icon: '🚫',
+  },
+  {
     id: 'weight-tracker',
     title: 'Weight Tracker',
     description: 'Track your bodyweight over time with beautiful charts and insights',

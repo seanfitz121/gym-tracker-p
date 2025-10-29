@@ -10,6 +10,8 @@ import { Leaderboard } from './leaderboard'
 import { GymManager } from './gym-manager'
 import { PrivacySettings } from './privacy-settings'
 import { AdminModeration } from './admin-moderation'
+import { AdBanner } from '@/components/ads/ad-banner'
+import { AD_SLOTS } from '@/lib/config/ads'
 
 interface SocialPageProps {
   userId: string
@@ -90,6 +92,16 @@ export function SocialPage({ userId }: SocialPageProps) {
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Ad - Content separator at bottom (free users only) */}
+      <div className="pt-4">
+        <AdBanner 
+          adSlot={AD_SLOTS.CONTENT_SEPARATOR}
+          adFormat="auto"
+          showPlaceholder={true}
+          className="max-w-3xl mx-auto"
+        />
+      </div>
 
       {isAdmin && (
         <div className="fixed bottom-4 right-4">

@@ -16,15 +16,20 @@ export function useIsAdmin(userId?: string) {
     const checkAdmin = async () => {
       try {
         const supabase = createClient();
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("admin_user")
           .select("*")
           .eq("user_id", userId)
-          .single();
+          .maybeSingle(); // Use maybeSingle() instead of single() to avoid errors when no row exists
 
+        // Only log actual errors, not "no row found"
+        if (error && error.code !== 'PGRST116') {
+          console.error("Error checking admin status:", error);
+        }
+        
         setIsAdmin(!!data);
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        // Silently handle - user is simply not an admin
         setIsAdmin(false);
       } finally {
         setLoading(false);

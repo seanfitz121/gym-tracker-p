@@ -26,13 +26,14 @@ export function usePremiumStatus() {
           .from('premium_subscription')
           .select('*')
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle() // Use maybeSingle() instead of single() to avoid errors when no subscription exists
 
+        // Only log actual errors, not "no subscription found"
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching subscription:', error)
-          setSubscription(null)
-          setIsPremium(false)
-        } else if (data) {
+        }
+        
+        if (data) {
           setSubscription(data)
           setIsPremium(data.status === 'active' || data.status === 'trialing')
         } else {
@@ -40,7 +41,7 @@ export function usePremiumStatus() {
           setIsPremium(false)
         }
       } catch (error) {
-        console.error('Error fetching subscription:', error)
+        // Silently handle - user simply doesn't have a subscription
         setSubscription(null)
         setIsPremium(false)
       } finally {

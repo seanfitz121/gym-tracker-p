@@ -67,12 +67,12 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         
         {/* Google AdSense - Only loads if enabled */}
+        {/* Using regular script tag instead of Next.js Script to avoid data-nscript attribute */}
         {process.env.NEXT_PUBLIC_ADSENSE_ENABLED === 'true' && process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-          <Script
+          <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
             crossOrigin="anonymous"
-            strategy="lazyOnload"
           />
         )}
       </head>

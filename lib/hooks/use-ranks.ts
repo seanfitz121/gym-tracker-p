@@ -23,11 +23,16 @@ export function useUserRank(userId?: string) {
         const supabase = createClient()
 
         // Check if user is admin
-        const { data: adminUser } = await supabase
+        const { data: adminUser, error: adminError } = await supabase
           .from('admin_user')
           .select('*')
           .eq('user_id', userId)
-          .single()
+          .maybeSingle() // Use maybeSingle() instead of single()
+
+        // Ignore "no row found" errors
+        if (adminError && adminError.code !== 'PGRST116') {
+          console.error('Error checking admin status:', adminError)
+        }
 
         if (adminUser) {
           setRank({
