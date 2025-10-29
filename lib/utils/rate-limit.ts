@@ -40,7 +40,6 @@ export function checkRateLimit(
   
   // Use IP address as identifier (with fallback)
   const ip = identifier || 
-    request.ip || 
     request.headers.get('x-forwarded-for') || 
     request.headers.get('x-real-ip') || 
     'unknown'
