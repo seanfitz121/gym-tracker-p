@@ -120,8 +120,21 @@ export function BlogPostView({ post, isAdmin, onClose, onEdit, onDelete }: BlogP
         </CardHeader>
 
         <CardContent>
-          <div className="prose dark:prose-invert max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <div className="prose prose-lg prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h2:mt-8 prose-h3:mt-6 prose-p:my-4 prose-ul:my-4 prose-li:my-2">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-4xl font-bold mt-8 mb-4" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-3xl font-bold mt-8 mb-4" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-2xl font-bold mt-6 mb-3" {...props} />,
+                p: ({node, ...props}) => <p className="my-4 leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="my-4 ml-6 list-disc space-y-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="my-4 ml-6 list-decimal space-y-2" {...props} />,
+                li: ({node, ...props}) => <li className="my-1" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-bold text-gray-900 dark:text-gray-100" {...props} />,
+                blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic" {...props} />,
+              }}
+            >
               {post.body}
             </ReactMarkdown>
           </div>
