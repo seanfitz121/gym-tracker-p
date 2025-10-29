@@ -11,7 +11,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const SOURCE_IMAGE = path.join(__dirname, '../public/plateproglog.png');
+const SOURCE_IMAGE = path.join(__dirname, '../public/platep2newlog.png');
 const PUBLIC_DIR = path.join(__dirname, '../public');
 
 const iconSizes = [
