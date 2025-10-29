@@ -16,8 +16,9 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Switch } from '@/components/ui/switch'
-import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor, Volume2 } from 'lucide-react'
+import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor, Volume2, Key } from 'lucide-react'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 interface SettingsFormProps {
   userId: string
@@ -35,6 +36,12 @@ export function SettingsForm({ userId }: SettingsFormProps) {
   const [displayName, setDisplayName] = useState('')
   const [isEditingName, setIsEditingName] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
 
   // Initialize display name when profile loads
   useEffect(() => {
@@ -88,6 +95,59 @@ export function SettingsForm({ userId }: SettingsFormProps) {
       }, 100)
     } else {
       toast.error('Failed to update display name')
+    }
+  }
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+
+    setIsChangingPassword(true)
+
+    try {
+      const supabase = createClient()
+      
+      // First verify current password by attempting to sign in
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.email) {
+        toast.error('User not found')
+        return
+      }
+
+      // Re-authenticate with current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      })
+
+      if (signInError) {
+        toast.error('Current password is incorrect')
+        return
+      }
+
+      // Update to new password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) throw error
+
+      toast.success('Password updated successfully')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error: any) {
+      console.error('Error changing password:', error)
+      toast.error(error.message || 'Failed to update password')
+    } finally {
+      setIsChangingPassword(false)
     }
   }
 
@@ -231,6 +291,72 @@ export function SettingsForm({ userId }: SettingsFormProps) {
             <p className="text-xs text-gray-500">
               Your display name shown to other users
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Security Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Security
+          </CardTitle>
+          <CardDescription>
+            Manage your password and account security
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <Input
+                id="current-password"
+                type="password"
+                placeholder="••••••••"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                disabled={isChangingPassword}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                disabled={isChangingPassword}
+              />
+              <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isChangingPassword}
+              />
+            </div>
+
+            <Button
+              onClick={handleChangePassword}
+              disabled={
+                isChangingPassword ||
+                !currentPassword ||
+                !newPassword ||
+                !confirmPassword
+              }
+              className="w-full"
+            >
+              {isChangingPassword ? 'Updating...' : 'Update Password'}
+            </Button>
           </div>
         </CardContent>
       </Card>

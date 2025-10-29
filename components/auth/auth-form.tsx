@@ -15,6 +15,8 @@ export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
+  const [resetEmailSent, setResetEmailSent] = useState(false)
 
   const handleEmailPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,6 +141,27 @@ export function AuthForm() {
     }
   }
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      })
+
+      if (error) throw error
+
+      setResetEmailSent(true)
+      toast.success('Password reset link sent! Check your email.')
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (magicLinkSent) {
     return (
       <Card className="border-2">
@@ -159,6 +182,75 @@ export function AuthForm() {
           >
             Back to sign in
           </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (resetEmailSent) {
+    return (
+      <Card className="border-2">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
+            <span className="text-2xl">🔐</span>
+          </div>
+          <CardTitle>Password reset email sent</CardTitle>
+          <CardDescription>
+            We sent a password reset link to <span className="font-medium text-gray-900 dark:text-gray-100">{email}</span>. Click the link to set a new password.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setResetEmailSent(false)
+              setIsResettingPassword(false)
+            }}
+            className="w-full"
+          >
+            Back to sign in
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (isResettingPassword) {
+    return (
+      <Card className="border-2">
+        <CardHeader>
+          <CardTitle className="text-2xl">Reset password</CardTitle>
+          <CardDescription>
+            Enter your email and we'll send you a link to reset your password
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordReset} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Email</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-11"
+              />
+            </div>
+            <Button type="submit" className="w-full h-11" disabled={loading}>
+              {loading ? 'Sending...' : 'Send reset link'}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setIsResettingPassword(false)}
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+            >
+              Back to sign in
+            </button>
+          </div>
         </CardContent>
       </Card>
     )
@@ -211,7 +303,18 @@ export function AuthForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              {!isSignUp && (
+                <button
+                  type="button"
+                  onClick={() => setIsResettingPassword(true)}
+                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                >
+                  Forgot password?
+                </button>
+              )}
+            </div>
             <Input
               id="password"
               type="password"
