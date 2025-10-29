@@ -115,10 +115,13 @@ export default function PrivacyPage() {
           <h3>Infrastructure</h3>
           <p>Your data is stored securely using:</p>
           <ul>
-            <li><strong>Supabase</strong> - PostgreSQL database hosted on AWS (EU/US regions)</li>
-            <li><strong>Vercel</strong> - Application hosting with global CDN</li>
-            <li><strong>Supabase Storage</strong> - Encrypted file storage for images</li>
+            <li><strong>Supabase</strong> - PostgreSQL database hosted on AWS in EU regions (Ireland/Frankfurt)</li>
+            <li><strong>Vercel</strong> - Application hosting with global CDN (EU data centers)</li>
+            <li><strong>Supabase Storage</strong> - Encrypted file storage for images (EU region)</li>
           </ul>
+          <p className="text-sm text-muted-foreground mt-2">
+            We prioritize EU-based infrastructure to minimize international data transfers and ensure GDPR compliance.
+          </p>
 
           <h3>Security Measures</h3>
           <ul>
@@ -198,13 +201,18 @@ export default function PrivacyPage() {
 
           <h2>International Data Transfers</h2>
           <p>
-            Your data may be transferred to and processed in countries outside your own. We ensure adequate protection through:
+            Our primary infrastructure is hosted within the EU (Ireland). Where data is transferred outside the EU, 
+            we ensure adequate protection through:
           </p>
           <ul>
-            <li>EU-US Data Privacy Framework compliance (for US-based services)</li>
-            <li>Standard Contractual Clauses with service providers</li>
-            <li>Adequate safeguards as recognized by GDPR</li>
+            <li><strong>EU Standard Contractual Clauses (SCCs)</strong> - Approved by the European Commission</li>
+            <li><strong>EU-US Data Privacy Framework</strong> - For US-based service providers (Stripe, Resend)</li>
+            <li><strong>Adequacy decisions</strong> - We only transfer to countries with adequate protection as recognized by the EU Commission</li>
+            <li><strong>EU hosting preference</strong> - We prioritize EU data centers where available</li>
           </ul>
+          <p className="text-sm text-muted-foreground mt-2">
+            As an Irish company, we adhere to strict EU data transfer regulations to protect your personal data.
+          </p>
 
           <h2>Cookies and Tracking</h2>
           <p>We use minimal cookies essential for the app to function:</p>
@@ -221,14 +229,22 @@ export default function PrivacyPage() {
             If you believe a child has provided us with personal data, please contact us immediately at privacy@plateprogress.com.
           </p>
 
-          <h2>California Privacy Rights (CCPA)</h2>
-          <p>If you are a California resident, you have additional rights:</p>
+          <h2>Irish and EU Data Protection</h2>
+          <p>
+            As a company based in Ireland, we are subject to the Irish Data Protection Act 2018 and the EU General Data 
+            Protection Regulation (GDPR). This means you have strong data protection rights:
+          </p>
           <ul>
-            <li>Right to know what personal data is collected</li>
-            <li>Right to delete personal data</li>
-            <li>Right to opt-out of sale (we don't sell data)</li>
-            <li>Right to non-discrimination for exercising rights</li>
+            <li>Right to know what personal data is collected and how it's used</li>
+            <li>Right to access, rectify, and delete your personal data</li>
+            <li>Right to data portability in machine-readable format</li>
+            <li>Right to object to processing and restrict processing</li>
+            <li>Right to lodge a complaint with the Irish Data Protection Commission</li>
+            <li>Protection against automated decision-making</li>
           </ul>
+          <p className="text-sm text-muted-foreground mt-2">
+            See our <a href="/legal/gdpr" className="text-blue-600 hover:underline">GDPR Compliance</a> page for detailed information.
+          </p>
 
           <h2>Changes to This Policy</h2>
           <p>
@@ -251,6 +267,7 @@ export default function PrivacyPage() {
             <li><strong>Privacy Email:</strong> <a href="mailto:privacy@plateprogress.com" className="text-blue-600 hover:underline">privacy@plateprogress.com</a></li>
             <li><strong>General Support:</strong> <a href="mailto:support@plateprogress.com" className="text-blue-600 hover:underline">support@plateprogress.com</a></li>
             <li><strong>Data Protection Officer:</strong> privacy@plateprogress.com</li>
+            <li className="mt-2"><strong>Irish Data Protection Commission:</strong> If you are not satisfied with our response, you may lodge a complaint with the Data Protection Commission at <a href="https://dataprotection.ie" target="_blank" rel="noopener" className="text-blue-600 hover:underline">dataprotection.ie</a></li>
           </ul>
           
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">

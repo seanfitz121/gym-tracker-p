@@ -102,7 +102,7 @@ export function Footer() {
         <Separator className="my-6" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© {currentYear} Plate Progress. All rights reserved.</p>
+          <p>© {currentYear} Plate Progress. All rights reserved. Based in Ireland 🇮🇪</p>
           <div className="flex gap-4">
             <Link href="/legal/privacy" className="hover:text-foreground transition-colors">
               Privacy

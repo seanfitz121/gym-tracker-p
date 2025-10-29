@@ -1,8 +1,9 @@
 # GDPR Compliance & Privacy Feature Deployment Guide
+## 🇮🇪 Ireland-Based Company
 
 ## ✅ Implementation Complete
 
-All GDPR compliance and privacy features have been successfully implemented and are ready for deployment.
+All GDPR compliance and privacy features have been successfully implemented for an Ireland-based company and are ready for deployment.
 
 ---
 
@@ -162,11 +163,16 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxxxx
 STRIPE_SECRET_KEY=sk_live_xxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
-# Supabase
+# Supabase (use EU region: Ireland or Frankfurt)
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
 SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
 ```
+
+**Important for Ireland-based company:**
+- Ensure your Supabase project is in EU region (Ireland or Frankfurt)
+- Configure Vercel deployment to prefer EU regions
+- Use EU-based email service (Resend supports EU infrastructure)
 
 ---
 
@@ -376,8 +382,47 @@ For questions about this implementation:
 
 ---
 
-**Last Updated:** January 30, 2024  
+## 🇮🇪 Ireland-Specific Compliance Notes
+
+### Key Differences from US-Based Implementation
+
+1. **Governing Law:** Irish law (not California)
+2. **Supervisory Authority:** Irish Data Protection Commission (DPC)
+   - Website: dataprotection.ie
+   - Phone: +353 (0)761 104 800
+   - Address: 21 Fitzwilliam Square South, Dublin 2, D02 RD28, Ireland
+
+3. **Consumer Rights:** EU consumer protection laws apply
+   - Right to access national courts
+   - EU Online Dispute Resolution platform available
+   - No class action waiver that limits statutory rights
+
+4. **Data Hosting:** Prioritize EU infrastructure
+   - Supabase: EU regions (Ireland/Frankfurt)
+   - Vercel: EU data centers
+   - All third-party services: EU-US DPF certified
+
+5. **Legal Framework:**
+   - Irish Data Protection Act 2018
+   - EU GDPR (primary regulation)
+   - EU consumer protection directives
+
+### Compliance Checklist for Ireland
+
+- [x] Terms mention Ireland as jurisdiction
+- [x] Privacy Policy references Irish DPA 2018
+- [x] GDPR page has Irish DPC contact details
+- [x] EU consumer rights preserved
+- [x] Data hosting preference for EU
+- [x] Footer indicates Ireland-based company
+- [ ] Ensure Supabase project in EU region
+- [ ] Verify all service providers have EU infrastructure
+
+---
+
+**Last Updated:** January 30, 2025  
 **Build Status:** ✅ Passing  
 **Dependencies:** ✅ Installed  
+**Jurisdiction:** 🇮🇪 Ireland  
 **Deployment:** Ready for production
 

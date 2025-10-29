@@ -36,6 +36,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Favicons - no caching during development
+        source: '/favicon.:ext*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
         // Static assets (images, logos) - shorter cache for frequent updates
         source: '/:path*.{png,jpg,jpeg,svg,ico,webp}',
         headers: [

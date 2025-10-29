@@ -235,11 +235,15 @@ export default function GDPRPage() {
 
           <h3>Our Service Providers</h3>
           <ul>
-            <li><strong>Supabase (Database & Auth)</strong> - EU and US regions available</li>
-            <li><strong>Vercel (Hosting)</strong> - Global CDN with EU data centers</li>
-            <li><strong>Stripe (Payments)</strong> - GDPR-compliant payment processor</li>
-            <li><strong>Resend (Emails)</strong> - Transactional email service</li>
+            <li><strong>Supabase (Database & Auth)</strong> - Hosted in EU region (Ireland/Frankfurt)</li>
+            <li><strong>Vercel (Hosting)</strong> - Global CDN with primary EU data centers</li>
+            <li><strong>Stripe (Payments)</strong> - GDPR-compliant payment processor, EU-US DPF certified</li>
+            <li><strong>Resend (Emails)</strong> - Transactional email service with EU infrastructure</li>
           </ul>
+          <p className="text-sm text-muted-foreground mt-2">
+            All service providers are bound by Standard Contractual Clauses (SCCs) and comply with GDPR requirements 
+            for international data transfers.
+          </p>
 
           <h2>Data Retention</h2>
           <table className="min-w-full border border-gray-200 dark:border-gray-700">
@@ -301,12 +305,24 @@ export default function GDPRPage() {
           <h2>Supervisory Authority</h2>
           <p>
             You have the right to lodge a complaint with a data protection supervisory authority if you believe 
-            we have not complied with GDPR. You can contact your local authority or:
+            we have not complied with GDPR.
           </p>
-          <ul className="list-none">
-            <li><strong>EU:</strong> Find your authority at <a href="https://edpb.europa.eu/about-edpb/board/members_en" target="_blank" rel="noopener" className="text-blue-600 hover:underline">edpb.europa.eu</a></li>
-            <li><strong>UK:</strong> Information Commissioner's Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener" className="text-blue-600 hover:underline">ico.org.uk</a></li>
-          </ul>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800 my-4">
+            <h3 className="mt-0 text-blue-900 dark:text-blue-100">Irish Data Protection Commission (DPC)</h3>
+            <p className="mb-2">As we are based in Ireland, our lead supervisory authority is:</p>
+            <ul className="list-none mb-0">
+              <li><strong>Website:</strong> <a href="https://dataprotection.ie" target="_blank" rel="noopener" className="text-blue-600 hover:underline">dataprotection.ie</a></li>
+              <li><strong>Email:</strong> <a href="mailto:info@dataprotection.ie" className="text-blue-600 hover:underline">info@dataprotection.ie</a></li>
+              <li><strong>Phone:</strong> +353 (0)761 104 800</li>
+              <li><strong>Address:</strong> 21 Fitzwilliam Square South, Dublin 2, D02 RD28, Ireland</li>
+            </ul>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            <strong>Other EU residents:</strong> You may also contact your local data protection authority. 
+            Find your authority at <a href="https://edpb.europa.eu/about-edpb/board/members_en" target="_blank" rel="noopener" className="text-blue-600 hover:underline">edpb.europa.eu</a>
+          </p>
 
           <h2>Contact Our Data Protection Officer</h2>
           <p>

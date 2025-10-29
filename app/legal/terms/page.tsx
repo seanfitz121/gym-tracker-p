@@ -28,17 +28,17 @@ export default function TermsPage() {
           <h2>1. Agreement to Terms</h2>
           <p>
             These Terms of Service ("Terms") constitute a legally binding agreement between you ("User," "you," or "your") 
-            and Plate Progress ("Company," "we," "us," or "our") governing your access to and use of the Plate Progress 
-            web application and related services (collectively, the "Service").
+            and Plate Progress ("Company," "we," "us," or "our"), a company based in Ireland, governing your access to 
+            and use of the Plate Progress web application and related services (collectively, the "Service").
           </p>
           <p>
             By creating an account, accessing, or using the Service in any manner, you acknowledge that you have read, 
             understood, and agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, 
             you must not access or use the Service.
           </p>
-          <p className="text-sm bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <strong>Important:</strong> These Terms include a mandatory individual arbitration provision and class action 
-            waiver (Section 14), which affects your rights to resolve disputes.
+          <p className="text-sm bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <strong>EU Consumers:</strong> If you are a consumer based in the EU, you have certain statutory rights that 
+            cannot be limited by contract. Nothing in these Terms affects those rights.
           </p>
 
           <h2>2. Eligibility</h2>
@@ -331,22 +331,31 @@ export default function TermsPage() {
             dispute informally within 60 days.
           </p>
 
-          <h3>14.2 Binding Arbitration</h3>
+          <h3>14.2 Mediation and Arbitration</h3>
           <p>
-            Any dispute not resolved informally shall be resolved through binding arbitration rather than in court, 
-            except for small claims court matters or injunctive relief.
+            If informal resolution fails, disputes may be referred to mediation or arbitration, subject to applicable 
+            Irish and EU consumer protection laws. Nothing in these Terms affects your statutory rights under Irish or 
+            EU law, including your right to bring proceedings before the courts.
           </p>
 
-          <h3>14.3 Class Action Waiver</h3>
-          <p className="font-semibold text-red-600 dark:text-red-400">
-            YOU AGREE TO WAIVE ANY RIGHT TO A JURY TRIAL OR TO PARTICIPATE IN A CLASS ACTION OR CLASS-WIDE ARBITRATION.
+          <h3>14.3 Consumer Rights</h3>
+          <p>
+            If you are a consumer based in the EU, you retain all statutory rights provided under EU consumer protection 
+            law, which cannot be waived by contract. This includes your right to access national courts and consumer 
+            dispute resolution mechanisms.
           </p>
 
           <h2>15. Governing Law and Jurisdiction</h2>
           <p>
-            These Terms are governed by and construed in accordance with the laws of the State of California, 
-            United States, without regard to conflict of law principles. Any disputes shall be resolved in the 
-            courts located in California or through arbitration as specified above.
+            These Terms are governed by and construed in accordance with the laws of Ireland, without regard 
+            to conflict of law principles. Any disputes shall be resolved in the courts of Ireland or through 
+            arbitration as specified above, subject to your rights under the EU Online Dispute Resolution Regulation.
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            EU users may also access the European Commission's Online Dispute Resolution platform at{' '}
+            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" className="text-blue-600 hover:underline">
+              https://ec.europa.eu/consumers/odr
+            </a>
           </p>
 
           <h2>16. Miscellaneous</h2>
