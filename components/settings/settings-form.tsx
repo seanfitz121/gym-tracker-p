@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Switch } from '@/components/ui/switch'
-import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor, Volume2, Key } from 'lucide-react'
+import { User, Upload, Mail, MessageSquare, ExternalLink, Sun, Moon, Monitor, Volume2, Key, Shield, Download, Trash2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 
@@ -42,6 +42,11 @@ export function SettingsForm({ userId }: SettingsFormProps) {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+
+  // Data request state
+  const [isRequestingExport, setIsRequestingExport] = useState(false)
+  const [isRequestingDeletion, setIsRequestingDeletion] = useState(false)
+  const [showDeletionConfirm, setShowDeletionConfirm] = useState(false)
 
   // Initialize display name when profile loads
   useEffect(() => {
@@ -148,6 +153,51 @@ export function SettingsForm({ userId }: SettingsFormProps) {
       toast.error(error.message || 'Failed to update password')
     } finally {
       setIsChangingPassword(false)
+    }
+  }
+
+  const handleRequestDataExport = async () => {
+    setIsRequestingExport(true)
+    try {
+      const response = await fetch('/api/data-requests/export', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to request data export')
+      }
+
+      toast.success('Data export requested! You will receive an email when your export is ready.')
+    } catch (error: any) {
+      console.error('Error requesting data export:', error)
+      toast.error(error.message || 'Failed to request data export')
+    } finally {
+      setIsRequestingExport(false)
+    }
+  }
+
+  const handleRequestAccountDeletion = async () => {
+    setIsRequestingDeletion(true)
+    try {
+      const response = await fetch('/api/data-requests/deletion', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to request account deletion')
+      }
+
+      toast.success('Account deletion requested. You will receive a confirmation email with next steps.')
+      setShowDeletionConfirm(false)
+    } catch (error: any) {
+      console.error('Error requesting account deletion:', error)
+      toast.error(error.message || 'Failed to request account deletion')
+    } finally {
+      setIsRequestingDeletion(false)
     }
   }
 
@@ -491,6 +541,113 @@ export function SettingsForm({ userId }: SettingsFormProps) {
                 <SelectItem value="high">High (More smoothing)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Privacy & Data */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Privacy & Data
+          </CardTitle>
+          <CardDescription>
+            Manage your data and privacy settings (GDPR compliance)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Legal Links */}
+          <div className="space-y-2">
+            <Label>Legal Documents</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Button variant="outline" size="sm" asChild className="justify-start">
+                <a href="/legal/privacy" target="_blank" rel="noopener">
+                  Privacy Policy
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild className="justify-start">
+                <a href="/legal/terms" target="_blank" rel="noopener">
+                  Terms of Service
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild className="justify-start">
+                <a href="/legal/gdpr" target="_blank" rel="noopener">
+                  GDPR Rights
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          {/* Data Export */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Export Your Data
+            </Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Download a copy of all your personal data in JSON format. This includes workouts, progress, templates, and more.
+            </p>
+            <Button
+              onClick={handleRequestDataExport}
+              disabled={isRequestingExport}
+              variant="outline"
+              className="w-full sm:w-auto"
+            >
+              {isRequestingExport ? 'Requesting...' : 'Request Data Export'}
+            </Button>
+          </div>
+
+          {/* Account Deletion */}
+          <div className="space-y-2 pt-4 border-t border-red-200 dark:border-red-900">
+            <Label className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="h-4 w-4" />
+              Danger Zone
+            </Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            
+            {!showDeletionConfirm ? (
+              <Button
+                onClick={() => setShowDeletionConfirm(true)}
+                variant="destructive"
+                className="w-full sm:w-auto"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Account
+              </Button>
+            ) : (
+              <div className="space-y-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border-2 border-red-200 dark:border-red-800">
+                <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                  ⚠️ Are you absolutely sure?
+                </p>
+                <p className="text-xs text-red-700 dark:text-red-300">
+                  This will permanently delete your account, all workout data, progress photos, templates, and achievements. 
+                  This action cannot be reversed.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleRequestAccountDeletion}
+                    disabled={isRequestingDeletion}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    {isRequestingDeletion ? 'Processing...' : 'Yes, Delete My Account'}
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeletionConfirm(false)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

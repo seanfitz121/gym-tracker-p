@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AutoRedirect } from '@/components/auth/auto-redirect'
 import { ThemeLogo } from '@/components/common/theme-logo'
+import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -172,24 +173,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t mt-16">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <Dumbbell className="h-4 w-4" />
-              <span>© 2025 Plate Progress</span>
-            </div>
-            <div className="flex gap-6">
-              <Link href="/legal/privacy" className="hover:text-gray-900 dark:hover:text-gray-100">
-                Privacy
-              </Link>
-              <Link href="/legal/terms" className="hover:text-gray-900 dark:hover:text-gray-100">
-                Terms
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

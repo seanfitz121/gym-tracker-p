@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { AuthForm } from '@/components/auth/auth-form'
 import { ThemeLogo } from '@/components/common/theme-logo'
+import { Footer } from '@/components/layout/footer'
 import { ArrowLeft, Dumbbell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -15,9 +16,10 @@ export default async function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Side - Branding (hidden on mobile) */}
-      <div className="hidden md:flex md:w-1/2 bg-blue-600 p-12 flex-col justify-between">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex flex-col md:flex-row">
+        {/* Left Side - Branding (hidden on mobile) */}
+        <div className="hidden md:flex md:w-1/2 bg-blue-600 p-12 flex-col justify-between">
         <div>
           <Link href="/" className="inline-flex items-center gap-2 text-white hover:text-blue-100 transition-colors mb-12">
             <ArrowLeft className="h-4 w-4" />
@@ -87,6 +89,10 @@ export default async function AuthPage() {
           <AuthForm />
         </div>
       </div>
+      </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

@@ -1,14 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { AuthCallbackHandler } from './auth-callback-handler'
+import Link from 'next/link'
 
 export function AuthForm() {
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -17,6 +22,19 @@ export function AuthForm() {
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [isResettingPassword, setIsResettingPassword] = useState(false)
   const [resetEmailSent, setResetEmailSent] = useState(false)
+  const [hasAuthCallback, setHasAuthCallback] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+
+  // Check if there's an auth callback in the URL
+  useEffect(() => {
+    const type = searchParams?.get('type')
+    const error = searchParams?.get('error')
+    const reset = searchParams?.get('reset')
+    const confirmation = searchParams?.get('confirmation_url')
+    const hash = window.location.hash
+    
+    setHasAuthCallback(!!(type || error || reset || confirmation || hash))
+  }, [searchParams])
 
   const handleEmailPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +44,13 @@ export function AuthForm() {
       const supabase = createClient()
 
       if (isSignUp) {
+        // Check if user agreed to terms
+        if (!agreedToTerms) {
+          toast.error('You must agree to the Privacy Policy and Terms of Service')
+          setLoading(false)
+          return
+        }
+
         // Validate username format
         if (!/^[a-zA-Z0-9_-]{3,20}$/.test(username)) {
           toast.error('Username must be 3-20 characters (letters, numbers, _, -)')
@@ -256,6 +281,11 @@ export function AuthForm() {
     )
   }
 
+  // If there's an auth callback in URL, show callback handler instead
+  if (hasAuthCallback) {
+    return <AuthCallbackHandler />
+  }
+
   return (
     <Card className="border-2">
       <CardHeader>
@@ -329,7 +359,46 @@ export function AuthForm() {
               <p className="text-xs text-gray-500">Must be at least 6 characters</p>
             )}
           </div>
-          <Button type="submit" className="w-full h-11" disabled={loading}>
+
+          {/* Terms Agreement Checkbox (Sign Up Only) */}
+          {isSignUp && (
+            <div className="flex items-start space-x-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-900">
+              <Checkbox
+                id="terms"
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <div className="space-y-1">
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  I agree to the Privacy Policy and Terms of Service
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  By creating an account, you agree to our{' '}
+                  <Link
+                    href="/legal/privacy"
+                    target="_blank"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                  {' '}and{' '}
+                  <Link
+                    href="/legal/terms"
+                    target="_blank"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                  >
+                    Terms of Service
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full h-11" disabled={loading || (isSignUp && !agreedToTerms)}>
             {loading ? 'Loading...' : isSignUp ? 'Create account' : 'Sign in'}
           </Button>
         </form>
