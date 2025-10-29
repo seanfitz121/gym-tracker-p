@@ -5,10 +5,12 @@ export interface BlogPost {
   subtitle: string | null
   cover_image_url: string | null
   body: string
-  published: boolean
-  created_at: string
-  updated_at: string
+  published: boolean | null
+  created_at: string | null
+  updated_at: string | null
+  slug?: string | null
   author?: {
+    id?: string
     display_name: string | null
     avatar_url: string | null
   }

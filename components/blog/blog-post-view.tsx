@@ -111,7 +111,7 @@ export function BlogPostView({ post, isAdmin, onClose, onEdit, onDelete }: BlogP
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>{format(new Date(post.created_at), 'MMMM d, yyyy')}</span>
+                <span>{post.created_at ? format(new Date(post.created_at), 'MMMM d, yyyy') : 'No date'}</span>
               </div>
             </div>
           </div>

@@ -7,6 +7,8 @@ import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { AdBanner } from '@/components/ads/ad-banner'
+import { AD_SLOTS } from '@/lib/config/ads'
 import { Dumbbell, TrendingUp, Trophy, Zap, Target, BarChart3, Clock, Smartphone } from 'lucide-react'
 
 // Force dynamic rendering - don't cache this page
@@ -64,7 +66,7 @@ export default async function Home() {
                 <Link href="/auth">Start Free</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="text-base">
-                <Link href="#features">See Features</Link>
+                <Link href="/blog">Read Blog</Link>
               </Button>
             </div>
           </div>
@@ -157,6 +159,18 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Ad - Content separator */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          <AdBanner 
+            adSlot={AD_SLOTS.CONTENT_SEPARATOR}
+            adFormat="auto"
+            showPlaceholder={false}
+            className="my-6"
+          />
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-16 md:py-24">
         <Card className="max-w-3xl mx-auto p-8 md:p-12 text-center border-2">
@@ -170,6 +184,18 @@ export default async function Home() {
             <Link href="/auth">Get Started Free</Link>
           </Button>
         </Card>
+      </section>
+
+      {/* Ad - Bottom banner */}
+      <section className="container mx-auto px-4 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <AdBanner 
+            adSlot={AD_SLOTS.BOTTOM_BANNER}
+            adFormat="auto"
+            showPlaceholder={false}
+            className="my-6"
+          />
+        </div>
       </section>
 
       {/* Footer */}

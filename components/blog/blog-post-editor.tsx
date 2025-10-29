@@ -37,7 +37,7 @@ export function BlogPostEditor({ post, onSuccess, onCancel }: BlogPostEditorProp
       setSubtitle(post.subtitle || '')
       setCoverImageUrl(post.cover_image_url || '')
       setBody(post.body)
-      setPublished(post.published)
+      setPublished(post.published ?? false)
     }
   }, [post])
 

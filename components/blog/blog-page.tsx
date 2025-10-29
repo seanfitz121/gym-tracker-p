@@ -163,7 +163,7 @@ export function BlogPage({ userId, isAdmin }: BlogPageProps) {
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      <span>{format(new Date(post.created_at), 'MMM d, yyyy')}</span>
+                      <span>{post.created_at ? format(new Date(post.created_at), 'MMM d, yyyy') : 'No date'}</span>
                     </div>
                   </div>
 
