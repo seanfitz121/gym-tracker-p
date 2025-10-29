@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { sendPremiumTrialWelcomeEmail, sendPremiumSubscriptionActiveEmail } from '@/lib/email/send-premium-emails'
 
 function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -102,6 +103,30 @@ export async function POST(request: NextRequest) {
           })
 
         console.log('Subscription created for user:', userId, 'with status:', status)
+
+        // Send welcome email for trial
+        if (status === 'trialing') {
+          try {
+            // Get user profile for display name and email
+            const { data: profile } = await supabaseAdmin
+              .from('profile')
+              .select('display_name, email')
+              .eq('id', userId)
+              .single()
+
+            if (profile?.email) {
+              await sendPremiumTrialWelcomeEmail({
+                email: profile.email,
+                displayName: profile.display_name || 'there',
+                trialEndDate: new Date((subscriptionResponse as any).current_period_end * 1000),
+              })
+              console.log('Welcome email sent to:', profile.email)
+            }
+          } catch (emailError) {
+            // Log but don't fail the webhook
+            console.error('Failed to send welcome email:', emailError)
+          }
+        }
         break
       }
 
@@ -128,6 +153,11 @@ export async function POST(request: NextRequest) {
         else if (subscription.status === 'past_due') status = 'past_due'
         else if (subscription.status === 'trialing') status = 'trialing'
 
+        // Check if transitioning from trial to active
+        const wasTrialing = existingSub && subscription.status === 'active' && 
+                           (subscription as any).trial_end && 
+                           new Date((subscription as any).trial_end * 1000) < new Date()
+
         // Update subscription
         await supabaseAdmin
           .from('premium_subscription')
@@ -142,6 +172,37 @@ export async function POST(request: NextRequest) {
           .eq('stripe_customer_id', customerId)
 
         console.log('Subscription updated for customer:', customerId)
+
+        // Send email when trial ends and subscription becomes active
+        if (wasTrialing && status === 'active') {
+          try {
+            // Get user profile
+            const { data: profile } = await supabaseAdmin
+              .from('profile')
+              .select('display_name, email')
+              .eq('id', existingSub.user_id)
+              .single()
+
+            if (profile?.email) {
+              // Get price for display
+              const price = subscription.items.data[0].price
+              const amount = price.currency === 'eur' 
+                ? `€${(price.unit_amount! / 100).toFixed(2)}`
+                : `$${(price.unit_amount! / 100).toFixed(2)}`
+
+              await sendPremiumSubscriptionActiveEmail({
+                email: profile.email,
+                displayName: profile.display_name || 'there',
+                nextBillingDate: new Date((subscription as any).current_period_end * 1000),
+                amount,
+              })
+              console.log('Subscription active email sent to:', profile.email)
+            }
+          } catch (emailError) {
+            // Log but don't fail the webhook
+            console.error('Failed to send subscription active email:', emailError)
+          }
+        }
         break
       }
 

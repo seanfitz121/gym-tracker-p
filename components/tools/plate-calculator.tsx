@@ -114,6 +114,13 @@ export function PlateCalculator() {
   const renderPlateBar = (plates: number[]) => {
     if (plates.length === 0) return null
 
+    // Calculate scale factor based on number of plates
+    // Start scaling down when there are more than 5 plates per side
+    const totalPlates = plates.length * 2 // Both sides
+    const scaleFactor = totalPlates > 5 
+      ? Math.max(0.4, 1 - ((totalPlates - 5) * 0.08)) // Scale down but not below 40%
+      : 1
+
     const renderPlate = (plate: number, key: string | number) => {
       const height = Math.min(56 + plate * 1.8, 96)
       const width = Math.max(32, Math.min(plate * 1.2, 56))
@@ -134,15 +141,23 @@ export function PlateCalculator() {
     }
 
     return (
-      <div className="flex items-center gap-2 justify-center my-4 flex-wrap">
-        {/* Left side - plates in reverse order (inner to outer) */}
-        {[...plates].reverse().map((plate, idx) => renderPlate(plate, `left-${idx}`))}
-        
-        {/* Barbell center */}
-        <div className="w-20 h-3 bg-gray-400 dark:bg-gray-600 flex-shrink-0" />
-        
-        {/* Right side - plates in normal order (outer to inner) */}
-        {plates.map((plate, idx) => renderPlate(plate, `right-${idx}`))}
+      <div className="flex items-center justify-center my-4 overflow-x-auto">
+        <div 
+          className="flex items-center gap-2 flex-shrink-0 transition-transform duration-200"
+          style={{ 
+            transform: `scale(${scaleFactor})`,
+            transformOrigin: 'center'
+          }}
+        >
+          {/* Left side - plates in reverse order (inner to outer) */}
+          {[...plates].reverse().map((plate, idx) => renderPlate(plate, `left-${idx}`))}
+          
+          {/* Barbell center */}
+          <div className="w-20 h-3 bg-gray-400 dark:bg-gray-600 flex-shrink-0" />
+          
+          {/* Right side - plates in normal order (outer to inner) */}
+          {plates.map((plate, idx) => renderPlate(plate, `right-${idx}`))}
+        </div>
       </div>
     )
   }
