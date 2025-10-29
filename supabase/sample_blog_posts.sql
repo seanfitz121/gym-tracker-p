@@ -5,7 +5,7 @@
 -- Note: Replace 'YOUR_ADMIN_USER_ID' with an actual admin user ID from your profile table
 -- Or create posts without author_id (will need to adjust the query)
 
-INSERT INTO blog_post (title, subtitle, body, slug, published, created_at, updated_at)
+INSERT INTO blog_post (title, subtitle, body, published, created_at, updated_at)
 VALUES 
 (
   'Understanding Your One Rep Max (1RM): A Complete Guide',
@@ -65,7 +65,6 @@ Once you know your 1RM, you can program your training:
 Plate Progress automatically calculates your estimated 1RM for every exercise based on your workout logs. You can see how your strength progresses over time with beautiful charts and automatic PR detection.
 
 Ready to start tracking? Sign up for free and see your 1RM estimates for all your lifts!',
-  'understanding-one-rep-max-1rm-guide',
   true,
   NOW(),
   NOW()
@@ -165,7 +164,6 @@ Progressive overload isn''t optional - it''s required for muscle growth and stre
 The lifters who see the best results aren''t the ones who train the hardest in a single session. They''re the ones who progressively increase their performance week after week, month after month, year after year.
 
 Start tracking your progressive overload today with Plate Progress. Your future self will thank you!',
-  'progressive-overload-muscle-growth-guide',
   true,
   NOW(),
   NOW()
@@ -281,7 +279,6 @@ Training volume is a crucial variable you must track and optimize. Start with 12
 The lifters who track their volume and adjust based on results will always outperform those who train randomly.
 
 Ready to optimize your training volume? Plate Progress makes it effortless. Start tracking today!',
-  'tracking-workout-volume-guide',
   true,
   NOW(),
   NOW()
@@ -423,7 +420,6 @@ While remaining weight > 0:
 A plate calculator is a small tool that makes your training more efficient and safer. Whether you use a standalone calculator or one built into your workout tracker, you''ll save time and avoid errors.
 
 Try the Plate Progress plate calculator - it''s free, fast, and mobile-friendly. Focus on your lifts, not the math!',
-  'plate-calculator-guide-barbell-loading',
   true,
   NOW(),
   NOW()
@@ -582,13 +578,11 @@ Start using RPE today:
 4. Track patterns over time
 
 Your body doesn''t know percentages - it knows effort. Train smart with RPE!',
-  'rpe-training-guide-rate-perceived-exertion',
   true,
   NOW(),
   NOW()
 );
 
--- Create an index on the slug for faster public queries
-CREATE INDEX IF NOT EXISTS idx_blog_post_slug ON blog_post(slug);
+-- Create an index on published for faster public queries
 CREATE INDEX IF NOT EXISTS idx_blog_post_published ON blog_post(published);
 

@@ -57,22 +57,13 @@ export default async function PublicBlogPostPage({ params }: PageProps) {
   const { slug } = await params
   const supabase = await createClient()
   
-  // Try to find post by slug first, then by ID
-  let { data: post, error } = await supabase
+  // Try to find post by ID (using slug param as ID for now)
+  const { data: post, error } = await supabase
     .from('blog_post')
     .select('*')
-    .eq('slug', slug)
+    .eq('id', slug)
     .eq('published', true)
     .single()
-
-  if (!post) {
-    ({ data: post, error } = await supabase
-      .from('blog_post')
-      .select('*')
-      .eq('id', slug)
-      .eq('published', true)
-      .single())
-  }
 
   if (error || !post) {
     notFound()
