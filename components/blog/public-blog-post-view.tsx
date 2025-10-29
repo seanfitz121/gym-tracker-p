@@ -9,6 +9,8 @@ import { AD_SLOTS } from '@/lib/config/ads'
 import { Calendar, User, ArrowLeft } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { BlogPost } from '@/lib/types/blog'
 
 interface PublicBlogPostViewProps {
@@ -81,9 +83,9 @@ export function PublicBlogPostView({ post }: PublicBlogPostViewProps) {
         {/* Content */}
         <Card>
           <CardContent className="prose prose-gray dark:prose-invert max-w-none p-8">
-            <div className="whitespace-pre-wrap leading-relaxed text-base">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {post.body}
-            </div>
+            </ReactMarkdown>
           </CardContent>
         </Card>
 

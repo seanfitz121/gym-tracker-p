@@ -19,6 +19,8 @@ import {
 import { ArrowLeft, Calendar, User, Edit, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { BlogPost } from '@/lib/types/blog'
 
 interface BlogPostViewProps {
@@ -119,11 +121,9 @@ export function BlogPostView({ post, isAdmin, onClose, onEdit, onDelete }: BlogP
 
         <CardContent>
           <div className="prose dark:prose-invert max-w-none">
-            {post.body.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 text-base leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {post.body}
+            </ReactMarkdown>
           </div>
         </CardContent>
       </Card>

@@ -2,12 +2,43 @@
 -- These posts provide quality content for Google to crawl and serve relevant ads
 -- Run this SQL in your Supabase SQL Editor
 
--- Note: Replace 'YOUR_ADMIN_USER_ID' with an actual admin user ID from your profile table
--- Or create posts without author_id (will need to adjust the query)
+-- Get the first admin user's ID to use as author
+-- If no admin exists, this will use the first user in the system
+DO $$
+DECLARE
+  author_uuid uuid;
+BEGIN
+  -- Try to get an admin user first
+  SELECT user_id INTO author_uuid FROM admin_user LIMIT 1;
+  
+  -- If no admin, get the first user from auth.users
+  IF author_uuid IS NULL THEN
+    SELECT id INTO author_uuid FROM auth.users LIMIT 1;
+  END IF;
+  
+  -- If still no user, create a system placeholder (shouldn't happen in production)
+  IF author_uuid IS NULL THEN
+    RAISE EXCEPTION 'No users found in database. Please create a user account first.';
+  END IF;
+  
+  -- Store in a temporary table for use in INSERT
+  CREATE TEMP TABLE IF NOT EXISTS temp_author (id uuid);
+  DELETE FROM temp_author;
+  INSERT INTO temp_author VALUES (author_uuid);
+END $$;
 
-INSERT INTO blog_post (title, subtitle, body, published, created_at, updated_at)
-VALUES 
-(
+-- Now insert blog posts using the author from temp table
+INSERT INTO blog_post (author_id, title, subtitle, body, published, created_at, updated_at)
+SELECT 
+  (SELECT id FROM temp_author),
+  title,
+  subtitle, 
+  body,
+  published,
+  created_at,
+  updated_at
+FROM (VALUES
+  (
   'Understanding Your One Rep Max (1RM): A Complete Guide',
   'Learn how to calculate and use your 1RM for better training results',
   E'# What is a One Rep Max (1RM)?
@@ -581,7 +612,10 @@ Your body doesn''t know percentages - it knows effort. Train smart with RPE!',
   true,
   NOW(),
   NOW()
-);
+)) AS blog_data(title, subtitle, body, published, created_at, updated_at);
+
+-- Clean up temp table
+DROP TABLE IF EXISTS temp_author;
 
 -- Create an index on published for faster public queries
 CREATE INDEX IF NOT EXISTS idx_blog_post_published ON blog_post(published);
