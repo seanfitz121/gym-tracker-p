@@ -80,6 +80,13 @@ export async function POST(request: NextRequest) {
           session.subscription as string
         )
 
+        // Map Stripe status to our status
+        let status: 'active' | 'inactive' | 'canceled' | 'past_due' | 'trialing' = 'inactive'
+        if (subscriptionResponse.status === 'active') status = 'active'
+        else if (subscriptionResponse.status === 'canceled') status = 'canceled'
+        else if (subscriptionResponse.status === 'past_due') status = 'past_due'
+        else if (subscriptionResponse.status === 'trialing') status = 'trialing'
+
         // Upsert subscription record
         await supabaseAdmin
           .from('premium_subscription')
@@ -88,13 +95,13 @@ export async function POST(request: NextRequest) {
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: subscriptionResponse.id,
             stripe_price_id: subscriptionResponse.items.data[0].price.id,
-            status: 'active',
+            status,
             current_period_start: new Date((subscriptionResponse as any).current_period_start * 1000).toISOString(),
             current_period_end: new Date((subscriptionResponse as any).current_period_end * 1000).toISOString(),
             cancel_at_period_end: (subscriptionResponse as any).cancel_at_period_end,
           })
 
-        console.log('Subscription created for user:', userId)
+        console.log('Subscription created for user:', userId, 'with status:', status)
         break
       }
 
