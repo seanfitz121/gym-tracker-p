@@ -17,19 +17,18 @@ export async function GET() {
     const supabase = await createClient()
     
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      )
-    }
 
-    // Check if user is admin
-    const { data: adminUser } = await supabase
-      .from('admin_user')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    // Check if user is admin (only if authenticated)
+    let isAdmin = false
+    if (user) {
+      const { data: adminUser } = await supabase
+        .from('admin_user')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      
+      isAdmin = !!adminUser
+    }
 
     let query = supabase
       .from('blog_post')
@@ -37,7 +36,7 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     // If not admin, only show published posts
-    if (!adminUser) {
+    if (!isAdmin) {
       query = query.eq('published', true)
     }
 
