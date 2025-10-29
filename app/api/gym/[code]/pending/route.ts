@@ -45,7 +45,7 @@ export async function GET(
     const userIds = pending.map(p => p.user_id)
     const { data: profiles } = await supabase
       .from('profile')
-      .select('id, username, display_name, avatar_url')
+      .select('id, username, display_name, avatar_url, is_premium, premium_flair_enabled')
       .in('id', userIds)
 
     // Get rank_code from user_gamification
@@ -64,6 +64,8 @@ export async function GET(
         display_name: profile?.display_name,
         avatar_url: profile?.avatar_url,
         rank_code: gamification?.rank_code,
+        is_premium: profile?.is_premium || false,
+        premium_flair_enabled: profile?.premium_flair_enabled ?? true,
         joined_at: p.joined_at
       }
     })

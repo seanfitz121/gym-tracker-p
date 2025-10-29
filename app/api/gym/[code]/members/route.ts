@@ -26,7 +26,7 @@ export async function GET(
     const memberIds = members.map(m => m.user_id)
     const { data: profiles } = await supabase
       .from('profile')
-      .select('id, display_name, avatar_url')
+      .select('id, display_name, avatar_url, is_premium, premium_flair_enabled')
       .in('id', memberIds)
 
     // Get rank_code from user_gamification
@@ -44,7 +44,9 @@ export async function GET(
         profile: profile ? { 
           ...profile, 
           user_id: profile.id,
-          rank_code: gamification?.rank_code || null
+          rank_code: gamification?.rank_code || null,
+          is_premium: profile.is_premium || false,
+          premium_flair_enabled: profile.premium_flair_enabled ?? true
         } : null
       }
     })

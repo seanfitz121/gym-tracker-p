@@ -41,7 +41,7 @@ export async function GET(
     // Get both users' profiles
     const { data: profiles } = await supabase
       .from('profile')
-      .select('id, display_name, avatar_url')
+      .select('id, display_name, avatar_url, is_premium, premium_flair_enabled')
       .in('id', [user.id, friendId])
 
     const userProfile = profiles?.find(p => p.id === user.id)
@@ -169,6 +169,8 @@ export async function GET(
         display_name: userProfile?.display_name,
         avatar_url: userProfile?.avatar_url,
         rank_code: userGamification?.rank_code,
+        is_premium: userProfile?.is_premium || false,
+        premium_flair_enabled: userProfile?.premium_flair_enabled ?? true,
         total_xp: userGamification?.total_xp || 0,
         current_streak: userGamification?.current_streak || 0,
         total_workouts: userTotalWorkouts || 0,
@@ -186,6 +188,8 @@ export async function GET(
         display_name: friendProfile?.display_name,
         avatar_url: friendProfile?.avatar_url,
         rank_code: friendGamification?.rank_code,
+        is_premium: friendProfile?.is_premium || false,
+        premium_flair_enabled: friendProfile?.premium_flair_enabled ?? true,
         total_xp: friendGamification?.total_xp || 0,
         current_streak: friendGamification?.current_streak || 0,
         total_workouts: friendTotalWorkouts || 0,

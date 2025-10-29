@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft, TrendingUp, Dumbbell, Trophy, Flame, Loader2, Award } from 'lucide-react'
 import { RankBadge } from '@/components/ranks/rank-badge'
+import { GoldenUsername } from '@/components/gamification/golden-username'
 import { createClient } from '@/lib/supabase/client'
 import {
   LineChart,
@@ -36,6 +37,8 @@ interface UserStats {
   display_name: string
   avatar_url?: string | null
   rank_code?: string
+  is_premium?: boolean
+  premium_flair_enabled?: boolean
   total_xp: number
   current_streak: number
   total_workouts: number
@@ -216,9 +219,15 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
             <p className="text-lg sm:text-2xl font-bold truncate w-full text-center">
               {userValue.toLocaleString()}{unit}
             </p>
-            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
-              {data.user.display_name}
-            </p>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
+              <GoldenUsername
+                username={data.user.display_name}
+                isPremium={data.user.is_premium || false}
+                flairEnabled={data.user.premium_flair_enabled ?? true}
+                showIcon={false}
+                className="text-[10px] sm:text-xs"
+              />
+            </div>
           </div>
           
           {/* Icon and Label - Desktop only */}
@@ -237,9 +246,15 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
             <p className="text-lg sm:text-2xl font-bold truncate w-full text-center">
               {friendValue.toLocaleString()}{unit}
             </p>
-            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
-              {data.friend.display_name}
-            </p>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate w-full text-center">
+              <GoldenUsername
+                username={data.friend.display_name}
+                isPremium={data.friend.is_premium || false}
+                flairEnabled={data.friend.premium_flair_enabled ?? true}
+                showIcon={false}
+                className="text-[10px] sm:text-xs"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -264,7 +279,13 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
               <AvatarFallback>{data.user.display_name?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm sm:text-base truncate">{data.user.display_name}</p>
+              <GoldenUsername
+                username={data.user.display_name}
+                isPremium={data.user.is_premium || false}
+                flairEnabled={data.user.premium_flair_enabled ?? true}
+                className="font-semibold text-sm sm:text-base truncate"
+                showIcon={true}
+              />
               {data.user.rank_code && <RankBadge rankCode={data.user.rank_code} size="sm" />}
               <p className="text-[10px] sm:text-xs text-gray-500 truncate">{data.user.total_xp.toLocaleString()} total XP</p>
             </div>
@@ -277,7 +298,13 @@ export function CompareView({ friendId, onBack }: CompareViewProps) {
               <AvatarFallback>{data.friend.display_name?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm sm:text-base truncate">{data.friend.display_name}</p>
+              <GoldenUsername
+                username={data.friend.display_name}
+                isPremium={data.friend.is_premium || false}
+                flairEnabled={data.friend.premium_flair_enabled ?? true}
+                className="font-semibold text-sm sm:text-base truncate"
+                showIcon={true}
+              />
               {data.friend.rank_code && <RankBadge rankCode={data.friend.rank_code} size="sm" />}
               <p className="text-[10px] sm:text-xs text-gray-500 truncate">{data.friend.total_xp.toLocaleString()} total XP</p>
             </div>

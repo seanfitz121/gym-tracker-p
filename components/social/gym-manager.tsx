@@ -19,6 +19,7 @@ import {
 import { Dumbbell, Users, LogOut, Plus, Loader2, Check, X } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { RankBadge } from '@/components/ranks/rank-badge'
+import { GoldenUsername } from '@/components/gamification/golden-username'
 import { toast } from 'sonner'
 
 interface Gym {
@@ -39,6 +40,8 @@ interface PendingRequest {
   display_name: string
   avatar_url?: string | null
   rank_code?: string
+  is_premium?: boolean
+  premium_flair_enabled?: boolean
   joined_at: string
 }
 
@@ -52,6 +55,8 @@ interface GymMember {
     display_name: string
     avatar_url?: string | null
     rank_code?: string | null
+    is_premium?: boolean
+    premium_flair_enabled?: boolean
   } | null
 }
 
@@ -268,7 +273,13 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
                   className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{request.display_name}</p>
+                    <GoldenUsername
+                      username={request.display_name}
+                      isPremium={request.is_premium || false}
+                      flairEnabled={request.premium_flair_enabled ?? true}
+                      className="font-medium truncate"
+                      showIcon={true}
+                    />
                     {request.username && (
                       <p className="text-sm text-gray-500 truncate">@{request.username}</p>
                     )}
@@ -422,7 +433,13 @@ export function GymManager({ userId, onGymChange }: GymManagerProps) {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{member.profile?.display_name || 'Unknown'}</p>
+                    <GoldenUsername
+                      username={member.profile?.display_name || 'Unknown'}
+                      isPremium={member.profile?.is_premium || false}
+                      flairEnabled={member.profile?.premium_flair_enabled ?? true}
+                      className="font-medium truncate"
+                      showIcon={true}
+                    />
                     {member.profile?.rank_code && (
                       <div className="mt-1">
                         <RankBadge rankCode={member.profile.rank_code} size="sm" />
