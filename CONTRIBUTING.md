@@ -1,6 +1,6 @@
-# Contributing to SFWeb Gym Tracker
+# Contributing to PlateProgress
 
-Thank you for considering contributing to SFWeb Gym Tracker! This document provides guidelines and instructions for contributing.
+Thank you for considering contributing to PlateProgress! This document provides guidelines and instructions for contributing.
 
 ## Getting Started
 

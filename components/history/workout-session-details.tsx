@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWorkoutSession, useDeleteWorkoutSession } from '@/lib/hooks/use-workouts'
 import { useWorkoutStore } from '@/lib/store/workout-store'
 import { useCreateTemplate } from '@/lib/hooks/use-templates'
@@ -8,13 +8,15 @@ import { DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/c
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { CreateTemplateDialog } from '@/components/templates/create-template-dialog'
 import { ExportButton } from '@/components/export/export-button'
-import { Calendar, Clock, Dumbbell, Trash2, Copy, Layers, Save } from 'lucide-react'
+import { Calendar, Clock, Dumbbell, Trash2, Copy, Layers, Save, Edit2, Check, X, FileText } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { calculateSessionDuration, formatDuration, calculateTotalVolume } from '@/lib/utils/calculations'
+import { createClient } from '@/lib/supabase/client'
 import type { BlockType, TemplatePayload } from '@/lib/types'
 
 interface WorkoutSessionDetailsProps {
@@ -24,11 +26,54 @@ interface WorkoutSessionDetailsProps {
 }
 
 export function WorkoutSessionDetails({ sessionId, onClose, userId }: WorkoutSessionDetailsProps) {
-  const { session, loading } = useWorkoutSession(sessionId)
+  const { session, loading, refresh } = useWorkoutSession(sessionId)
   const { deleteSession } = useDeleteWorkoutSession()
   const { startWorkout, addExercise, addSet, addBlock, addExerciseToBlock, addSetToBlock } = useWorkoutStore()
   const { createTemplate } = useCreateTemplate()
   const [showCreateTemplateDialog, setShowCreateTemplateDialog] = useState(false)
+  const [isEditingNotes, setIsEditingNotes] = useState(false)
+  const [notes, setNotes] = useState('')
+  const [savingNotes, setSavingNotes] = useState(false)
+
+  // Initialize notes when session loads
+  useEffect(() => {
+    if (session?.notes) {
+      setNotes(session.notes)
+    }
+  }, [session])
+
+  const handleSaveNotes = async () => {
+    if (!session) return
+
+    setSavingNotes(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('workout_session')
+        .update({ notes: notes || null })
+        .eq('id', sessionId)
+
+      if (error) throw error
+
+      setIsEditingNotes(false)
+      toast.success('Notes saved')
+      
+      // Refresh in background to update UI
+      if (refresh) {
+        refresh().catch(err => console.error('Error refreshing session:', err))
+      }
+    } catch (error) {
+      console.error('Error saving notes:', error)
+      toast.error('Failed to save notes')
+    } finally {
+      setSavingNotes(false)
+    }
+  }
+
+  const handleCancelEditNotes = () => {
+    setNotes(session?.notes || '')
+    setIsEditingNotes(false)
+  }
 
   const handleDelete = async () => {
     const success = await deleteSession(sessionId)
@@ -275,11 +320,60 @@ export function WorkoutSessionDetails({ sessionId, onClose, userId }: WorkoutSes
           </div>
         </div>
 
-        {session.notes && (
-          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">{session.notes}</p>
+        {/* Notes Section */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Workout Notes</span>
+            </div>
+            {!isEditingNotes && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditingNotes(true)}
+                className="h-8"
+              >
+                <Edit2 className="h-3 w-3 mr-1" />
+                Edit
+              </Button>
+            )}
           </div>
-        )}
+          {isEditingNotes ? (
+            <div className="space-y-2">
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add notes about your workout (e.g., how you felt, what worked well, adjustments made...)"
+                className="min-h-[100px] text-sm"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancelEditNotes}
+                  disabled={savingNotes}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleSaveNotes}
+                  disabled={savingNotes}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  {savingNotes ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+              {session.notes || <span className="italic text-gray-400">No notes added yet. Click Edit to add notes.</span>}
+            </p>
+          )}
+        </div>
 
         <Separator />
 

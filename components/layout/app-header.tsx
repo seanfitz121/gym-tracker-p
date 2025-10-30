@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Scale, Droplet, Wrench, Camera } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Wrench, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeLogo } from '@/components/common/theme-logo'
@@ -144,40 +144,14 @@ export function AppHeader({ user }: AppHeaderProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
-              onClick={() => { triggerLoading(); router.push('/app/weight') }}
+              onClick={() => { triggerLoading(); router.push('/app/tools#premium-tools') }}
               className="h-11 cursor-pointer"
             >
-              <Scale className="mr-2 h-5 w-5" />
-              <span className="text-base">Weight Tracker</span>
-              {isPremium && (
-                <span className="ml-auto">
-                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
-                </span>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => { triggerLoading(); router.push('/app/hydration') }}
-              className="h-11 cursor-pointer"
-            >
-              <Droplet className="mr-2 h-5 w-5" />
-              <span className="text-base">Hydration Tracker</span>
-              {isPremium && (
-                <span className="ml-auto">
-                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
-                </span>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => { triggerLoading(); router.push('/app/progress-photos') }}
-              className="h-11 cursor-pointer"
-            >
-              <Camera className="mr-2 h-5 w-5" />
-              <span className="text-base">Progress Photos</span>
-              {isPremium && (
-                <span className="ml-auto">
-                  <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
-                </span>
-              )}
+              <Lock className="mr-2 h-5 w-5" />
+              <span className="text-base">Premium Tools</span>
+              <span className="ml-auto">
+                <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
+              </span>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => { triggerLoading(); router.push('/app/patch-notes') }}

@@ -17,6 +17,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Droplet, Lock, Zap, ArrowLeft, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { GetPremiumButton } from '@/components/premium/get-premium-button'
+import { getDemoHydrationLogs, getDemoHydrationStats, DEMO_HYDRATION_GOAL } from '@/lib/demo-data/hydration-demo'
 
 interface HydrationTrackerPageProps {
   userId: string
@@ -26,12 +28,17 @@ export function HydrationTrackerPage({ userId }: HydrationTrackerPageProps) {
   const { isPremium, loading: premiumLoading } = usePremiumStatus()
   const { hydrationGoalMl } = useSettingsStore()
   
-  // Fetch last 7 days of logs
+  // Fetch last 7 days of logs (only for premium users)
   const startDate = format(subDays(new Date(), 6), 'yyyy-MM-dd')
-  const { logs, loading: logsLoading, refresh: refreshLogs } = useHydrationLogs(startDate)
+  const { logs: realLogs, loading: logsLoading, refresh: refreshLogs } = useHydrationLogs(startDate)
   
-  const { stats, loading: statsLoading, refresh: refreshStats } = useHydrationStats(hydrationGoalMl)
+  const { stats: realStats, loading: statsLoading, refresh: refreshStats } = useHydrationStats(hydrationGoalMl)
   const { addHydration, loading: adding } = useAddHydration()
+
+  // Use demo data for non-premium users
+  const logs = isPremium ? realLogs : getDemoHydrationLogs()
+  const stats = isPremium ? realStats : getDemoHydrationStats()
+  const goalMl = isPremium ? hydrationGoalMl : DEMO_HYDRATION_GOAL
 
   const handleQuickAdd = async (amount: number) => {
     const result = await addHydration(amount)
@@ -54,97 +61,8 @@ export function HydrationTrackerPage({ userId }: HydrationTrackerPageProps) {
     )
   }
 
-  // Premium gate: Show upgrade prompt for non-premium users
-  if (!isPremium) {
-    return (
-      <div className="container max-w-4xl mx-auto p-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Droplet className="h-8 w-8" />
-              Hydration Tracker
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track your daily water intake and stay hydrated
-            </p>
-          </div>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/app/log">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Link>
-          </Button>
-        </div>
-
-        {/* Premium Gate Card */}
-        <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-          <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-              <Lock className="h-8 w-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl">Premium Feature</CardTitle>
-            <CardDescription className="text-base">
-              The Hydration Tracker is available exclusively for Premium members
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Feature Preview */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  💧 Daily Tracking
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Log your water intake throughout the day with quick-add buttons
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  📊 Progress Visualization
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Beautiful circular progress gauge showing your daily goal
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  🔥 Streak Counter
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Track consecutive days meeting your hydration goal
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  📈 Weekly Charts
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  View your last 7 days of hydration progress
-                </p>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="text-center pt-4">
-              <Button size="lg" asChild className="gap-2">
-                <Link href="/app/premium">
-                  <Zap className="h-5 w-5" />
-                  Upgrade to Premium
-                </Link>
-              </Button>
-              <p className="text-sm text-muted-foreground mt-3">
-                Only €4/month · Cancel anytime
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Premium users: Show full hydration tracker
-  const loading = logsLoading || statsLoading
+  // Show full tracker for all users, but restrict actions for non-premium
+  const loading = isPremium && (logsLoading || statsLoading)
 
   return (
     <div className="container max-w-4xl mx-auto p-4 pb-24 md:pb-8 space-y-6">
@@ -154,17 +72,23 @@ export function HydrationTrackerPage({ userId }: HydrationTrackerPageProps) {
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Droplet className="h-8 w-8 text-blue-600" />
             Hydration Tracker
-            <Badge variant="secondary" className="ml-2">
-              <Zap className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
-              Premium
-            </Badge>
+            {isPremium ? (
+              <Badge variant="secondary" className="ml-2">
+                <Zap className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
+                Premium
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="ml-2 text-xs">
+                Demo Mode
+              </Badge>
+            )}
           </h1>
           <p className="text-muted-foreground mt-1">
             Stay hydrated and healthy!
           </p>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/app/log">
+          <Link href="/app/tools">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Link>
@@ -186,17 +110,44 @@ export function HydrationTrackerPage({ userId }: HydrationTrackerPageProps) {
               <CircularProgress
                 percentage={stats?.today_percentage || 0}
                 current={(stats?.today_total || 0) / 1000}
-                goal={hydrationGoalMl / 1000}
+                goal={goalMl / 1000}
                 unit="L"
               />
             </Card>
 
             {/* Goal Setter */}
-            <HydrationGoalSetter />
+            {isPremium ? (
+              <HydrationGoalSetter />
+            ) : (
+              <Card className="p-6 bg-gray-50 dark:bg-gray-900/50 border-dashed">
+                <div className="text-center space-y-3 opacity-60 pointer-events-none">
+                  <h3 className="font-semibold">Daily Goal: {goalMl / 1000}L</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Customize your hydration goal with Premium
+                  </p>
+                </div>
+              </Card>
+            )}
           </div>
 
           {/* Quick Add Buttons */}
-          <QuickAddButtons onAdd={handleQuickAdd} loading={adding} />
+          {isPremium ? (
+            <QuickAddButtons onAdd={handleQuickAdd} loading={adding} />
+          ) : (
+            <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
+              <div className="text-center space-y-4">
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Unlock Hydration Tracking</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upgrade to Premium to log your water intake and track your progress
+                  </p>
+                </div>
+                <GetPremiumButton size="lg">
+                  Upgrade to Premium
+                </GetPremiumButton>
+              </div>
+            </Card>
+          )}
 
           {/* Stats Row */}
           <div className="grid md:grid-cols-3 gap-4">
@@ -242,10 +193,25 @@ export function HydrationTrackerPage({ userId }: HydrationTrackerPageProps) {
           </div>
 
           {/* Weekly Chart */}
-          <WeeklyChart logs={logs} goalMl={hydrationGoalMl} />
+          <WeeklyChart logs={logs} goalMl={goalMl} />
 
           {/* Today's Log */}
-          <TodaysLogs logs={logs} onDeleted={() => { refreshLogs(); refreshStats(); }} />
+          {isPremium ? (
+            <TodaysLogs logs={logs} onDeleted={() => { refreshLogs(); refreshStats(); }} />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  Today's Log
+                  <Badge variant="outline" className="text-xs">Demo</Badge>
+                </CardTitle>
+                <CardDescription>Sample hydration entries for today</CardDescription>
+              </CardHeader>
+              <CardContent className="opacity-60 pointer-events-none">
+                <TodaysLogs logs={logs} onDeleted={() => {}} />
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
     </div>

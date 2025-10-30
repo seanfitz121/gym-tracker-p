@@ -125,18 +125,22 @@ export function useProgressPhotos(): UseProgressPhotosResult {
         throw new Error(data.error || 'Failed to delete photo');
       }
 
+      const data = await response.json();
+
       // Update local state immediately (optimistic update)
       setPhotos((prev) => prev.filter((p) => p.id !== id));
       
-      // Also refresh from server to ensure consistency
-      fetchPhotos().catch(console.error);
+      // Update storage from response
+      if (data.storage) {
+        setStorage(data.storage);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete photo';
       setError(message);
       console.error('Delete photo error:', err);
       throw err;
     }
-  }, [fetchPhotos]);
+  }, []);
 
   // Get signed URL for image
   const getImageUrl = useCallback(

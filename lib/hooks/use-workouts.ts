@@ -53,61 +53,61 @@ export function useWorkoutSession(sessionId?: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  useEffect(() => {
+  const fetchSession = async () => {
     if (!sessionId) {
       setLoading(false)
       return
     }
 
-    const fetchSession = async () => {
-      try {
-        const supabase = createClient()
-        const { data: sessionData, error: sessionError } = await supabase
-          .from('workout_session')
-          .select('*')
-          .eq('id', sessionId)
-          .single()
+    try {
+      const supabase = createClient()
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('workout_session')
+        .select('*')
+        .eq('id', sessionId)
+        .single()
 
-        if (sessionError) throw sessionError
+      if (sessionError) throw sessionError
 
-        // Fetch all sets
-        const { data: setsData, error: setsError } = await supabase
-          .from('set_entry')
-          .select('*, exercise(*)')
-          .eq('session_id', sessionId)
-          .order('set_order')
+      // Fetch all sets
+      const { data: setsData, error: setsError } = await supabase
+        .from('set_entry')
+        .select('*, exercise(*)')
+        .eq('session_id', sessionId)
+        .order('set_order')
 
-        if (setsError) throw setsError
+      if (setsError) throw setsError
 
-        // Fetch blocks for this session
-        const { data: blocksData, error: blocksError } = await supabase
-          .from('block')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('position')
+      // Fetch blocks for this session
+      const { data: blocksData, error: blocksError } = await supabase
+        .from('block')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('position')
 
-        if (blocksError) throw blocksError
+      if (blocksError) throw blocksError
 
-        setSession({
-          ...sessionData,
-          sets: setsData || [],
-          blocks: (blocksData || []).map(block => ({
-            ...block,
-            block_type: block.block_type as BlockType,
-            rest_between_rounds: block.rest_between_rounds || 0,
-          })),
-        })
-      } catch (err) {
-        setError(err as Error)
-      } finally {
-        setLoading(false)
-      }
+      setSession({
+        ...sessionData,
+        sets: setsData || [],
+        blocks: (blocksData || []).map(block => ({
+          ...block,
+          block_type: block.block_type as BlockType,
+          rest_between_rounds: block.rest_between_rounds || 0,
+        })),
+      })
+    } catch (err) {
+      setError(err as Error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchSession()
   }, [sessionId])
 
-  return { session, loading, error }
+  return { session, loading, error, refresh: fetchSession }
 }
 
 export function useSaveWorkout() {

@@ -275,3 +275,105 @@
     -webkit-text-fill-color: #FFE55C;
   }
 }
+
+/* Grid pattern background for modern UI */
+.bg-grid-white\/10 {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Toast Animations - Modern & Sleek */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-swipe-out {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+  }
+  to {
+    transform: translateX(calc(100% + 1rem));
+  }
+}
+
+/* Toast styling improvements */
+[data-sonner-toaster] {
+  width: 100%;
+  max-width: 420px !important;
+  --normal-bg: transparent;
+  --normal-border: transparent;
+}
+
+[data-sonner-toast] {
+  animation: toast-slide-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  border-width: 1px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  padding: 16px !important;
+  gap: 12px !important;
+}
+
+[data-sonner-toast][data-removing="true"] {
+  animation: toast-slide-out 0.3s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
+[data-sonner-toast][data-swiping="true"] {
+  transform: translateY(var(--radix-toast-swipe-move-y));
+  transition: none;
+}
+
+[data-sonner-toast][data-swipe-out="true"] {
+  animation: toast-swipe-out 0.2s ease-out forwards;
+}
+
+/* Dark mode toast shadow enhancement */
+.dark [data-sonner-toast] {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Toast text styling */
+[data-sonner-toast] [data-title] {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* Toast close button */
+[data-sonner-toast] [data-close-button] {
+  border-radius: 0.5rem !important;
+  opacity: 0.7;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark [data-sonner-toast] [data-close-button]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

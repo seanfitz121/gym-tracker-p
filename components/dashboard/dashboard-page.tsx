@@ -4,6 +4,7 @@ import { useProfile } from '@/lib/hooks/use-profile'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { GamificationPanel } from '@/components/gamification/gamification-panel'
 import { VolumeStatsCard } from '@/components/stats/volume-stats-card'
+import { GymExpiryCard } from './gym-expiry-card'
 import { OnboardingTour } from '@/components/onboarding/onboarding-tour'
 import { Button } from '@/components/ui/button'
 import { AdBanner } from '@/components/ads/ad-banner'
@@ -19,7 +20,8 @@ import {
   History,
   Users,
   Droplets,
-  Scale
+  Scale,
+  MessageSquare
 } from 'lucide-react'
 
 interface DashboardPageProps {
@@ -57,6 +59,13 @@ export function DashboardPage({ userId }: DashboardPageProps) {
       href: '/app/social',
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-50 dark:bg-orange-900/20'
+    },
+    {
+      icon: MessageSquare,
+      label: 'Community',
+      href: '/app/community',
+      color: 'text-cyan-600 dark:text-cyan-400',
+      bgColor: 'bg-cyan-50 dark:bg-cyan-900/20'
     }
   ]
 
@@ -139,6 +148,14 @@ export function DashboardPage({ userId }: DashboardPageProps) {
         {/* Volume Stats */}
         <div data-tour="volume-stats">
           <VolumeStatsCard userId={userId} />
+        </div>
+
+        {/* Gym Membership Expiry */}
+        <div>
+          <GymExpiryCard 
+            userId={userId} 
+            expiryDate={profile?.gym_expiry_date || null} 
+          />
         </div>
 
         {/* Tools */}

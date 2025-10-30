@@ -238,7 +238,7 @@ export function PremiumPage() {
           </h2>
           <p className="text-gray-600 dark:text-gray-400">Everything you need to reach your fitness goals</p>
         </div>
-        <div className="grid gap-5">
+        <div className="grid gap-3">
           {PREMIUM_FEATURES.map((feature, index) => {
             const FeatureCard = (
               <Card 
@@ -247,14 +247,14 @@ export function PremiumPage() {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/0 to-yellow-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-yellow-500/5 transition-all duration-500 pointer-events-none"></div>
-                <CardContent className="p-6 relative z-10">
-                  <div className="flex items-start gap-4">
-                    <div className="text-5xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
+                <CardContent className="p-4 relative z-10">
+                  <div className="flex items-start gap-3">
+                    <div className="text-4xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
                       {feature.icon}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                           {feature.title}
                         </h3>
                         {feature.comingSoon && (
@@ -266,14 +266,14 @@ export function PremiumPage() {
                           <ExternalLink className="h-4 w-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                         )}
                       </div>
-                      <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
                     {isPremium && !feature.comingSoon && (
                       <div className="flex-shrink-0">
                         <div className="relative">
-                          <Check className="h-6 w-6 text-green-600 relative z-10" />
+                          <Check className="h-5 w-5 text-green-600 relative z-10" />
                           <div className="absolute inset-0 bg-green-400 blur-lg opacity-50"></div>
                         </div>
                       </div>

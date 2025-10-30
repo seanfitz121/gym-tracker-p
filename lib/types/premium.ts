@@ -43,6 +43,13 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     link: '/app/progress-photos',
   },
   {
+    id: 'supplement-tracker',
+    title: 'Supplement Tracker',
+    description: 'Track your daily supplement intake, build streaks, and monitor adherence',
+    icon: '💊',
+    link: '/app/supplements',
+  },
+  {
     id: 'export-data',
     title: 'Export Workouts',
     description: 'Download your workout history, templates, and weekly summaries as CSV or PDF',

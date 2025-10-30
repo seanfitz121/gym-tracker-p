@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Crown, AlertCircle } from 'lucide-react';
+import { Upload, Crown, AlertCircle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePremiumStatus } from '@/lib/hooks/use-premium';
+import { GetPremiumButton } from '@/components/premium/get-premium-button';
 import { useProgressPhotos } from '@/lib/hooks/useProgressPhotos';
 import { PhotoGallery } from './photo-gallery';
 import { UploadPhotoModal } from './upload-photo-modal';
@@ -92,24 +95,6 @@ export function ProgressPhotosPage({ userId }: ProgressPhotosPageProps) {
     );
   }
 
-  // Premium gate
-  if (!isPremium) {
-    return (
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <Crown className="h-16 w-16 mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-2xl font-bold mb-2">Premium Feature</h2>
-          <p className="text-muted-foreground mb-6">
-            Progress Photos are available exclusively for Premium members
-          </p>
-          <Button asChild>
-            <a href="/app/premium">Upgrade to Premium</a>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   if (loading && photos.length === 0) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-8">
@@ -130,19 +115,33 @@ export function ProgressPhotosPage({ userId }: ProgressPhotosPageProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Progress Photos</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold">Progress Photos</h1>
+            {isPremium && (
+              <Badge variant="secondary">
+                <Zap className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
+                Premium
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground mt-1">
             Track your transformation with before & after photos
           </p>
         </div>
-        <Button
-          onClick={() => setUploadModalOpen(true)}
-          disabled={isStorageFull}
-          size="lg"
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Upload Photo
-        </Button>
+        {isPremium ? (
+          <Button
+            onClick={() => setUploadModalOpen(true)}
+            disabled={isStorageFull}
+            size="lg"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Photo
+          </Button>
+        ) : (
+          <GetPremiumButton size="lg">
+            Upgrade to Premium
+          </GetPremiumButton>
+        )}
       </div>
 
       {/* Storage indicator */}
@@ -184,8 +183,51 @@ export function ProgressPhotosPage({ userId }: ProgressPhotosPageProps) {
         </Alert>
       )}
 
+      {/* Premium Gate for non-premium users */}
+      {!isPremium && (
+        <Card className="border-dashed bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Transform Your Body
+              <Badge variant="outline" className="text-xs">Premium Feature</Badge>
+            </CardTitle>
+            <CardDescription>Upload and track your transformation with progress photos</CardDescription>
+          </CardHeader>
+          <CardContent className="grid md:grid-cols-2 gap-4">
+            <div className="text-center p-6 bg-white dark:bg-gray-950 rounded-lg border">
+              <div className="text-4xl mb-3">📸</div>
+              <h4 className="font-semibold mb-2">Upload Photos</h4>
+              <p className="text-sm text-muted-foreground">
+                Capture your progress with front, side, and back poses
+              </p>
+            </div>
+            <div className="text-center p-6 bg-white dark:bg-gray-950 rounded-lg border">
+              <div className="text-4xl mb-3">🔄</div>
+              <h4 className="font-semibold mb-2">Compare Side-by-Side</h4>
+              <p className="text-sm text-muted-foreground">
+                See your transformation with before & after comparisons
+              </p>
+            </div>
+            <div className="text-center p-6 bg-white dark:bg-gray-950 rounded-lg border">
+              <div className="text-4xl mb-3">☁️</div>
+              <h4 className="font-semibold mb-2">Cloud Storage</h4>
+              <p className="text-sm text-muted-foreground">
+                50MB of secure cloud storage for your photos
+              </p>
+            </div>
+            <div className="text-center p-6 bg-white dark:bg-gray-950 rounded-lg border">
+              <div className="text-4xl mb-3">📏</div>
+              <h4 className="font-semibold mb-2">Track Measurements</h4>
+              <p className="text-sm text-muted-foreground">
+                Add body measurements and notes to each photo
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Instructions */}
-      {photos.length === 0 && (
+      {isPremium && photos.length === 0 && (
         <Alert>
           <AlertDescription>
             <strong>Getting started:</strong> Upload your first progress photo to begin
@@ -196,13 +238,15 @@ export function ProgressPhotosPage({ userId }: ProgressPhotosPageProps) {
       )}
 
       {/* Gallery */}
-      <PhotoGallery
-        photos={photos}
-        onDelete={deletePhoto}
-        onCompare={handleCompare}
-        onDownload={handleDownload}
-        getImageUrl={getImageUrl}
-      />
+      {isPremium && (
+        <PhotoGallery
+          photos={photos}
+          onDelete={deletePhoto}
+          onCompare={handleCompare}
+          onDownload={handleDownload}
+          getImageUrl={getImageUrl}
+        />
+      )}
 
       {/* Upload modal */}
       <UploadPhotoModal

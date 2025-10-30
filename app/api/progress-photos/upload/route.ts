@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create database record
+    // Create database record with file sizes
     const { data: photo, error: dbError } = await supabase
       .from('progress_photo')
       .insert({
@@ -126,6 +126,9 @@ export async function POST(request: NextRequest) {
         file_path: mediumPath,
         thumb_path: thumbPath,
         original_path: originalPath,
+        thumb_size_bytes: thumbFile.size,
+        medium_size_bytes: mediumFile.size,
+        original_size_bytes: originalFile?.size || 0,
         caption,
         taken_at: takenAt,
       })
@@ -148,21 +151,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update storage usage
-    const newTotalBytes = currentUsage + uploadSize;
-    await supabase
+    // Fetch updated storage usage (automatically calculated by trigger)
+    const { data: updatedStorage } = await supabase
       .from('progress_photo_storage')
-      .upsert({
-        user_id: user.id,
-        total_bytes: newTotalBytes,
-        quota_bytes: quota,
-        updated_at: new Date().toISOString(),
-      });
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
 
     return NextResponse.json({
       photo,
-      storage: {
-        total_bytes: newTotalBytes,
+      storage: updatedStorage || {
+        total_bytes: uploadSize,
         quota_bytes: quota,
       },
     });

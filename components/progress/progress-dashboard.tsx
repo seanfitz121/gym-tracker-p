@@ -6,6 +6,7 @@ import { ExerciseCharts } from './exercise-charts'
 import { PRList } from './pr-list'
 import { InsightsPanel } from './insights-panel'
 import { RankCard } from '@/components/ranks/rank-card'
+import { OneRMTracker } from './one-rm-tracker'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -45,6 +46,9 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
       {/* Rank Card */}
       <RankCard userId={userId} />
 
+      {/* 1RM Tracker */}
+      <OneRMTracker userId={userId} exercises={exercises} />
+
       <Card>
         <CardHeader>
           <CardTitle>Select Exercise</CardTitle>
@@ -69,28 +73,30 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
         </CardContent>
       </Card>
 
-      {selectedExerciseId ? (
+      {selectedExerciseId && (
         <ExerciseCharts userId={userId} exerciseId={selectedExerciseId} />
-      ) : (
-        <Tabs defaultValue="prs" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="prs">Personal Records</TabsTrigger>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-          </TabsList>
-          <TabsContent value="prs">
-            <PRList userId={userId} />
-          </TabsContent>
-          <TabsContent value="overview">
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-center text-gray-500">
-                  Select an exercise above to view detailed progress charts
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
       )}
+
+      <Tabs defaultValue="prs" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="prs">Personal Records</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+        </TabsList>
+        <TabsContent value="prs">
+          <PRList userId={userId} />
+        </TabsContent>
+        <TabsContent value="overview">
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-gray-500">
+                {selectedExerciseId 
+                  ? 'View all your personal records below' 
+                  : 'Select an exercise above to view detailed progress charts'}
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

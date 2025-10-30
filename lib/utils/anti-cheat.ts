@@ -92,7 +92,7 @@ export async function validateWorkout(
   const { data: profile } = await supabase
     .from('profile')
     .select('account_verified_at')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .single()
 
   const accountAge = profile?.account_verified_at 

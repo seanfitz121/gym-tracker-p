@@ -65,20 +65,20 @@ export function WeeklyChart({ logs, goalMl }: WeeklyChartProps) {
             />
             <ReferenceLine
               y={goalMl}
-              stroke="#3b82f6"
+              stroke="hsl(var(--primary))"
               strokeDasharray="5 5"
               strokeWidth={2}
               label={{
                 value: 'Goal',
                 position: 'right',
-                fill: '#3b82f6',
+                fill: 'hsl(var(--primary))',
                 fontSize: 12,
               }}
             />
             <Bar
               dataKey="total_ml"
-              fill="#3b82f6"
-              stroke="#2563eb"
+              fill="#93c5fd"
+              stroke="#60a5fa"
               strokeWidth={1}
               radius={[8, 8, 0, 0]}
             />
@@ -86,11 +86,11 @@ export function WeeklyChart({ logs, goalMl }: WeeklyChartProps) {
         </ResponsiveContainer>
         <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-blue-600"></div>
+            <div className="w-3 h-3 rounded bg-blue-300"></div>
             <span>Daily Intake</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-0.5 border-t-2 border-dashed border-blue-600"></div>
+            <div className="w-8 h-0.5 border-t-2 border-dashed border-primary"></div>
             <span>Goal Line</span>
           </div>
         </div>

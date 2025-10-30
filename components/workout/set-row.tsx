@@ -39,47 +39,53 @@ export function SetRow({ exerciseId, set, userId, compact, onUpdate, onRemove }:
   }
 
   return (
-    <div className={`bg-gray-50 dark:bg-gray-900 rounded-lg space-y-3 ${compact ? 'p-2' : 'p-3'}`}>
-      <div className={`flex items-center justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
-        <span className={`font-semibold text-gray-700 dark:text-gray-300 ${compact ? 'text-xs' : 'text-sm'}`}>
-          Set {set.setOrder}
-        </span>
+    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ${compact ? 'p-2.5' : 'p-4'}`}>
+      <div className={`flex items-center justify-between ${compact ? 'mb-2' : 'mb-3'}`}>
+        <div className="flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs font-bold shadow-sm">
+            {set.setOrder}
+          </div>
+          <span className={`font-semibold text-gray-700 dark:text-gray-300 ${compact ? 'text-xs' : 'text-sm'}`}>
+            Set {set.setOrder}
+          </span>
+          {set.isWarmup && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-950 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900">
+              W
+            </span>
+          )}
+        </div>
         <div className="flex gap-1">
           {!compact && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => {
                 duplicateSet(exerciseId, set.id)
                 playStartSound()
                 startRestTimer(60)
               }}
-              className="h-8 px-2"
+              className="h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors touch-manipulation"
             >
               <Copy className="h-4 w-4" />
-            </Button>
+            </button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handleRemove}
-            className="h-8 px-2 text-red-600 hover:text-red-700"
+            className="h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors touch-manipulation"
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
 
       <div className={`grid grid-cols-2 ${compact ? 'gap-2' : 'gap-3'}`}>
         {/* Weight */}
         <div>
-          <Label className="text-xs text-gray-500 mb-1">Weight</Label>
+          <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 block">Weight</Label>
           <Input
             type="number"
             value={set.weight || ''}
             onChange={(e) => handleUpdate('weight', parseFloat(e.target.value) || 0)}
             placeholder="0"
-            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
+            className={`${compact ? 'h-10 text-sm' : 'h-12 text-base'} font-semibold bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500 touch-manipulation`}
             step="0.5"
             min="0"
           />
@@ -87,27 +93,27 @@ export function SetRow({ exerciseId, set, userId, compact, onUpdate, onRemove }:
 
         {/* Reps */}
         <div>
-          <Label className="text-xs text-gray-500 mb-1">Reps</Label>
+          <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 block">Reps</Label>
           <Input
             type="number"
             value={set.reps || ''}
             onChange={(e) => handleUpdate('reps', parseInt(e.target.value) || 0)}
             placeholder="0"
-            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
+            className={`${compact ? 'h-10 text-sm' : 'h-12 text-base'} font-semibold bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500 touch-manipulation`}
             min="0"
           />
         </div>
       </div>
 
-      <div className={`grid grid-cols-3 items-end ${compact ? 'gap-1' : 'gap-2'}`}>
+      <div className={`grid ${compact ? 'grid-cols-2 gap-2 mt-2' : 'grid-cols-3 gap-2 mt-3'}`}>
         {/* Unit */}
         <div>
-          <Label className="text-xs text-gray-500 mb-1">Unit</Label>
+          <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 block">Unit</Label>
           <Select
             value={set.weightUnit}
             onValueChange={(value) => handleUpdate('weightUnit', value)}
           >
-            <SelectTrigger className={compact ? 'h-9' : 'h-11'}>
+            <SelectTrigger className={`${compact ? 'h-10' : 'h-12'} bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 font-semibold touch-manipulation`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -119,13 +125,13 @@ export function SetRow({ exerciseId, set, userId, compact, onUpdate, onRemove }:
 
         {/* RPE */}
         <div>
-          <Label className="text-xs text-gray-500 mb-1">RPE</Label>
+          <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 block">RPE</Label>
           <Input
             type="number"
             value={set.rpe || ''}
             onChange={(e) => handleUpdate('rpe', parseFloat(e.target.value) || undefined)}
             placeholder="—"
-            className={compact ? 'h-9 text-sm' : 'h-11 text-base'}
+            className={`${compact ? 'h-10 text-sm' : 'h-12 text-base'} font-semibold bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500 text-center touch-manipulation`}
             step="0.5"
             min="0"
             max="10"
@@ -134,13 +140,14 @@ export function SetRow({ exerciseId, set, userId, compact, onUpdate, onRemove }:
 
         {/* Warmup */}
         {!compact && (
-          <div className="flex items-center justify-center h-11">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <div className="flex items-end pb-0.5">
+            <label className="flex items-center gap-2 cursor-pointer w-full h-12 bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-3 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors touch-manipulation">
               <Checkbox
                 checked={set.isWarmup}
                 onCheckedChange={(checked) => handleUpdate('isWarmup', !!checked)}
+                className="data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
               />
-              <span className="text-xs text-gray-600">Warmup</span>
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Warmup</span>
             </label>
           </div>
         )}

@@ -1,4 +1,4 @@
-# SFWeb Gym Tracker (MVP)
+# PlateProgress Gym Tracker
 
 A lightning-fast mobile-first web app for tracking workouts, monitoring progress, and celebrating PRs. Built with modern web technologies for performance and SEO.
 

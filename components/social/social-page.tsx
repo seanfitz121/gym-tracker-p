@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Users, Trophy, Dumbbell, Shield, Settings } from 'lucide-react'
+import { Users, Trophy, Dumbbell, Shield, Settings, MessageSquare, ArrowRight } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { FriendsList } from './friends-list'
 import { SendFriendRequestDialog } from './send-friend-request-dialog'
 import { CompareView } from './compare-view'
@@ -49,6 +51,24 @@ export function SocialPage({ userId }: SocialPageProps) {
         <h1 className="text-2xl font-bold">Social</h1>
         <SendFriendRequestDialog />
       </div>
+
+      {/* Community Link Card */}
+      <Link href="/app/community" className="block mb-6">
+        <Card className="cursor-pointer hover:border-cyan-400 dark:hover:border-cyan-600 transition-colors bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-lg bg-cyan-100 dark:bg-cyan-900 p-3">
+                <MessageSquare className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Join the Community</h3>
+                <p className="text-sm text-muted-foreground mt-1">Share posts, get tips, and connect with lifters</p>
+              </div>
+            </div>
+            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </Link>
 
       <Tabs defaultValue="friends" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1">

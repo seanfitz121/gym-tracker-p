@@ -80,7 +80,7 @@ export function PWAInstallPrompt() {
             <div className="flex-1">
               <h3 className="font-semibold text-lg mb-1">Install App</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Install SFWeb Gym Tracker for quick access and offline support
+                Install PlateProgress for quick access and offline support
               </p>
               <div className="flex gap-2">
                 <Button onClick={handleInstall} size="sm">

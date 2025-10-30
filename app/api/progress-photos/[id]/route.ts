@@ -81,29 +81,19 @@ export async function DELETE(
       // Not fatal - DB record is already deleted
     }
 
-    // Recalculate storage usage
-    const { data: allPhotos } = await supabase
-      .from('progress_photo')
-      .select('id')
-      .eq('user_id', user.id);
-
-    // For now, set to 0 and let the trigger handle it
-    // In a real implementation, you'd calculate actual file sizes
-    const { data: storage } = await supabase
+    // Storage is automatically recalculated by the database trigger
+    // Fetch the updated storage info to return to client (optional)
+    const { data: updatedStorage } = await supabase
       .from('progress_photo_storage')
-      .select('quota_bytes')
+      .select('*')
       .eq('user_id', user.id)
       .single();
 
-    await supabase.from('progress_photo_storage').upsert({
-      user_id: user.id,
-      total_bytes: 0, // Simplified - would need actual calculation
-      quota_bytes: storage?.quota_bytes || 52428800,
-      updated_at: new Date().toISOString(),
-    });
-
     console.log('[DELETE] Delete completed successfully');
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      storage: updatedStorage 
+    });
   } catch (error) {
     console.error('[DELETE] Unexpected error in progress photo delete:', error);
     return NextResponse.json(

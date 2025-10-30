@@ -21,6 +21,8 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Scale, Lock, Zap, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { GetPremiumButton } from '@/components/premium/get-premium-button'
+import { getDemoWeightLogs, getDemoWeightGoal, getDemoBodyMetrics } from '@/lib/demo-data/weight-demo'
 
 interface WeightTrackerPageProps {
   userId: string
@@ -29,9 +31,14 @@ interface WeightTrackerPageProps {
 export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
   const { isPremium, loading: premiumLoading } = usePremiumStatus()
   const { defaultWeightUnit } = useSettingsStore()
-  const { logs, loading: logsLoading, refresh } = useWeightLogs()
-  const { goal, refresh: refreshGoal } = useWeightGoal()
-  const { metrics, refresh: refreshMetrics } = useBodyMetrics()
+  const { logs: realLogs, loading: logsLoading, refresh } = useWeightLogs()
+  const { goal: realGoal, refresh: refreshGoal } = useWeightGoal()
+  const { metrics: realMetrics, refresh: refreshMetrics } = useBodyMetrics()
+  
+  // Use demo data for non-premium users
+  const logs = isPremium ? realLogs : getDemoWeightLogs()
+  const goal = isPremium ? realGoal : getDemoWeightGoal()
+  const metrics = isPremium ? realMetrics : getDemoBodyMetrics()
   
   const [editingLog, setEditingLog] = useState<WeightLog | null>(null)
   const currentWeight = logs.length > 0 ? logs[0].weight : undefined
@@ -61,96 +68,7 @@ export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
     )
   }
 
-  // Premium gate: Show upgrade prompt for non-premium users
-  if (!isPremium) {
-    return (
-      <div className="container max-w-4xl mx-auto p-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Scale className="h-8 w-8" />
-              Weight Tracker
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track your bodyweight progress with charts and insights
-            </p>
-          </div>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/app/log">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Link>
-          </Button>
-        </div>
-
-        {/* Premium Gate Card */}
-        <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-          <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-4">
-              <Lock className="h-8 w-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl">Premium Feature</CardTitle>
-            <CardDescription className="text-base">
-              The Weight Tracker is available exclusively for Premium members
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Feature Preview */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  📊 Interactive Charts
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Visualize your weight progress over time with beautiful, smooth charts
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  🎯 Smart Insights
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Get automatic feedback on weekly averages and weight changes
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  🔥 Tracking Streaks
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Build consistency with streak tracking for daily weigh-ins
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-950 rounded-lg border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  ⚙️ Customizable
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Choose your unit (kg/lb) and enable chart smoothing
-                </p>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="text-center pt-4">
-              <Button size="lg" asChild className="gap-2">
-                <Link href="/app/premium">
-                  <Zap className="h-5 w-5" />
-                  Upgrade to Premium
-                </Link>
-              </Button>
-              <p className="text-sm text-muted-foreground mt-3">
-                Only €4/month · Cancel anytime
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Premium users: Show full weight tracker
+  // Show full tracker for all users, but restrict actions for non-premium
   return (
     <div className="container max-w-6xl mx-auto p-4 pb-24 md:pb-8 space-y-6">
       {/* Header */}
@@ -159,17 +77,23 @@ export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Scale className="h-8 w-8" />
             Weight Tracker
-            <Badge variant="secondary" className="ml-2">
-              <Zap className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
-              Premium
-            </Badge>
+            {isPremium ? (
+              <Badge variant="secondary" className="ml-2">
+                <Zap className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
+                Premium
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="ml-2 text-xs">
+                Demo Mode
+              </Badge>
+            )}
           </h1>
           <p className="text-muted-foreground mt-1">
             Track your bodyweight progress with charts and insights
           </p>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/app/log">
+          <Link href="/app/tools">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Link>
@@ -177,14 +101,30 @@ export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
       </div>
 
       {/* Entry Form */}
-      <WeightEntryForm
-        editingLog={editingLog}
-        onSuccess={handleSuccess}
-        onCancel={editingLog ? handleCancel : undefined}
-      />
+      {isPremium ? (
+        <WeightEntryForm
+          editingLog={editingLog}
+          onSuccess={handleSuccess}
+          onCancel={editingLog ? handleCancel : undefined}
+        />
+      ) : (
+        <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
+          <div className="text-center space-y-4">
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Unlock Weight Tracking</h3>
+              <p className="text-sm text-muted-foreground">
+                Upgrade to Premium to log your weight and track your progress over time
+              </p>
+            </div>
+            <GetPremiumButton size="lg">
+              Upgrade to Premium
+            </GetPremiumButton>
+          </div>
+        </Card>
+      )}
 
       {/* Loading State */}
-      {logsLoading ? (
+      {(isPremium && logsLoading) ? (
         <div className="grid md:grid-cols-2 gap-6">
           <Skeleton className="h-[400px]" />
           <Skeleton className="h-[400px]" />
@@ -194,9 +134,28 @@ export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
           {/* Goal and Progress Section */}
           {currentWeight && (
             <div className="grid md:grid-cols-2 gap-6">
-              <GoalSetter currentWeight={currentWeight} onSuccess={refreshGoal} />
-              {goal && (
-                <GoalProgress goal={goal} logs={logs} currentWeight={currentWeight} />
+              {isPremium ? (
+                <>
+                  <GoalSetter currentWeight={currentWeight} onSuccess={refreshGoal} />
+                  {goal && (
+                    <GoalProgress goal={goal} logs={logs} currentWeight={currentWeight} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <Card className="p-6 bg-gray-50 dark:bg-gray-900/50 border-dashed opacity-60 pointer-events-none">
+                    <div className="text-center space-y-2">
+                      <h3 className="font-semibold">Weight Goal</h3>
+                      <p className="text-2xl font-bold">{goal?.target_weight} kg</p>
+                      <p className="text-sm text-muted-foreground">Set custom goals with Premium</p>
+                    </div>
+                  </Card>
+                  {goal && (
+                    <div className="opacity-60 pointer-events-none">
+                      <GoalProgress goal={goal} logs={logs} currentWeight={currentWeight} />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -209,18 +168,55 @@ export function WeightTrackerPage({ userId }: WeightTrackerPageProps) {
 
           {/* Body Metrics Section */}
           <div className="grid md:grid-cols-2 gap-6">
-            <BodyMetricsForm onSuccess={refreshMetrics} />
-            {currentWeight && metrics && (
-              <BodyCompositionDisplay weightKg={currentWeight} metrics={metrics} />
+            {isPremium ? (
+              <>
+                <BodyMetricsForm onSuccess={refreshMetrics} />
+                {currentWeight && metrics && (
+                  <BodyCompositionDisplay weightKg={currentWeight} metrics={metrics} />
+                )}
+              </>
+            ) : (
+              <>
+                <Card className="p-6 bg-gray-50 dark:bg-gray-900/50 border-dashed opacity-60 pointer-events-none">
+                  <div className="text-center space-y-2">
+                    <h3 className="font-semibold">Body Metrics</h3>
+                    <p className="text-sm text-muted-foreground">Add measurements with Premium</p>
+                  </div>
+                </Card>
+                {currentWeight && metrics && (
+                  <div className="opacity-60 pointer-events-none">
+                    <BodyCompositionDisplay weightKg={currentWeight} metrics={metrics} />
+                  </div>
+                )}
+              </>
             )}
           </div>
 
           {/* History */}
-          <WeightHistory
-            logs={logs}
-            onEdit={handleEdit}
-            onDeleted={refresh}
-          />
+          {isPremium ? (
+            <WeightHistory
+              logs={logs}
+              onEdit={handleEdit}
+              onDeleted={refresh}
+            />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  Weight History
+                  <Badge variant="outline" className="text-xs">Demo</Badge>
+                </CardTitle>
+                <CardDescription>Sample weight entries</CardDescription>
+              </CardHeader>
+              <CardContent className="opacity-60 pointer-events-none">
+                <WeightHistory
+                  logs={logs}
+                  onEdit={() => {}}
+                  onDeleted={() => {}}
+                />
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
     </div>
