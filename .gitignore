@@ -35,3 +35,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Implementation and fix documentation
+*_IMPLEMENTATION.md
+*_FIX.md
+*_SETUP.md
+*_GUIDE.md
+*_QUICKSTART.md
+*_COMPLETE.md
+*_DEPLOYMENT.md
+*_CHECKLIST.md
