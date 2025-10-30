@@ -11,6 +11,7 @@ import type { SupplementDefinition } from '@/lib/types/supplement'
 interface SupplementDashboardProps {
   userId: string
   refreshKey: number
+  onAddClick: () => void
 }
 
 interface SupplementProgressData {
@@ -29,7 +30,7 @@ interface SupplementProgressData {
   is_complete: boolean
 }
 
-export function SupplementDashboard({ userId, refreshKey }: SupplementDashboardProps) {
+export function SupplementDashboard({ userId, refreshKey, onAddClick }: SupplementDashboardProps) {
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState<SupplementProgressData[]>([])
   const [supplements, setSupplements] = useState<SupplementDefinition[]>([])
@@ -109,7 +110,7 @@ export function SupplementDashboard({ userId, refreshKey }: SupplementDashboardP
         </p>
         <div className="flex justify-center gap-3">
           <button
-            onClick={() => window.location.reload()}
+            onClick={onAddClick}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors"
           >
             <Plus className="h-4 w-4" />

@@ -55,19 +55,19 @@ export async function GET(request: NextRequest) {
         (log) => log.supplement_id === supplement.id
       );
       const totalTaken = supplementLogs.reduce((sum, log) => sum + Number(log.amount), 0);
-      const dailyGoal = supplement.daily_goal_amount || 0;
+      const dailyGoal = supplement.daily_goal || 0;
       const progressPercentage =
         dailyGoal > 0 ? (totalTaken / dailyGoal) * 100 : 0;
 
       return {
         supplement_id: supplement.id,
         name: supplement.name,
-        type: supplement.supplement_type,
-        unit: supplement.daily_goal_unit || 'g',
+        type: supplement.type,
+        unit: supplement.unit || 'g',
         daily_goal: dailyGoal,
-        is_quantitative: true,
-        color: null,
-        icon: null,
+        is_quantitative: supplement.is_quantitative || true,
+        color: supplement.color || null,
+        icon: supplement.icon || null,
         date,
         total_taken: totalTaken,
         progress_percentage: Math.min(progressPercentage, 100),

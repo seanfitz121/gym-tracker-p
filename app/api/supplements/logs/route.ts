@@ -124,8 +124,8 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         supplement_id: body.supplement_id,
         amount: body.amount,
-        logged_at: takenAt,
-        unit: body.unit || 'g',
+        taken_at: takenAt,
+        date: date,
         notes: body.notes,
       })
       .select(`

@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 
       // Group logs by date
       const logsByDate = supplementLogs.reduce((acc, log) => {
-        const date = log.logged_at.split('T')[0]; // Extract date portion
+        const date = log.date; // Use the date column directly
         if (!acc[date]) {
           acc[date] = [];
         }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       const daysLogged = Object.keys(dailyTotals).length;
 
       // Days met goal
-      const dailyGoal = supplement.daily_goal_amount || 0;
+      const dailyGoal = supplement.daily_goal || 0;
       const daysMetGoal = Object.values(dailyTotals).filter(
         (total) => total >= dailyGoal
       ).length;
@@ -142,8 +142,8 @@ export async function GET(request: NextRequest) {
       return {
         supplement_id: supplement.id,
         name: supplement.name,
-        type: supplement.supplement_type,
-        unit: supplement.daily_goal_unit || 'g',
+        type: supplement.type,
+        unit: supplement.unit || 'g',
         daily_goal: dailyGoal,
         days_logged: daysLogged,
         days_met_goal: daysMetGoal,

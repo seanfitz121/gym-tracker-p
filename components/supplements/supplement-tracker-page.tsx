@@ -239,7 +239,7 @@ export function SupplementTrackerPage({ userId }: SupplementTrackerPageProps) {
               </TabsList>
 
               <TabsContent value="dashboard" className="mt-4">
-                <SupplementDashboard userId={userId} refreshKey={refreshKey} />
+                <SupplementDashboard userId={userId} refreshKey={refreshKey} onAddClick={() => setShowAddDialog(true)} />
               </TabsContent>
 
               <TabsContent value="manage" className="mt-4">

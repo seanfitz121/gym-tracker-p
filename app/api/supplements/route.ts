@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         name: body.name,
-        supplement_type: body.type,
-        daily_goal_amount: body.daily_goal,
-        daily_goal_unit: body.unit || 'g',
+        type: body.type,
+        daily_goal: body.daily_goal,
+        unit: body.unit || 'g',
       })
       .select()
       .single();

@@ -35,10 +35,12 @@ export function OneRMTracker({ userId, exercises }: OneRMTrackerProps) {
       
       const res = await fetch(url)
       const data = await res.json()
-      setLifts(data || [])
+      // Ensure data is an array, even if API returns an error object
+      setLifts(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching 1RM lifts:', error)
-      toast.error('Failed to load 1RM lifts')
+      setLifts([]) // Set to empty array on error
+      // Don't show toast error if table doesn't exist yet
     } finally {
       setLoading(false)
     }
@@ -48,9 +50,11 @@ export function OneRMTracker({ userId, exercises }: OneRMTrackerProps) {
     try {
       const res = await fetch('/api/one-rm/goals')
       const data = await res.json()
-      setGoals(data || [])
+      // Ensure data is an array, even if API returns an error object
+      setGoals(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching 1RM goals:', error)
+      setGoals([]) // Set to empty array on error
     }
   }
 

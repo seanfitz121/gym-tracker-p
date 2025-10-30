@@ -31,16 +31,19 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching 1RM goals:', error)
+      // If table doesn't exist, return empty array instead of crashing
+      if (error.code === '42P01') {
+        console.log('one_rm_goal table does not exist yet - returning empty array')
+        return NextResponse.json([])
+      }
       throw error
     }
 
     return NextResponse.json(data || [])
   } catch (error) {
     console.error('GET /api/one-rm/goals error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch 1RM goals' },
-      { status: 500 }
-    )
+    // Return empty array instead of error to prevent client crashes
+    return NextResponse.json([])
   }
 }
 
