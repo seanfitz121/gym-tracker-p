@@ -1,22 +1,40 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BlogPost, CreateBlogPostInput, UpdateBlogPostInput } from '@/lib/types/blog'
 
-export function useBlogPosts() {
+interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasMore: boolean
+}
+
+export function useBlogPosts(page: number = 1, limit: number = 10) {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async (pageNum: number) => {
     try {
       setLoading(true)
-      const response = await fetch('/api/blog')
+      const response = await fetch(`/api/blog?page=${pageNum}&limit=${limit}`)
       
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts')
       }
 
       const data = await response.json()
-      setPosts(data)
+      
+      // Handle both old format (array) and new format (object with posts and pagination)
+      if (Array.isArray(data)) {
+        setPosts(data)
+        setPagination(null)
+      } else {
+        setPosts(data.posts || [])
+        setPagination(data.pagination || null)
+      }
+      
       setError(null)
     } catch (err) {
       console.error('Error fetching blog posts:', err)
@@ -24,13 +42,20 @@ export function useBlogPosts() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [limit])
 
   useEffect(() => {
-    fetchPosts()
-  }, [])
+    fetchPosts(page)
+  }, [page, fetchPosts])
 
-  return { posts, loading, error, refresh: fetchPosts }
+  return { 
+    posts, 
+    loading, 
+    error, 
+    pagination,
+    refresh: () => fetchPosts(page),
+    fetchPage: (pageNum: number) => fetchPosts(pageNum)
+  }
 }
 
 export function useCreateBlogPost() {

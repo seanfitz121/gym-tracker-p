@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { PlusCircle, Calendar, User, Eye } from 'lucide-react'
+import { PlusCircle, Calendar, User, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { BlogPostEditor } from './blog-post-editor'
 import { BlogPostView } from './blog-post-view'
@@ -18,19 +18,26 @@ interface BlogPageProps {
 }
 
 export function BlogPage({ userId, isAdmin }: BlogPageProps) {
-  const { posts, loading, refresh } = useBlogPosts()
+  const [currentPage, setCurrentPage] = useState(1)
+  const { posts, loading, refresh, pagination } = useBlogPosts(currentPage, 10)
   const [showEditor, setShowEditor] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
 
   const handleCreateSuccess = () => {
     setShowEditor(false)
+    setCurrentPage(1)
     refresh()
   }
 
   const handleEditSuccess = () => {
     setEditingPost(null)
     refresh()
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleViewPost = (post: BlogPost) => {
@@ -179,6 +186,65 @@ export function BlogPage({ userId, isAdmin }: BlogPageProps) {
               </CardHeader>
             </Card>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+              let pageNum: number
+              if (pagination.totalPages <= 5) {
+                pageNum = i + 1
+              } else if (currentPage <= 3) {
+                pageNum = i + 1
+              } else if (currentPage >= pagination.totalPages - 2) {
+                pageNum = pagination.totalPages - 4 + i
+              } else {
+                pageNum = currentPage - 2 + i
+              }
+              
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNum)}
+                  className="min-w-[2.5rem]"
+                >
+                  {pageNum}
+                </Button>
+              )
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= pagination.totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Pagination Info */}
+      {!loading && pagination && (
+        <div className="text-center text-sm text-muted-foreground mt-4">
+          Page {pagination.page} of {pagination.totalPages} ({pagination.total} posts)
         </div>
       )}
     </div>

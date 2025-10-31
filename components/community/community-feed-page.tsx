@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Plus, Search, TrendingUp, Users, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,10 +8,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PostCard } from './post-card'
 import { CreatePostDialog } from './create-post-dialog'
 import type { CommunityCategory, PostWithAuthor } from '@/lib/types/community'
-import { createClient } from '@/lib/supabase/client'
 
 export function CommunityFeedPage() {
-  const router = useRouter()
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
   const [loading, setLoading] = useState(true)
@@ -22,6 +19,8 @@ export function CommunityFeedPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const observerTarget = useRef<HTMLDivElement>(null)
 
   // Fetch categories
   useEffect(() => {
@@ -38,52 +37,65 @@ export function CommunityFeedPage() {
   }, [])
 
   // Fetch posts
-  useEffect(() => {
-    const fetchPosts = async () => {
+  const fetchPosts = useCallback(async (pageNum: number = 1, reset: boolean = false) => {
+    if (reset) {
       setLoading(true)
-      try {
-        const params = new URLSearchParams({
-          type: feedType,
-          page: page.toString(),
-          limit: '20'
-        })
-
-        if (selectedCategory !== 'all') {
-          params.set('type', 'category')
-          params.set('category', selectedCategory)
-        }
-
-        const res = await fetch(`/api/community/feed?${params}`)
-        const data = await res.json()
-        
-        if (page === 1) {
-          setPosts(data.posts || [])
-        } else {
-          setPosts(prev => [...prev, ...(data.posts || [])])
-        }
-        
-        setHasMore(data.hasMore)
-      } catch (error) {
-        console.error('Error fetching posts:', error)
-      } finally {
-        setLoading(false)
-      }
+    } else {
+      setIsLoadingMore(true)
     }
+    
+    try {
+      const params = new URLSearchParams({
+        type: feedType,
+        page: pageNum.toString(),
+        limit: '20'
+      })
 
-    fetchPosts()
-  }, [selectedCategory, feedType, page])
+      if (selectedCategory !== 'all') {
+        params.set('type', 'category')
+        params.set('category', selectedCategory)
+      }
+
+      const res = await fetch(`/api/community/feed?${params}`)
+      const data = await res.json()
+      
+      if (reset || pageNum === 1) {
+        setPosts(data.posts || [])
+      } else {
+        setPosts(prev => [...prev, ...(data.posts || [])])
+      }
+      
+      setHasMore(data.hasMore || false)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    } finally {
+      setLoading(false)
+      setIsLoadingMore(false)
+    }
+  }, [selectedCategory, feedType])
+
+  // Initial fetch and reset on filter changes
+  useEffect(() => {
+    setPage(1)
+    fetchPosts(1, true)
+  }, [selectedCategory, feedType, fetchPosts])
+
+  // Load more posts when page changes (for lazy loading)
+  useEffect(() => {
+    if (page > 1) {
+      fetchPosts(page, false)
+    }
+  }, [page, fetchPosts])
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
     setPage(1)
-    setPosts([])
   }
 
   const handleFeedTypeChange = (type: 'global' | 'friends') => {
     setFeedType(type)
     setSelectedCategory('all')
     setPage(1)
-    setPosts([])
   }
 
   const handlePostCreated = (newPost: PostWithAuthor) => {
@@ -91,11 +103,28 @@ export function CommunityFeedPage() {
     setIsCreateDialogOpen(false)
   }
 
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      setPage(prev => prev + 1)
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !isLoadingMore) {
+          setPage(prev => prev + 1)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentTarget = observerTarget.current
+    if (currentTarget) {
+      observer.observe(currentTarget)
     }
-  }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget)
+      }
+    }
+  }, [hasMore, loading, isLoadingMore])
 
   const filteredPosts = searchQuery
     ? posts.filter(post =>
@@ -202,16 +231,15 @@ export function CommunityFeedPage() {
               <PostCard key={post.id} post={post} />
             ))}
 
-            {/* Load More */}
+            {/* Lazy Loading Trigger */}
             {hasMore && (
-              <div className="text-center py-4">
-                <Button
-                  variant="outline"
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                >
-                  {loading ? 'Loading...' : 'Load More'}
-                </Button>
+              <div ref={observerTarget} className="py-4">
+                {isLoadingMore && (
+                  <div className="text-center">
+                    <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                    <p className="mt-2 text-sm text-muted-foreground">Loading more posts...</p>
+                  </div>
+                )}
               </div>
             )}
           </>

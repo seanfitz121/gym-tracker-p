@@ -1,19 +1,26 @@
 'use client'
 
+import { useState } from 'react'
 import { useBlogPosts } from '@/lib/hooks/use-blog'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, User, Eye, BookOpen } from 'lucide-react'
+import { Calendar, User, Eye, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 
 export function PublicBlogList() {
-  const { posts, loading } = useBlogPosts()
+  const [currentPage, setCurrentPage] = useState(1)
+  const { posts, loading, pagination } = useBlogPosts(currentPage, 10)
   
   // Only show published posts
   const publishedPosts = posts.filter(post => post.published)
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   if (loading) {
     return (
@@ -97,6 +104,65 @@ export function PublicBlogList() {
           </CardHeader>
         </Card>
       ))}
+
+      {/* Pagination Controls */}
+      {!loading && pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+              let pageNum: number
+              if (pagination.totalPages <= 5) {
+                pageNum = i + 1
+              } else if (currentPage <= 3) {
+                pageNum = i + 1
+              } else if (currentPage >= pagination.totalPages - 2) {
+                pageNum = pagination.totalPages - 4 + i
+              } else {
+                pageNum = currentPage - 2 + i
+              }
+              
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNum)}
+                  className="min-w-[2.5rem]"
+                >
+                  {pageNum}
+                </Button>
+              )
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= pagination.totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Pagination Info */}
+      {!loading && pagination && (
+        <div className="text-center text-sm text-muted-foreground mt-4">
+          Page {pagination.page} of {pagination.totalPages} ({pagination.total} posts)
+        </div>
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,10 +11,15 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders })
 }
 
-// GET all published blog posts (or all posts for admins)
-export async function GET() {
+// GET all published blog posts (or all posts for admins) with pagination
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
+    const { searchParams } = new URL(request.url)
+    
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const offset = (page - 1) * limit
     
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -32,7 +37,7 @@ export async function GET() {
 
     let query = supabase
       .from('blog_post')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
 
     // If not admin, only show published posts
@@ -40,7 +45,10 @@ export async function GET() {
       query = query.eq('published', true)
     }
 
-    const { data: posts, error } = await query
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1)
+
+    const { data: posts, error, count } = await query
 
     if (error) {
       console.error('Error fetching blog posts:', error)
@@ -63,7 +71,19 @@ export async function GET() {
       author: profiles?.find(p => p.id === post.author_id) || null
     }))
 
-    return NextResponse.json(postsWithAuthors || [], { headers: corsHeaders })
+    const total = count || 0
+    const totalPages = Math.ceil(total / limit)
+
+    return NextResponse.json({
+      posts: postsWithAuthors || [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasMore: page < totalPages
+      }
+    }, { headers: corsHeaders })
   } catch (error) {
     console.error('Error in GET /api/blog:', error)
     return NextResponse.json(
