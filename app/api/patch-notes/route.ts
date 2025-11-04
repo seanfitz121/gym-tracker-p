@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { notifyPatchNotes } from '@/lib/utils/notification-service'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -129,6 +130,31 @@ export async function POST(request: Request) {
         { error: error.message },
         { status: 500, headers: corsHeaders }
       )
+    }
+
+    // If published, notify all users with patch_notes preference enabled
+    if (published) {
+      try {
+        const { data: usersWithPreference } = await supabase
+          .from('notification_preferences')
+          .select('user_id')
+          .eq('patch_notes', true)
+
+        if (usersWithPreference && usersWithPreference.length > 0) {
+          // Send notifications to all users (batch in background)
+          const notifyPromises = usersWithPreference.map(({ user_id }) =>
+            notifyPatchNotes(user_id, version, title)
+          )
+          
+          // Don't await - let it run in background
+          Promise.allSettled(notifyPromises).catch(err =>
+            console.error('Error sending patch notes notifications:', err)
+          )
+        }
+      } catch (notificationError) {
+        // Don't fail patch note creation if notification fails
+        console.error('Error sending patch notes notifications:', notificationError)
+      }
     }
 
     return NextResponse.json(note, { headers: corsHeaders })

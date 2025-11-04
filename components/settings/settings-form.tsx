@@ -9,6 +9,7 @@ import { useTheme } from '@/lib/hooks/use-theme'
 import { AdminAnnouncementsManager } from '@/components/announcements/admin-announcements-manager'
 import { PrestigeCard } from '@/components/gamification/prestige-card'
 import { FlairToggle } from '@/components/settings/flair-toggle'
+import { NotificationSettings } from '@/components/notifications/notification-settings'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -544,6 +545,11 @@ export function SettingsForm({ userId }: SettingsFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notification Settings */}
+      <div id="notifications">
+        <NotificationSettings />
+      </div>
 
       {/* Privacy & Data */}
       <Card>

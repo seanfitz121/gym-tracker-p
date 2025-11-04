@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { ThemeLogo } from '@/components/common/theme-logo'
 import { GoldenUsername } from '@/components/gamification/golden-username'
 import { toast } from 'sonner'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 interface AppHeaderProps {
   user: User
@@ -112,6 +113,10 @@ export function AppHeader({ user }: AppHeaderProps) {
               <span className="sr-only">Premium</span>
             </Link>
           </Button>
+          
+          {/* Notification Bell */}
+          <NotificationBell />
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">

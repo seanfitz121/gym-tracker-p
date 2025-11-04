@@ -144,3 +144,50 @@ self.addEventListener('fetch', (event) => {
   }
 })
 
+// Push notification handler
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() || {}
+  
+  const options = {
+    body: data.body || 'You have a new notification',
+    icon: '/android-chrome-192x192.png',
+    badge: '/android-chrome-192x192.png',
+    tag: data.tag || data.type || 'default',
+    data: {
+      url: data.url || '/',
+      type: data.type,
+      notificationId: data.notificationId,
+    },
+    requireInteraction: data.type === 'gym_expiry', // Critical notifications stay visible
+    silent: false,
+    vibrate: data.type === 'gym_expiry' ? [200, 100, 200] : [200],
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Plate Progress', options)
+  )
+})
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+
+  const urlToOpen = event.notification.data?.url || '/'
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Check if there's already a window open
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i]
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus()
+        }
+      }
+      // Open new window if none exists
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen)
+      }
+    })
+  )
+})
+

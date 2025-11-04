@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { CreateCommentInput } from '@/lib/types/community'
+import { notifyCommunityInteraction } from '@/lib/utils/notification-service'
 
 export async function GET(
   request: NextRequest,
@@ -190,6 +191,38 @@ export async function POST(
         user_id: user.id,
         last_comment_at: new Date().toISOString(),
       })
+
+    // Send notification to post owner (if not self-comment)
+    try {
+      const { data: post } = await supabase
+        .from('post')
+        .select('user_id, title')
+        .eq('id', postId)
+        .single()
+
+      // Get commenter's name
+      const { data: commenterProfile } = await supabase
+        .from('profile')
+        .select('display_name, username')
+        .eq('id', user.id)
+        .single()
+
+      // Only notify if not self-comment
+      if (post && post.user_id !== user.id) {
+        const commenterName = commenterProfile?.display_name || commenterProfile?.username || 'Someone'
+        const postTitle = post.title || 'your post'
+        await notifyCommunityInteraction(
+          post.user_id,
+          'comment',
+          postTitle,
+          commenterName,
+          postId
+        )
+      }
+    } catch (notificationError) {
+      // Don't fail the comment if notification fails
+      console.error('Error sending comment notification:', notificationError)
+    }
 
     return NextResponse.json({
       comment: {

@@ -3,7 +3,14 @@
     {
       "path": "/api/cron/aggregate-weekly-xp",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/workout-reminders",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/gym-expiry",
+      "schedule": "0 9 * * *"
     }
   ]
 }
-

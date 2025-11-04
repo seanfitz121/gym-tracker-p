@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { notifyPatchNotes } from '@/lib/utils/notification-service'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -95,6 +96,13 @@ export async function PUT(
     const body = await request.json()
     const { version, title, content, published } = body
 
+    // Get current note state before update
+    const { data: currentNote } = await supabase
+      .from('patch_notes')
+      .select('published, version, title')
+      .eq('id', id)
+      .single()
+
     const updates: any = {}
     if (version !== undefined) updates.version = version
     if (title !== undefined) updates.title = title
@@ -114,6 +122,38 @@ export async function PUT(
         { error: error.message },
         { status: 500, headers: corsHeaders }
       )
+    }
+
+    // If just published (was unpublished before), notify all users
+    if (published !== undefined && note && currentNote) {
+      try {
+        const wasPublishedBefore = currentNote.published || false
+        const isNowPublished = published
+
+        // If it was unpublished before and is now published, send notifications
+        if (!wasPublishedBefore && isNowPublished) {
+          const { data: usersWithPreference } = await supabase
+            .from('notification_preferences')
+            .select('user_id')
+            .eq('patch_notes', true)
+
+          if (usersWithPreference && usersWithPreference.length > 0) {
+            const notifyPromises = usersWithPreference.map(({ user_id }) =>
+              notifyPatchNotes(
+                user_id,
+                version || note.version || currentNote.version || '1.0.0',
+                title || note.title || currentNote.title || 'New Update'
+              )
+            )
+            
+            Promise.allSettled(notifyPromises).catch(err =>
+              console.error('Error sending patch notes notifications:', err)
+            )
+          }
+        }
+      } catch (notificationError) {
+        console.error('Error sending patch notes notifications:', notificationError)
+      }
     }
 
     return NextResponse.json(note, { headers: corsHeaders })

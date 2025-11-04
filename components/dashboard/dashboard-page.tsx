@@ -21,7 +21,8 @@ import {
   Users,
   Droplets,
   Scale,
-  MessageSquare
+  MessageSquare,
+  Activity
 } from 'lucide-react'
 
 interface DashboardPageProps {
@@ -54,11 +55,11 @@ export function DashboardPage({ userId }: DashboardPageProps) {
       bgColor: 'bg-green-50 dark:bg-green-900/20'
     },
     {
-      icon: Users,
-      label: 'Social',
-      href: '/app/social',
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-50 dark:bg-orange-900/20'
+      icon: Activity,
+      label: 'Cardio',
+      href: '/app/cardio',
+      color: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-50 dark:bg-red-900/20'
     },
     {
       icon: MessageSquare,
@@ -66,6 +67,13 @@ export function DashboardPage({ userId }: DashboardPageProps) {
       href: '/app/community',
       color: 'text-cyan-600 dark:text-cyan-400',
       bgColor: 'bg-cyan-50 dark:bg-cyan-900/20'
+    },
+    {
+      icon: Users,
+      label: 'Social',
+      href: '/app/social',
+      color: 'text-orange-600 dark:text-orange-400',
+      bgColor: 'bg-orange-50 dark:bg-orange-900/20'
     }
   ]
 
@@ -116,7 +124,7 @@ export function DashboardPage({ userId }: DashboardPageProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {quickActions.map((action) => {
           const Icon = action.icon
           const isLogWorkout = action.href === '/app/log'

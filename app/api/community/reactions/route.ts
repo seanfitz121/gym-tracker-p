@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { CreateReactionInput } from '@/lib/types/community'
+import { notifyCommunityInteraction } from '@/lib/utils/notification-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +60,41 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (insertError) throw insertError
+
+      // Send notification if this is a like on a post (not comment, and not self-like)
+      if (body.target_type === 'post') {
+        try {
+          // Get post owner and details
+          const { data: post } = await supabase
+            .from('post')
+            .select('user_id, title')
+            .eq('id', body.target_id)
+            .single()
+
+          // Get actor's name
+          const { data: actorProfile } = await supabase
+            .from('profile')
+            .select('display_name, username')
+            .eq('id', user.id)
+            .single()
+
+          // Only notify if not self-like
+          if (post && post.user_id !== user.id) {
+            const actorName = actorProfile?.display_name || actorProfile?.username || 'Someone'
+            const postTitle = post.title || 'your post'
+            await notifyCommunityInteraction(
+              post.user_id,
+              'like',
+              postTitle,
+              actorName,
+              body.target_id
+            )
+          }
+        } catch (notificationError) {
+          // Don't fail the like if notification fails
+          console.error('Error sending like notification:', notificationError)
+        }
+      }
 
       return NextResponse.json({ 
         action: 'liked',

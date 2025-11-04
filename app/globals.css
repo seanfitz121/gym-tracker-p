@@ -377,3 +377,48 @@
 .dark [data-sonner-toast] [data-close-button]:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Workout History Calendar - Force full width */
+.workout-calendar-wrapper .rdp {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+.workout-calendar-wrapper .rdp-months {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+}
+
+.workout-calendar-wrapper .rdp-month {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+.workout-calendar-wrapper .rdp-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  margin: 0 !important;
+}
+
+.workout-calendar-wrapper .rdp-day {
+  width: calc(100% / 7) !important;
+  min-width: 0 !important;
+}
+
+.workout-calendar-wrapper .rdp-weekday {
+  width: calc(100% / 7) !important;
+  min-width: 0 !important;
+}
+
+.workout-calendar-wrapper .rdp-week {
+  width: 100% !important;
+  display: flex !important;
+}
+
+.workout-calendar-wrapper .rdp-weekdays {
+  width: 100% !important;
+  display: flex !important;
+}
