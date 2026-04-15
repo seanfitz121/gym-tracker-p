@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useWorkoutStore } from '@/lib/store/workout-store'
-import { useSettingsStore } from '@/lib/store/settings-store'
 import { useSaveWorkout } from '@/lib/hooks/use-workouts'
 import { useCheckAndCreatePR } from '@/lib/hooks/use-personal-records'
 import { useAddXP, useUpdateStreak, useAddBadge } from '@/lib/hooks/use-gamification'
@@ -13,14 +12,13 @@ import { BlockCard } from './block-card'
 import { CreateBlockDialog } from './create-block-dialog'
 import { RestTimer } from './rest-timer'
 import { TemplatesDropdown } from '@/components/templates/templates-dropdown'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { Play, Square, Plus, Layers, Dumbbell, Target, Timer, TrendingUp, FileText } from 'lucide-react'
+import { Play, Square, Plus, Layers, Dumbbell, Timer, TrendingUp, FileText, ShieldCheck } from 'lucide-react'
+import { MetricTile, StickyActionBar, TrainingCard, TrustPanel } from '@/components/ui/app-ui'
 import { toast } from 'sonner'
 import { calculateSessionDuration, formatDuration } from '@/lib/utils/calculations'
 import { celebratePR } from '@/lib/utils/confetti'
@@ -33,7 +31,6 @@ interface WorkoutLoggerProps {
 
 export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
   const { activeWorkout, startWorkout, updateWorkout, addExercise, addBlock, clearWorkout } = useWorkoutStore()
-  const { defaultWeightUnit } = useSettingsStore()
   const { saveWorkout, loading: saving } = useSaveWorkout()
   const { checkAndCreatePR } = useCheckAndCreatePR()
   const { addXP } = useAddXP()
@@ -94,7 +91,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         
         if (result.isNewPR && result.pr) {
           celebratePR()
-          toast.success('🎉 New Personal Record!', {
+          toast.success('New personal record!', {
             description: `${weight}${weightUnit} x ${reps} reps`,
           })
           // Award PR XP
@@ -152,7 +149,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         
         if (leveledUp) {
           celebratePR()
-          toast.success(`🎊 Level Up! You're now level ${newLevel}!`)
+          toast.success(`Level up! You're now level ${newLevel}.`)
         }
 
         if (rankedUp && newRank) {
@@ -166,7 +163,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
             .single()
           
           const rankName = rankDef?.name || newRank
-          toast.success(`⭐ Rank Up! You're now ${rankName}!`, {
+          toast.success(`Rank up! You're now ${rankName}.`, {
             duration: 5000,
           })
         }
@@ -175,15 +172,15 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         const { currentStreak, streakIncreased } = await updateStreak(userId)
         
         if (streakIncreased) {
-          toast.success(`🔥 ${currentStreak} day streak!`)
+          toast.success(`${currentStreak} day streak.`)
           
           // Check for streak badges
           if (currentStreak === 7) {
             await addBadge(userId, 'streak_7')
-            toast.success('🏆 Badge Unlocked: 7-Day Streak')
+            toast.success('Badge unlocked: 7-day streak')
           } else if (currentStreak === 30) {
             await addBadge(userId, 'streak_30')
-            toast.success('🏆 Badge Unlocked: 30-Day Streak')
+            toast.success('Badge unlocked: 30-day streak')
           }
         }
 
@@ -202,38 +199,36 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
   if (!activeWorkout) {
     return (
       <div className="w-full space-y-4">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-6 sm:p-8 shadow-xl">
-          {/* Animated background pattern */}
-          <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
-          
-          <div className="relative z-10 text-center text-white space-y-3">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-              <Dumbbell className="h-7 w-7" />
+        <TrainingCard className="p-5 shadow-industrial">
+          <div className="absolute inset-0 industrial-grid opacity-40" />
+          <div className="relative z-10 space-y-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Dumbbell className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Ready to Train?
-            </h1>
-            <p className="text-blue-100 text-sm max-w-md mx-auto">
-              Start your workout and track every rep, set, and PR. Let's make today count! 💪
-            </p>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight md:text-3xl">
+                Ready to train?
+              </h2>
+              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                Start empty or load a template. The logger stays fast even when the session gets heavy.
+              </p>
+            </div>
           </div>
-        </div>
+        </TrainingCard>
 
         {/* Action Cards */}
         <div className="grid gap-3">
           <button
             onClick={handleStartWorkout}
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
+            className="group relative overflow-hidden rounded-lg border border-accent/30 bg-accent p-5 text-accent-foreground shadow-industrial transition-all duration-200 active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-400/0 via-white/20 to-green-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-            <div className="relative flex items-center justify-center gap-3 text-white">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/30 backdrop-blur-sm border border-white/40 shadow-lg">
-                <Play className="h-6 w-6 fill-white drop-shadow-md" />
+            <div className="relative flex items-center justify-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-md bg-background/20">
+                <Play className="h-6 w-6 fill-current" />
               </div>
               <div className="text-left">
-                <div className="text-lg font-bold drop-shadow-md [text-shadow:_0_1px_3px_rgb(0_0_0_/_40%)]">Start Empty Workout</div>
-                <div className="text-xs text-green-50 drop-shadow-sm [text-shadow:_0_1px_2px_rgb(0_0_0_/_30%)]">Build your session from scratch</div>
+                <div className="text-lg font-black">Start Empty Workout</div>
+                <div className="text-xs opacity-80">Build your session from scratch</div>
               </div>
             </div>
           </button>
@@ -243,35 +238,20 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-medium text-gray-500 uppercase rounded-full">
+              <span className="rounded-md bg-background px-3 py-1 text-xs font-bold uppercase text-muted-foreground">
                 Or use a template
               </span>
             </div>
           </div>
 
-          <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm p-4">
+          <div className="rounded-lg border border-dashed bg-card/70 p-4 backdrop-blur-sm">
             <TemplatesDropdown userId={userId} />
           </div>
         </div>
 
-        {/* Quick Tips */}
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-900">
-          <CardContent className="pt-6">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
-                  <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Pro Tip</h3>
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Log at least 2 work sets per exercise to maximize your XP gains and track your progress effectively!
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <TrustPanel icon={ShieldCheck} title="Clean data in, useful progress out">
+          Log at least 2 work sets per exercise for better XP, PR detection, and trend quality.
+        </TrustPanel>
       </div>
     )
   }
@@ -279,7 +259,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
   return (
     <div className="space-y-4 pb-20">
       {/* Workout Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-950 border border-blue-200 dark:border-blue-900 shadow-lg p-4 sm:p-6">
+      <TrainingCard className="p-4 shadow-industrial sm:p-5">
           {/* Workout Title */}
           <div className="mb-3">
             <Input
@@ -309,45 +289,13 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
           </div>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 p-4 border border-blue-100 dark:border-blue-900">
-              <div className="flex flex-col items-center gap-1">
-                <Timer className="h-5 w-5 text-blue-600 dark:text-blue-400 mb-1" />
-                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300 tabular-nums">
-                  {formatDuration(elapsedTime)}
-                </div>
-                <div className="text-xs font-medium text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wide">
-                  Duration
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 p-4 border border-purple-100 dark:border-purple-900">
-              <div className="flex flex-col items-center gap-1">
-                <Dumbbell className="h-5 w-5 text-purple-600 dark:text-purple-400 mb-1" />
-                <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {activeWorkout.exercises.length + activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.length, 0)}
-                </div>
-                <div className="text-xs font-medium text-purple-600/70 dark:text-purple-400/70 uppercase tracking-wide">
-                  Exercises
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 p-4 border border-emerald-100 dark:border-emerald-900">
-              <div className="flex flex-col items-center gap-1">
-                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mb-1" />
-                <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
-                  {activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => !s.isWarmup).length, 0) +
-                   activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.reduce((exSum, ex) => exSum + ex.sets.filter(s => !s.isWarmup).length, 0), 0)}
-                </div>
-                <div className="text-xs font-medium text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-wide">
-                  Sets
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <MetricTile icon={Timer} label="Duration" value={formatDuration(elapsedTime)} tone="primary" />
+            <MetricTile icon={Dumbbell} label="Exercises" value={activeWorkout.exercises.length + activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.length, 0)} />
+            <MetricTile icon={TrendingUp} label="Sets" value={activeWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => !s.isWarmup).length, 0) +
+                   activeWorkout.blocks.reduce((sum, block) => sum + block.exercises.reduce((exSum, ex) => exSum + ex.sets.filter(s => !s.isWarmup).length, 0), 0)} tone="success" />
           </div>
-      </div>
+      </TrainingCard>
 
       {/* Blocks (Supersets/Drop-sets) */}
       {activeWorkout.blocks.map((block) => (
@@ -371,10 +319,10 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => setShowExerciseSelector(true)}
-          className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-4 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98] touch-manipulation"
+          className="group relative overflow-hidden rounded-lg border bg-primary p-4 text-primary-foreground shadow-sm transition-all duration-200 active:scale-[0.98]"
         >
-          <div className="flex flex-col items-center gap-2 text-white">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-background/20 backdrop-blur-sm">
               <Plus className="h-6 w-6" />
             </div>
             <span className="text-sm font-semibold">Add Exercise</span>
@@ -383,10 +331,10 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         
         <button
           onClick={() => setShowCreateBlockDialog(true)}
-          className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-4 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98] touch-manipulation"
+          className="group relative overflow-hidden rounded-lg border bg-secondary p-4 text-secondary-foreground shadow-sm transition-all duration-200 active:scale-[0.98]"
         >
-          <div className="flex flex-col items-center gap-2 text-white">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-background/30 backdrop-blur-sm">
               <Layers className="h-6 w-6" />
             </div>
             <span className="text-sm font-semibold">Add Block</span>
@@ -395,16 +343,16 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="space-y-3 pt-2">
+      <StickyActionBar>
+      <div className="space-y-2">
         <button
           onClick={() => setShowEndDialog(true)}
           disabled={saving}
-          className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 p-5 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] touch-manipulation"
+          className="group relative w-full overflow-hidden rounded-lg bg-accent p-4 text-accent-foreground shadow-sm transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-green-400/0 via-white/20 to-green-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-          <div className="relative flex items-center justify-center gap-3 text-white">
-            <Square className="h-6 w-6 fill-white drop-shadow-md" />
-            <span className="text-lg font-bold drop-shadow-md">
+          <div className="relative flex items-center justify-center gap-3">
+            <Square className="h-5 w-5 fill-current" />
+            <span className="text-base font-black">
               {saving ? 'Saving...' : 'Finish Workout'}
             </span>
           </div>
@@ -413,11 +361,12 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
         <button
           onClick={() => setShowCancelDialog(true)}
           disabled={saving}
-          className="w-full py-3 text-sm font-medium text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+          className="w-full py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
         >
           Cancel Workout
         </button>
       </div>
+      </StickyActionBar>
 
       {/* Exercise Selector Dialog */}
       {showExerciseSelector && (
@@ -441,7 +390,7 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Finish Workout?</AlertDialogTitle>
             <AlertDialogDescription>
-              Your workout will be saved and you'll earn XP and update your streak.
+              Your workout will be saved and you&apos;ll earn XP and update your streak.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -483,4 +432,3 @@ export function WorkoutLogger({ userId }: WorkoutLoggerProps) {
     </div>
   )
 }
-

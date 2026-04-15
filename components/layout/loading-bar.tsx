@@ -9,7 +9,8 @@ export function LoadingBar() {
 
   useEffect(() => {
     // Reset loading when pathname changes
-    setIsLoading(false)
+    const id = window.setTimeout(() => setIsLoading(false), 0)
+    return () => window.clearTimeout(id)
   }, [pathname])
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function LoadingBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-1 overflow-hidden">
       <div 
-        className="h-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 origin-left animate-in slide-in-from-left-full duration-1000 ease-out"
+        className="h-full origin-left animate-in bg-primary duration-1000 ease-out slide-in-from-left-full"
         style={{
           animation: 'loadingBar 1s ease-out forwards',
         }}

@@ -7,7 +7,6 @@ import { WorkoutSessionDetails } from './workout-session-details'
 import { Drawer } from '@/components/ui/drawer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { CustomCalendar } from './custom-calendar'
 import { ExportButton } from '@/components/export/export-button'
 import { 
@@ -19,7 +18,7 @@ import {
 } from 'date-fns'
 import { Calendar as CalendarIcon, Clock, Dumbbell } from 'lucide-react'
 import { calculateSessionDuration } from '@/lib/utils/calculations'
-import { cn } from '@/lib/utils'
+import { EmptyState, MetricTile, MotionList } from '@/components/ui/app-ui'
 import type { WorkoutSession } from '@/lib/types'
 
 interface WorkoutHistoryCalendarProps {
@@ -111,7 +110,7 @@ export function WorkoutHistoryCalendar({ userId }: WorkoutHistoryCalendarProps) 
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="rounded-lg border bg-card/70 py-12 text-center text-muted-foreground">
         Loading workout history...
       </div>
     )
@@ -119,29 +118,28 @@ export function WorkoutHistoryCalendar({ userId }: WorkoutHistoryCalendarProps) 
 
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 mb-4">No workouts logged yet</p>
-        <p className="text-sm text-gray-400">
-          Your workout history will appear here
-        </p>
-      </div>
+      <EmptyState
+        icon={Dumbbell}
+        title="No workouts logged yet"
+        description="Your completed sessions will appear here as a weekly training timeline."
+      />
     )
   }
 
 
   return (
     <>
-      <div className="space-y-4 sm:space-y-6">
+      <MotionList className="space-y-4 sm:space-y-6">
         {/* Weekly Summary Card */}
         {currentWeekSummary && (
-          <Card className="border-l-4 border-l-blue-600">
+          <Card className="border-l-4 border-l-primary shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex-1 min-w-0">
                   <CardTitle className="text-sm sm:text-base font-semibold">
                     Week of {format(currentWeekSummary.weekStart, 'MMM d')} - {format(currentWeekSummary.weekEnd, 'MMM d, yyyy')}
                   </CardTitle>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Week {format(currentWeekSummary.weekStart, 'w')}
                   </p>
                 </div>
@@ -161,28 +159,10 @@ export function WorkoutHistoryCalendar({ userId }: WorkoutHistoryCalendarProps) 
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-gray-500">
-                    <Dumbbell className="h-3 w-3" />
-                    <span className="text-xs">Workouts</span>
-                  </div>
-                  <p className="text-base sm:text-lg font-bold text-blue-600">{currentWeekSummary.sessions.length}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-gray-500">
-                    <Clock className="h-3 w-3" />
-                    <span className="text-xs">Minutes</span>
-                  </div>
-                  <p className="text-base sm:text-lg font-bold text-green-600">{currentWeekSummary.totalMinutes}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-gray-500">
-                    <CalendarIcon className="h-3 w-3" />
-                    <span className="text-xs">Days Active</span>
-                  </div>
-                  <p className="text-base sm:text-lg font-bold text-purple-600">{currentWeekSummary.daysActive}</p>
-                </div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <MetricTile icon={Dumbbell} label="Workouts" value={currentWeekSummary.sessions.length} tone="primary" />
+                <MetricTile icon={Clock} label="Minutes" value={currentWeekSummary.totalMinutes} tone="success" />
+                <MetricTile icon={CalendarIcon} label="Days" value={currentWeekSummary.daysActive} />
               </div>
             </CardContent>
           </Card>
@@ -204,7 +184,7 @@ export function WorkoutHistoryCalendar({ userId }: WorkoutHistoryCalendarProps) 
         {selectedDate && selectedDateSessions.length > 0 && (
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-semibold">
+              <h2 className="text-base font-black sm:text-lg">
                 {format(selectedDate, 'EEEE, MMMM d, yyyy')}
               </h2>
               <Badge variant="secondary" className="text-xs">
@@ -225,12 +205,12 @@ export function WorkoutHistoryCalendar({ userId }: WorkoutHistoryCalendarProps) 
 
         {selectedDate && selectedDateSessions.length === 0 && (
           <Card>
-            <CardContent className="py-6 sm:py-8 text-center text-gray-500">
+            <CardContent className="py-6 text-center text-muted-foreground sm:py-8">
               <p className="text-sm sm:text-base">No workouts on {format(selectedDate, 'MMMM d, yyyy')}</p>
             </CardContent>
           </Card>
         )}
-      </div>
+      </MotionList>
 
       {selectedSessionId && (
         <Drawer open={!!selectedSessionId} onOpenChange={() => setSelectedSessionId(null)}>

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Script from "next/script";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { PWAInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { UpdatePrompt } from "@/components/pwa/update-prompt";
 import { ThemeProvider } from "@/lib/hooks/use-theme";
 
-const inter = Inter({ subsets: ["latin"] });
+const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 
 export const metadata: Metadata = {
   title: "Plate Progress - Track Your Workouts & Progress",
@@ -15,12 +14,10 @@ export const metadata: Metadata = {
   keywords: "gym tracker, workout log, fitness app, PR tracker, strength training, workout planner, exercise tracker",
   authors: [{ name: "Plate Progress" }],
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
+  themeColor: "#171612",
   viewport: {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   },
   appleWebApp: {
     capable: true,
@@ -76,7 +73,7 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className={inter.className}>
+      <body className={`${archivo.className} app-bg`}>
         <ThemeProvider defaultTheme="system" storageKey="gym-tracker-theme">
           {children}
           <Toaster />

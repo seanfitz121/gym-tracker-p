@@ -92,13 +92,13 @@ export function UpdatePrompt() {
   }
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50 animate-in slide-in-from-bottom-5">
-      <Card className="border-2 border-blue-500 bg-background shadow-2xl">
+    <div className="fixed bottom-[calc(5.5rem+var(--safe-bottom))] left-4 right-4 z-50 animate-in slide-in-from-bottom-5 md:bottom-6 md:left-auto md:right-6 md:max-w-sm">
+      <Card className="border-primary bg-background shadow-industrial">
         <div className="p-4 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <h3 className="font-semibold text-lg flex items-center gap-2">
-                <RefreshCw className="h-5 w-5 text-blue-500" />
+                <RefreshCw className="h-5 w-5 text-primary" />
                 Update Available
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
@@ -118,7 +118,7 @@ export function UpdatePrompt() {
           <div className="flex gap-2">
             <Button
               onClick={handleUpdate}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1"
               size="sm"
             >
               <RefreshCw className="h-4 w-4 mr-2" />

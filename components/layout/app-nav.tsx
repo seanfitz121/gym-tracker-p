@@ -6,9 +6,9 @@ import { LayoutDashboard, Dumbbell, History, TrendingUp, Users } from 'lucide-re
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/app/history', label: 'History', icon: History },
-  { href: '/app/log', label: 'Log', icon: Dumbbell },
   { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/app/history', label: 'History', icon: History },
+  { href: '/app/log', label: 'Log', icon: Dumbbell, primary: true },
   { href: '/app/progress', label: 'Progress', icon: TrendingUp },
   { href: '/app/social', label: 'Social', icon: Users },
 ]
@@ -22,12 +22,11 @@ export function AppNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:relative md:border-t-0 md:border-b">
-      <div className="flex justify-around items-center h-16 px-1">
+    <nav className="fixed inset-x-0 bottom-0 z-50 px-2 pb-[max(0.5rem,var(--safe-bottom))]">
+      <div className="mx-auto flex h-20 max-w-2xl items-center justify-around rounded-t-lg border border-b-0 bg-background/92 px-1 shadow-industrial backdrop-blur-xl md:rounded-lg md:border">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
-          const isDashboard = item.href === '/app/dashboard'
+          const isActive = pathname === item.href || (item.href !== '/app/dashboard' && pathname.startsWith(item.href))
 
           const tourId = 
             item.href === '/app/history' ? 'nav-history' :
@@ -35,30 +34,30 @@ export function AppNav() {
             item.href === '/app/social' ? 'nav-social' :
             undefined
 
-          // Dashboard gets special raised styling
-          if (isDashboard) {
+          if (item.primary) {
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={handleNavClick}
+                data-tour="log-workout"
                 className={cn(
-                  'flex flex-col items-center justify-center flex-1 h-full space-y-0.5 sm:space-y-1 transition-all px-1 relative',
+                  'group flex flex-1 flex-col items-center justify-center gap-1 px-1 text-center',
                 )}
               >
                 <div className={cn(
-                  'absolute -top-4 rounded-full p-3 shadow-lg transition-all',
+                  'flex h-14 w-14 -translate-y-4 items-center justify-center rounded-full border-4 border-background shadow-industrial transition-all',
                   isActive
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white scale-110'
-                    : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-600 dark:text-gray-400 hover:scale-105'
+                    ? 'bg-primary text-primary-foreground scale-105'
+                    : 'bg-foreground text-background group-hover:bg-primary group-hover:text-primary-foreground'
                 )}>
-                  <Icon className="h-6 w-6 flex-shrink-0" />
+                  <Icon className="h-6 w-6" />
                 </div>
                 <span className={cn(
-                  'text-[10px] sm:text-xs font-medium truncate max-w-full mt-6',
+                  '-mt-3 text-[11px] font-black uppercase leading-none',
                   isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-gray-600 dark:text-gray-400'
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
                 )}>{item.label}</span>
               </Link>
             )
@@ -71,14 +70,15 @@ export function AppNav() {
               onClick={handleNavClick}
               data-tour={tourId}
               className={cn(
-                'flex flex-col items-center justify-center flex-1 h-full space-y-0.5 sm:space-y-1 transition-colors px-1',
+                'flex h-full flex-1 flex-col items-center justify-center gap-1 rounded-md px-1 transition-colors',
                 isActive
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              <span className="text-[10px] sm:text-xs font-medium truncate max-w-full">{item.label}</span>
+              <Icon className="h-5 w-5" />
+              <span className="max-w-full truncate text-[10px] font-bold uppercase">{item.label}</span>
+              {isActive && <span className="h-1 w-6 rounded-full bg-primary" />}
             </Link>
           )
         })}

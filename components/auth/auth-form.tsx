@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner'
 import { AuthCallbackHandler } from './auth-callback-handler'
 import Link from 'next/link'
+import { KeyRound, MailCheck } from 'lucide-react'
 
 export function AuthForm() {
   const searchParams = useSearchParams()
@@ -80,7 +81,7 @@ export function AuthForm() {
         }
 
         // Create auth user
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -117,7 +118,7 @@ export function AuthForm() {
 
             const data = await response.json()
             loginEmail = data.email
-          } catch (err) {
+          } catch {
             toast.error('Invalid username or password')
             setLoading(false)
             return
@@ -135,8 +136,8 @@ export function AuthForm() {
         // Force hard reload to bypass service worker cache
         window.location.replace('/app/dashboard')
       }
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -159,8 +160,8 @@ export function AuthForm() {
 
       setMagicLinkSent(true)
       toast.success('Magic link sent! Check your email.')
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -180,8 +181,8 @@ export function AuthForm() {
 
       setResetEmailSent(true)
       toast.success('Password reset link sent! Check your email.')
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -189,10 +190,10 @@ export function AuthForm() {
 
   if (magicLinkSent) {
     return (
-      <Card className="border-2">
+      <Card className="border shadow-industrial">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-4">
-            <span className="text-2xl">✉️</span>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-accent/15 text-accent">
+            <MailCheck className="h-6 w-6" />
           </div>
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
@@ -214,10 +215,10 @@ export function AuthForm() {
 
   if (resetEmailSent) {
     return (
-      <Card className="border-2">
+      <Card className="border shadow-industrial">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
-            <span className="text-2xl">🔐</span>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/15 text-primary">
+            <KeyRound className="h-6 w-6" />
           </div>
           <CardTitle>Password reset email sent</CardTitle>
           <CardDescription>
@@ -242,11 +243,11 @@ export function AuthForm() {
 
   if (isResettingPassword) {
     return (
-      <Card className="border-2">
+      <Card className="border shadow-industrial">
         <CardHeader>
           <CardTitle className="text-2xl">Reset password</CardTitle>
           <CardDescription>
-            Enter your email and we'll send you a link to reset your password
+            Enter your email and we&apos;ll send you a link to reset your password
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -287,7 +288,7 @@ export function AuthForm() {
   }
 
   return (
-    <Card className="border-2">
+    <Card className="border shadow-industrial">
       <CardHeader>
         <CardTitle className="text-2xl">{isSignUp ? 'Create account' : 'Welcome back'}</CardTitle>
         <CardDescription>
@@ -408,7 +409,7 @@ export function AuthForm() {
             <div className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="px-2 bg-white dark:bg-gray-950 text-gray-500">Or continue with</span>
+            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -436,4 +437,3 @@ export function AuthForm() {
     </Card>
   )
 }
-

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Wrench, Lock } from 'lucide-react'
+import { Settings, LogOut, User as UserIcon, HelpCircle, Newspaper, FileText, Zap, Wrench, Lock, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeLogo } from '@/components/common/theme-logo'
@@ -70,25 +70,25 @@ export function AppHeader({ user }: AppHeaderProps) {
         .toUpperCase() || 'U'
 
   return (
-    <header className="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
-      <div className="flex items-center justify-between">
+    <header className="sticky top-0 z-40 border-b bg-background/88 px-3 py-2 backdrop-blur-xl safe-pt">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
         <Link 
           href="/app/dashboard" 
           onClick={triggerLoading}
-          className="group cursor-pointer hover:opacity-80 transition-opacity flex items-center"
+          className="group flex min-w-0 cursor-pointer items-center transition-opacity hover:opacity-85"
         >
           <ThemeLogo
             width={140}
             height={40}
-            className="h-8 w-auto md:h-10 object-contain"
+            className="h-8 w-auto object-contain md:h-10"
             priority
           />
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-10 w-10"
+            className="hidden sm:inline-flex"
             asChild
           >
             <Link href="/app/tools" onClick={triggerLoading}>
@@ -99,15 +99,15 @@ export function AppHeader({ user }: AppHeaderProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-10 w-10 relative hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="relative"
             asChild
           >
             <Link href="/app/premium" onClick={triggerLoading}>
-              <Zap className="h-5 w-5 text-gray-400 fill-gray-400 premium-pulse" />
+              <Zap className="h-5 w-5 text-primary premium-pulse" />
               {isPremium && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-primary"></span>
                 </span>
               )}
               <span className="sr-only">Premium</span>
@@ -119,8 +119,8 @@ export function AppHeader({ user }: AppHeaderProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
+              <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0">
+                <Avatar className="h-10 w-10 border border-border">
                   <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
                   <AvatarFallback>
                     {profile?.avatar_url ? (
@@ -132,9 +132,9 @@ export function AppHeader({ user }: AppHeaderProps) {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
+              <div className="flex flex-col space-y-1.5">
                 <GoldenUsername
                   username={displayName}
                   isPremium={isPremium}
@@ -145,9 +145,20 @@ export function AppHeader({ user }: AppHeaderProps) {
                 <p className="text-xs leading-none text-muted-foreground">
                   {user.email}
                 </p>
+                <div className="mt-2 inline-flex w-fit items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold text-muted-foreground">
+                  <ShieldCheck className="h-3 w-3 text-primary" />
+                  Synced training account
+                </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => { triggerLoading(); router.push('/app/tools') }}
+              className="h-11 cursor-pointer sm:hidden"
+            >
+              <Wrench className="mr-2 h-5 w-5" />
+              <span className="text-base">Tools</span>
+            </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => { triggerLoading(); router.push('/app/tools#premium-tools') }}
               className="h-11 cursor-pointer"
@@ -155,7 +166,7 @@ export function AppHeader({ user }: AppHeaderProps) {
               <Lock className="mr-2 h-5 w-5" />
               <span className="text-base">Premium Tools</span>
               <span className="ml-auto">
-                <Zap className="h-3 w-3 text-purple-600 fill-purple-600" />
+                <Zap className="h-3 w-3 fill-primary text-primary" />
               </span>
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -200,4 +211,3 @@ export function AppHeader({ user }: AppHeaderProps) {
     </header>
   )
 }
-

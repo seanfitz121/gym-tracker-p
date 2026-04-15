@@ -73,13 +73,13 @@ export function PWAInstallPrompt() {
   if (!showPrompt || !deferredPrompt) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
-      <Card className="shadow-lg border-2 border-blue-500">
+    <div className="fixed bottom-[calc(5.5rem+var(--safe-bottom))] left-4 right-4 z-50 md:bottom-4 md:left-auto md:right-4 md:max-w-md">
+      <Card className="border-primary shadow-industrial">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <h3 className="font-semibold text-lg mb-1">Install App</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <p className="mb-3 text-sm text-muted-foreground">
                 Install PlateProgress for quick access and offline support
               </p>
               <div className="flex gap-2">

@@ -8,8 +8,9 @@ import { Drawer } from '@/components/ui/drawer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ExportButton } from '@/components/export/export-button'
-import { startOfWeek, endOfWeek, format, isSameWeek, isSameDay, parseISO } from 'date-fns'
+import { startOfWeek, endOfWeek, format, parseISO } from 'date-fns'
 import { Calendar, Clock, Dumbbell } from 'lucide-react'
+import { EmptyState, MotionList } from '@/components/ui/app-ui'
 import { calculateSessionDuration } from '@/lib/utils/calculations'
 import type { WorkoutSession } from '@/lib/types'
 
@@ -85,7 +86,7 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="rounded-lg border bg-card/70 py-12 text-center text-muted-foreground">
         Loading workout history...
       </div>
     )
@@ -93,18 +94,17 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
 
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 mb-4">No workouts logged yet</p>
-        <p className="text-sm text-gray-400">
-          Your workout history will appear here
-        </p>
-      </div>
+      <EmptyState
+        icon={Dumbbell}
+        title="No workouts logged yet"
+        description="Your completed sessions will appear here as a weekly training timeline."
+      />
     )
   }
 
   return (
     <>
-      <div className="space-y-8">
+      <MotionList className="space-y-8">
         {weekGroups.map((week) => {
           const dayGroups = groupSessionsByDay(week.sessions)
           const totalMinutes = week.sessions.reduce((sum, session) => {
@@ -117,7 +117,7 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
           return (
             <div key={week.weekStart.toISOString()} className="space-y-4">
               {/* Week Header */}
-              <Card className="border-l-4 border-l-blue-600">
+              <Card className="border-l-4 border-l-primary shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -150,21 +150,21 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
                         <Dumbbell className="h-3 w-3" />
                         <span className="text-xs">Workouts</span>
                       </div>
-                      <p className="text-lg font-bold text-blue-600">{week.sessions.length}</p>
+                      <p className="text-lg font-black text-primary">{week.sessions.length}</p>
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-center gap-1 text-gray-500">
                         <Clock className="h-3 w-3" />
                         <span className="text-xs">Minutes</span>
                       </div>
-                      <p className="text-lg font-bold text-green-600">{totalMinutes}</p>
+                      <p className="text-lg font-black text-accent">{totalMinutes}</p>
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-center gap-1 text-gray-500">
                         <Calendar className="h-3 w-3" />
                         <span className="text-xs">Days Active</span>
                       </div>
-                      <p className="text-lg font-bold text-purple-600">{dayGroups.length}</p>
+                      <p className="text-lg font-black">{dayGroups.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -176,11 +176,11 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
                   <div key={day.date.toISOString()} className="space-y-3">
                     {/* Day Header */}
                     <div className="flex items-center gap-2">
-                      <div className="h-px flex-1 bg-gray-200" />
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-sm font-bold text-muted-foreground">
                         {format(day.date, 'EEEE, MMM d')}
                       </span>
-                      <div className="h-px flex-1 bg-gray-200" />
+                      <div className="h-px flex-1 bg-border" />
                     </div>
 
                     {/* Sessions for this day */}
@@ -199,7 +199,7 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
             </div>
           )
         })}
-      </div>
+      </MotionList>
 
       {selectedSessionId && (
         <Drawer open={!!selectedSessionId} onOpenChange={() => setSelectedSessionId(null)}>
@@ -213,4 +213,3 @@ export function WorkoutHistory({ userId }: WorkoutHistoryProps) {
     </>
   )
 }
-

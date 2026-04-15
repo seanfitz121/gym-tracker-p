@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { WorkoutHistoryCalendar } from '@/components/history/workout-history-calendar'
 import { AdBanner } from '@/components/ads/ad-banner'
 import { AD_SLOTS } from '@/lib/config/ads'
+import { AppScreen } from '@/components/ui/app-ui'
 
 export default async function HistoryPage() {
   const supabase = await createClient()
@@ -12,8 +13,12 @@ export default async function HistoryPage() {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Workout History</h1>
+    <AppScreen
+      eyebrow="Training log"
+      title="Every session, kept honest."
+      description="Review weekly work, open completed sessions, and export what you need."
+      className="max-w-4xl space-y-6"
+    >
       <WorkoutHistoryCalendar userId={user.id} />
       
       {/* Ad - Content separator at bottom (free users only) */}
@@ -25,7 +30,7 @@ export default async function HistoryPage() {
           className="max-w-3xl mx-auto"
         />
       </div>
-    </div>
+    </AppScreen>
   )
 }
 

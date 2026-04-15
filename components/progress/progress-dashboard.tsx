@@ -10,6 +10,8 @@ import { OneRMTracker } from './one-rm-tracker'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { EmptyState, MotionList } from '@/components/ui/app-ui'
+import { Dumbbell, Loader2 } from 'lucide-react'
 
 interface ProgressDashboardProps {
   userId: string
@@ -21,7 +23,8 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="flex items-center justify-center gap-2 rounded-lg border bg-card/70 py-12 text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" />
         Loading progress data...
       </div>
     )
@@ -29,17 +32,16 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
 
   if (exercises.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 mb-4">No exercises found</p>
-        <p className="text-sm text-gray-400">
-          Log some workouts to see your progress
-        </p>
-      </div>
+      <EmptyState
+        icon={Dumbbell}
+        title="No exercises found"
+        description="Log a workout and your charts, PRs, and goals will start filling in."
+      />
     )
   }
 
   return (
-    <div className="space-y-6">
+    <MotionList className="space-y-6">
       {/* Insights Panel */}
       <InsightsPanel userId={userId} />
 
@@ -49,7 +51,7 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
       {/* 1RM Tracker */}
       <OneRMTracker userId={userId} exercises={exercises} />
 
-      <Card>
+      <Card className="shadow-industrial">
         <CardHeader>
           <CardTitle>Select Exercise</CardTitle>
         </CardHeader>
@@ -97,7 +99,6 @@ export function ProgressDashboard({ userId }: ProgressDashboardProps) {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </MotionList>
   )
 }
-

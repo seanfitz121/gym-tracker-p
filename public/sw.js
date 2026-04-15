@@ -1,7 +1,7 @@
 // Service Worker for offline support
 // IMPORTANT: Update this version number with each deployment to force cache refresh
-const CACHE_VERSION = 'v1.3' // INCREMENT THIS ON EACH DEPLOY
-const BUILD_TIMESTAMP = '2025-10-29T12:00:00Z' // Update this on each build
+const CACHE_VERSION = 'v1.4' // INCREMENT THIS ON EACH DEPLOY
+const BUILD_TIMESTAMP = '2026-04-15T00:00:00Z' // Update this on each build
 const CACHE_NAME = `plateprogress-${CACHE_VERSION}-${BUILD_TIMESTAMP}`
 const OFFLINE_URL = '/offline.html'
 
@@ -190,4 +190,3 @@ self.addEventListener('notificationclick', (event) => {
     })
   )
 })
-

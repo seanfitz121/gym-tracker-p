@@ -3,56 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline - PlateProgress</title>
+  <meta name="theme-color" content="#171612">
+  <title>Offline - Plate Progress</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #171612;
+      --surface: #24221d;
+      --text: #f2efe6;
+      --muted: #b4aa9a;
+      --accent: #d8a43a;
+      --line: rgba(255,255,255,.14);
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-center;
       min-height: 100vh;
       margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       text-align: center;
     }
+    main {
+      width: min(100%, 420px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.35);
+    }
+    .mark {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 18px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #171612;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      margin: 0;
+      font-size: clamp(2rem, 8vw, 3rem);
+      line-height: 1;
+      letter-spacing: -.04em;
     }
     p {
-      font-size: 1.25rem;
-      opacity: 0.9;
-      margin-bottom: 2rem;
-    }
-    .icon {
-      font-size: 5rem;
-      margin-bottom: 2rem;
+      margin: 16px 0 24px;
+      color: var(--muted);
+      line-height: 1.6;
     }
     button {
-      background: white;
-      color: #667eea;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
+      min-height: 44px;
+      border: 0;
       border-radius: 8px;
+      background: var(--accent);
+      color: #171612;
+      padding: 12px 18px;
+      font-weight: 800;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-    button:hover {
-      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <div class="icon">📡</div>
-  <h1>You're Offline</h1>
-  <p>Check your internet connection and try again</p>
-  <button onclick="window.location.reload()">Retry</button>
+  <main>
+    <div class="mark">PP</div>
+    <h1>You are offline.</h1>
+    <p>The gym floor has bad signal sometimes. Reconnect and Plate Progress will get you moving again.</p>
+    <button onclick="window.location.reload()">Retry</button>
+  </main>
 </body>
 </html>
-
-

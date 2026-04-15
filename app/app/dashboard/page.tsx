@@ -6,7 +6,7 @@ export const metadata = {
   title: 'Dashboard | PlateProgress',
   description: 'Your workout dashboard - track progress, access tools, and stay motivated',
   themeColor: '#000000',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  viewport: 'width=device-width, initial-scale=1',
 }
 
 export default async function Dashboard() {

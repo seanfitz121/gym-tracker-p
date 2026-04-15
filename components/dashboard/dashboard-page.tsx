@@ -9,6 +9,7 @@ import { OnboardingTour } from '@/components/onboarding/onboarding-tour'
 import { Button } from '@/components/ui/button'
 import { AdBanner } from '@/components/ads/ad-banner'
 import { AD_SLOTS } from '@/lib/config/ads'
+import { AppScreen, QuickAction, SectionHeader, TrainingCard, TrustPanel } from '@/components/ui/app-ui'
 import Link from 'next/link'
 import { 
   Dumbbell, 
@@ -114,40 +115,42 @@ export function DashboardPage({ userId }: DashboardPageProps) {
         />
       )}
 
-      <div className="container max-w-7xl mx-auto p-4 space-y-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Welcome back! Here's your progress at a glance.
-        </p>
-      </div>
+      <AppScreen
+        eyebrow="Training floor"
+        title="Ready when you are."
+        description="Start logging fast, check the numbers that matter, and keep the rest out of your way."
+        className="max-w-7xl space-y-6"
+      >
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <TrainingCard className="p-4 shadow-industrial">
+        <div className="grid gap-3 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Next set</p>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">Log today’s work before the warmup gets cold.</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Plate Progress is tuned for quick entries, clean history, and honest strength trends.
+            </p>
+          </div>
+          <Link href="/app/log" data-tour="log-workout">
+            <QuickAction icon={Dumbbell} title="Start workout" description="Open the logger and get moving" />
+          </Link>
+        </div>
+      </TrainingCard>
+
+      <SectionHeader title="Quick rack" description="The fastest paths through the app." />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {quickActions.map((action) => {
           const Icon = action.icon
-          const isLogWorkout = action.href === '/app/log'
           return (
-            <Link key={action.href} href={action.href}>
-              <Card 
-                className="hover:shadow-lg transition-shadow cursor-pointer h-full"
-                data-tour={isLogWorkout ? 'log-workout' : undefined}
-              >
-                <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                  <div className={`p-3 rounded-full ${action.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${action.color}`} />
-                  </div>
-                  <span className="font-medium text-sm">{action.label}</span>
-                </CardContent>
-              </Card>
+            <Link key={action.href} href={action.href} data-tour={action.href === '/app/log' ? 'log-workout' : undefined}>
+              <QuickAction icon={Icon} title={action.label} description="Open" />
             </Link>
           )
         })}
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Level Progress */}
         <div className="lg:col-span-2" data-tour="level-progress">
           <GamificationPanel userId={userId} />
@@ -170,28 +173,20 @@ export function DashboardPage({ userId }: DashboardPageProps) {
         <Card data-tour="tools">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
+              <Calculator className="h-5 w-5 text-primary" />
               Tools & Trackers
             </CardTitle>
             <CardDescription>
-              Calculators and tracking tools to support your training
+              Calculators and support trackers for the session around the session.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {toolsLinks.map((tool) => {
                 const Icon = tool.icon
                 return (
                   <Link key={tool.href} href={tool.href}>
-                    <div className="p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer">
-                      <div className="flex items-start gap-3">
-                        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-medium text-sm">{tool.label}</p>
-                          <p className="text-xs text-gray-500">{tool.description}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <QuickAction icon={Icon} title={tool.label} description={tool.description} />
                   </Link>
                 )
               })}
@@ -212,54 +207,17 @@ export function DashboardPage({ userId }: DashboardPageProps) {
               Quick Stats
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                  <Trophy className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Leaderboard Rank</p>
-                  <p className="text-xs text-gray-500">Check your position</p>
-                </div>
-              </div>
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/app/social">View</Link>
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Progress Charts</p>
-                  <p className="text-xs text-gray-500">Track your lifts</p>
-                </div>
-              </div>
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/app/progress">View</Link>
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/30">
-                  <History className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Workout History</p>
-                  <p className="text-xs text-gray-500">Review past sessions</p>
-                </div>
-              </div>
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/app/history">View</Link>
-              </Button>
-            </div>
+          <CardContent className="grid grid-cols-1 gap-3">
+            <Link href="/app/social"><QuickAction icon={Trophy} title="Leaderboard Rank" description="Check your position" /></Link>
+            <Link href="/app/progress"><QuickAction icon={TrendingUp} title="Progress Charts" description="Track your lifts" /></Link>
+            <Link href="/app/history"><QuickAction icon={History} title="Workout History" description="Review past sessions" /></Link>
           </CardContent>
         </Card>
       </div>
+
+      <TrustPanel icon={Target} title="Built for the floor">
+        Fast taps, readable numbers, and no fragile swipes standing between you and the next set.
+      </TrustPanel>
 
       {/* Ad - Non-intrusive banner at bottom (free users only) */}
       <div className="max-w-3xl mx-auto pt-4">
@@ -270,7 +228,7 @@ export function DashboardPage({ userId }: DashboardPageProps) {
           showPlaceholder={true}
         />
       </div>
-    </div>
+    </AppScreen>
     </>
   )
 }

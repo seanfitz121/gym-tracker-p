@@ -3,13 +3,20 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Lightbulb } from 'lucide-react'
+import { Award, Lightbulb, TrendingUp, TriangleAlert } from 'lucide-react'
 import { generateInsights, type WorkoutInsight } from '@/lib/utils/insights'
 import { calculateEstimated1RM, calculateSetVolume } from '@/lib/utils/calculations'
 
 interface InsightsPanelProps {
   userId: string
+}
+
+type InsightSetRow = {
+  exercise: { id: string; name: string; body_part: string | null }
+  session: { started_at: string }
+  reps: number
+  weight: number
+  session_id: string
 }
 
 export function InsightsPanel({ userId }: InsightsPanelProps) {
@@ -47,7 +54,7 @@ export function InsightsPanel({ userId }: InsightsPanelProps) {
         }
 
         // Transform data for insights
-        const workoutData = sets.map((set: any) => ({
+        const workoutData = (sets as InsightSetRow[]).map((set) => ({
           exerciseId: set.exercise.id,
           exerciseName: set.exercise.name,
           bodyPart: set.exercise.body_part,
@@ -120,16 +127,23 @@ export function InsightsPanel({ userId }: InsightsPanelProps) {
 
 function InsightItem({ insight }: { insight: WorkoutInsight }) {
   const typeStyles = {
-    positive: 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800',
-    warning: 'bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800',
-    neutral: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
-    achievement: 'bg-purple-50 border-purple-200 dark:bg-purple-950/30 dark:border-purple-800',
+    positive: 'bg-accent/10 border-accent/30',
+    warning: 'bg-yellow-500/10 border-yellow-500/30',
+    neutral: 'bg-secondary/70 border-border',
+    achievement: 'bg-primary/10 border-primary/30',
   }
+  const icons = {
+    positive: TrendingUp,
+    warning: TriangleAlert,
+    neutral: Lightbulb,
+    achievement: Award,
+  }
+  const Icon = icons[insight.type]
 
   return (
     <div className={`p-3 rounded-lg border ${typeStyles[insight.type]}`}>
       <div className="flex items-start gap-2">
-        <span className="text-lg flex-shrink-0">{insight.emoji}</span>
+        <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
         <p className="text-sm flex-1">{insight.message}</p>
       </div>
     </div>

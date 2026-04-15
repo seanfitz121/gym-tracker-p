@@ -71,9 +71,9 @@ export function AdBanner({
   // Don't show ads to premium users
   if (isPremium) {
     return showPlaceholder ? (
-      <div className={`bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-950/20 dark:to-pink-950/20 rounded-lg p-4 text-center ${className}`}>
+      <div className={`rounded-lg border bg-secondary/50 p-4 text-center ${className}`}>
         <p className="text-sm text-muted-foreground">
-          ✨ Ad-free experience as a premium member
+          Ad-free experience as a premium member
         </p>
       </div>
     ) : null

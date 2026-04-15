@@ -5,8 +5,8 @@
   "description": "Track your workouts, see your progress, crush your PRs",
   "start_url": "/?v=1.2.0",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "background_color": "#171612",
+  "theme_color": "#171612",
   "orientation": "portrait",
   "icons": [
     {

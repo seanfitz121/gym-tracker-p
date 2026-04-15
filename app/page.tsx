@@ -1,248 +1,185 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import type { ComponentType } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { AutoRedirect } from '@/components/auth/auto-redirect'
 import { ThemeLogo } from '@/components/common/theme-logo'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AdBanner } from '@/components/ads/ad-banner'
 import { AD_SLOTS } from '@/lib/config/ads'
-import { Dumbbell, TrendingUp, Trophy, Zap, Target, BarChart3, Clock, Smartphone } from 'lucide-react'
+import { BarChart3, CheckCircle2, Clock, Dumbbell, Lock, Smartphone, Trophy } from 'lucide-react'
 
-// Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function Home() {
-  // Check if user is already signed in
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // If user is authenticated, redirect to app
   if (user) {
     redirect('/app/log')
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
-      {/* Client-side auth check as backup */}
+    <div className="min-h-dvh bg-background text-foreground">
       <AutoRedirect />
-      
-      {/* Navigation */}
-      <nav className="border-b sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <ThemeLogo
-            width={160}
-            height={40}
-            className="h-10 w-auto"
-            priority
-          />
+
+      <nav className="sticky top-0 z-50 border-b bg-background/88 backdrop-blur-xl safe-pt">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <ThemeLogo width={160} height={40} className="h-9 w-auto" priority />
           <Button asChild size="sm">
-            <Link href="/auth">Sign In</Link>
+            <Link href="/auth">Sign in</Link>
           </Button>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
-              <Smartphone className="h-3 w-3 mr-1" />
-              Mobile-First Design
-            </Badge>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
-              Your Workout Tracker,
-              <br />
-              <span className="text-blue-600">Simplified</span>
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Log exercises, track progress, and crush your PRs with the fastest mobile workout tracker. Built for lifters who value simplicity and speed.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild size="lg" className="text-base">
-                <Link href="/auth">Start Free</Link>
+      <main>
+        <section className="relative overflow-hidden px-4 py-12 md:py-20">
+          <div className="absolute inset-0 industrial-grid opacity-50" />
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-center">
+            <div className="relative z-10 max-w-3xl">
+              <Badge variant="secondary" className="mb-5 gap-2">
+                <Smartphone className="h-3.5 w-3.5" />
+                Mobile-first PWA
+              </Badge>
+              <h1 className="text-4xl font-black tracking-tight sm:text-5xl md:text-7xl">
+                Log the work. Trust the numbers.
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+                Plate Progress is a fast training log for lifters who want clean set entry,
+                honest PR tracking, and progress that survives the noise of a busy gym floor.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg">
+                  <Link href="/auth">Start free</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/blog">Read training notes</Link>
+                </Button>
+              </div>
+              <div className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
+                <Stat value="<60s" label="Fast logging" />
+                <Stat value="PR" label="Auto detection" />
+                <Stat value="PWA" label="Phone ready" />
+              </div>
+            </div>
+
+            <div className="relative z-10 mx-auto w-full max-w-sm">
+              <div className="rounded-[2rem] border bg-foreground p-3 text-background shadow-industrial">
+                <div className="rounded-[1.5rem] bg-background p-4 text-foreground rubber-texture">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Today</p>
+                      <p className="text-xl font-black">Push Session</p>
+                    </div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                      <Dumbbell className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <PhoneRow title="Bench Press" meta="100kg x 5" />
+                    <PhoneRow title="Incline DB Press" meta="32kg x 8" />
+                    <PhoneRow title="Cable Fly" meta="22kg x 12" />
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <MiniMetric label="Sets" value="14" />
+                    <MiniMetric label="Time" value="42m" />
+                    <MiniMetric label="XP" value="+31" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-12">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-6">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Built like equipment</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight">Strong where it matters.</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Feature icon={Clock} title="Fast set entry" text="Large controls and clear defaults keep you moving between sets." />
+              <Feature icon={BarChart3} title="Readable trends" text="Volume, 1RM estimates, and progress charts use accessible contrast." />
+              <Feature icon={Trophy} title="PR moments" text="Personal records, rank, streak, and XP feedback without clutter." />
+              <Feature icon={Lock} title="Trustworthy core" text="Existing auth, data, privacy, and export workflows stay intact." />
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-8">
+          <div className="mx-auto max-w-3xl">
+            <AdBanner
+              adSlot={AD_SLOTS.CONTENT_SEPARATOR}
+              adFormat="auto"
+              showPlaceholder={false}
+              className="my-6"
+            />
+          </div>
+        </section>
+
+        <section className="px-4 py-12">
+          <div className="mx-auto max-w-4xl rounded-lg border bg-card p-6 shadow-industrial md:p-10">
+            <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <h2 className="text-3xl font-black tracking-tight">Your next workout starts here.</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Create an account, install it to your phone, and keep the log close to the bar.
+                </p>
+              </div>
+              <Button asChild size="lg">
+                <Link href="/auth">Get started</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-base">
-                <Link href="/blog">Read Blog</Link>
-              </Button>
             </div>
           </div>
+        </section>
+      </main>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-16">
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-blue-600">&lt; 60s</div>
-              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">To log a workout</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-green-600">100%</div>
-              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Free to use</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-purple-600">Offline</div>
-              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Works anywhere</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="bg-gray-50 dark:bg-gray-900 py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything You Need
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              A complete toolkit for tracking your fitness journey, with no complexity or clutter
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <FeatureCard
-              icon={<Clock className="h-8 w-8" />}
-              title="Lightning Fast"
-              description="Log complete workouts in under a minute with smart defaults and quick actions"
-              color="blue"
-            />
-            <FeatureCard
-              icon={<BarChart3 className="h-8 w-8" />}
-              title="Visual Progress"
-              description="Beautiful charts showing 1RM estimates, top sets, and volume trends"
-              color="green"
-            />
-            <FeatureCard
-              icon={<Trophy className="h-8 w-8" />}
-              title="Auto PR Detection"
-              description="Celebrate every personal record as soon as you hit it"
-              color="yellow"
-            />
-            <FeatureCard
-              icon={<Target className="h-8 w-8" />}
-              title="Gamification"
-              description="Stay motivated with XP, streaks, badges, and weekly goals"
-              color="purple"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Simple Three-Step Process
-            </h2>
-          </div>
-          
-          <div className="space-y-8">
-            <StepCard
-              number="1"
-              title="Start Your Workout"
-              description="Tap one button to begin tracking. No complicated setup."
-            />
-            <StepCard
-              number="2"
-              title="Log Your Sets"
-              description="Add exercises and log weight, reps, and optional RPE for each set."
-            />
-            <StepCard
-              number="3"
-              title="Track Your Progress"
-              description="View charts, PRs, and workout history. Watch yourself get stronger."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Ad - Content separator */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          <AdBanner 
-            adSlot={AD_SLOTS.CONTENT_SEPARATOR}
-            adFormat="auto"
-            showPlaceholder={false}
-            className="my-6"
-          />
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <Card className="max-w-3xl mx-auto p-8 md:p-12 text-center border-2">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Level Up?
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Start tracking your workouts today. No credit card required.
-          </p>
-          <Button asChild size="lg" className="text-base">
-            <Link href="/auth">Get Started Free</Link>
-          </Button>
-        </Card>
-      </section>
-
-      {/* Ad - Bottom banner */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="max-w-3xl mx-auto">
-          <AdBanner 
-            adSlot={AD_SLOTS.BOTTOM_BANNER}
-            adFormat="auto"
-            showPlaceholder={false}
-            className="my-6"
-          />
-        </div>
-      </section>
-
-      {/* Footer */}
       <Footer />
     </div>
   )
 }
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-  color,
-}: {
-  icon: React.ReactNode
-  title: string
-  description: string
-  color: 'blue' | 'green' | 'yellow' | 'purple'
-}) {
-  const colorClasses = {
-    blue: 'text-blue-600 bg-blue-50 dark:bg-blue-950/30',
-    green: 'text-green-600 bg-green-50 dark:bg-green-950/30',
-    yellow: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30',
-    purple: 'text-purple-600 bg-purple-50 dark:bg-purple-950/30',
-  }
-
+function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow">
-      <div className={`inline-flex p-3 rounded-lg mb-4 ${colorClasses[color]}`}>
-        {icon}
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
-    </Card>
+    <div className="rounded-lg border bg-card/80 p-3">
+      <div className="text-xl font-black tabular-nums text-primary">{value}</div>
+      <div className="mt-1 text-xs font-semibold text-muted-foreground">{label}</div>
+    </div>
   )
 }
 
-function StepCard({ number, title, description }: { number: string; title: string; description: string }) {
+function PhoneRow({ title, meta }: { title: string; meta: string }) {
   return (
-    <div className="flex gap-4 items-start">
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-        {number}
+    <div className="flex items-center justify-between rounded-lg border bg-card/90 p-3">
+      <div>
+        <p className="font-black">{title}</p>
+        <p className="text-xs text-muted-foreground">{meta}</p>
       </div>
-      <div className="flex-1">
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400">{description}</p>
+      <CheckCircle2 className="h-5 w-5 text-accent" />
+    </div>
+  )
+}
+
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md bg-secondary p-2 text-center">
+      <div className="text-lg font-black">{value}</div>
+      <div className="text-[10px] font-bold uppercase text-muted-foreground">{label}</div>
+    </div>
+  )
+}
+
+function Feature({ icon: Icon, title, text }: { icon: ComponentType<{ className?: string }>; title: string; text: string }) {
+  return (
+    <div className="rounded-lg border bg-card p-5 shadow-sm">
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-primary text-primary-foreground">
+        <Icon className="h-5 w-5" />
       </div>
+      <h3 className="font-black">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
     </div>
   )
 }

@@ -18,10 +18,11 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <LoadingBar />
       <AppHeader user={user} />
-      <main className="flex-1 overflow-y-auto pb-16 md:pb-4">
+      <main className="relative flex-1 overflow-y-auto pb-[calc(5.5rem+var(--safe-bottom))] md:pb-6">
+        <div className="pointer-events-none fixed inset-x-0 top-0 h-48 industrial-grid opacity-40" />
         {children}
         <Analytics />
       </main>
